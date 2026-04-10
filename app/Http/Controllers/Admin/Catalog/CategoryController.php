@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class CategoryController extends Controller
 {
@@ -15,14 +17,14 @@ class CategoryController extends Controller
         $this->authorizeResource(Category::class, 'category');
     }
 
-    public function index(): Response
+    public function index(): InertiaResponse
     {
-        return response('Admin category index placeholder');
+        return Inertia::render('admin/catalog/categories/index');
     }
 
-    public function create(): Response
+    public function create(): InertiaResponse
     {
-        return response('Admin category create placeholder');
+        return Inertia::render('admin/catalog/categories/create');
     }
 
     public function store(StoreCategoryRequest $request): Response
@@ -30,14 +32,14 @@ class CategoryController extends Controller
         return response('Admin category store placeholder', Response::HTTP_CREATED);
     }
 
-    public function show(Category $category): Response
+    public function show(Category $category): InertiaResponse
     {
-        return response("Admin category show placeholder: {$category->getKey()}");
+        return Inertia::render('admin/catalog/categories/show');
     }
 
-    public function edit(Category $category): Response
+    public function edit(Category $category): InertiaResponse
     {
-        return response("Admin category edit placeholder: {$category->getKey()}");
+        return Inertia::render('admin/catalog/categories/edit');
     }
 
     public function update(UpdateCategoryRequest $request, Category $category): Response

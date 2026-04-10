@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin\Orders;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OrderController extends Controller
 {
@@ -12,13 +13,13 @@ class OrderController extends Controller
     {
         $this->authorize('viewAny', Order::class);
 
-        return response('Admin order index placeholder');
+        return Inertia::render('admin/orders/index');
     }
 
     public function show(Order $order): Response
     {
         $this->authorize('view', $order);
 
-        return response("Admin order show placeholder: {$order->getKey()}");
+        return Inertia::render('admin/orders/show');
     }
 }

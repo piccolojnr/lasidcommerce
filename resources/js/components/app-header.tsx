@@ -33,9 +33,9 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/support/app-routes';
-import { adminNavItems } from '@/support/admin-navigation';
+import { adminHeaderNavItems } from '@/support/admin-navigation';
 import { getUserDisplayName } from '@/support/user-display';
-import type { BreadcrumbItem, NavItem } from '@/types';
+import type { BreadcrumbItem } from '@/types';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -80,7 +80,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-4">
-                                            {adminNavItems.map((item) => (
+                                            {adminHeaderNavItems.map((item) => (
                                                 <Link
                                                     key={item.title}
                                                     href={item.href}
@@ -109,9 +109,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
                     {/* Desktop Navigation */}
                     <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
-                            <NavigationMenu className="flex h-full items-stretch">
-                                <NavigationMenuList className="flex h-full items-stretch space-x-2">
-                                {adminNavItems.map((item, index) => (
+                        <NavigationMenu className="flex h-full items-stretch">
+                            <NavigationMenuList className="flex h-full items-stretch space-x-2">
+                                {adminHeaderNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
                                         className="relative flex h-full items-center"

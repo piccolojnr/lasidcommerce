@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class SettingController extends Controller
 {
-    public function index(): Response
+    public function index(): InertiaResponse
     {
         $this->authorize('manage', Setting::class);
 
-        return response('Admin settings index placeholder');
+        return Inertia::render('admin/settings/index');
     }
 
     public function update(UpdateSettingsRequest $request): Response

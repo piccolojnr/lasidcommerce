@@ -12,7 +12,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/support/app-routes';
-import { adminNavItems } from '@/support/admin-navigation';
+import { adminSidebarGroups } from '@/support/admin-navigation';
 
 export function AppSidebar() {
     return (
@@ -30,7 +30,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={adminNavItems} />
+                <NavMain groups={adminSidebarGroups} />
             </SidebarContent>
 
             <SidebarFooter>

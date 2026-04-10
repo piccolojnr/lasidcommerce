@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class ProductController extends Controller
 {
@@ -15,14 +17,14 @@ class ProductController extends Controller
         $this->authorizeResource(Product::class, 'product');
     }
 
-    public function index(): Response
+    public function index(): InertiaResponse
     {
-        return response('Admin product index placeholder');
+        return Inertia::render('admin/catalog/products/index');
     }
 
-    public function create(): Response
+    public function create(): InertiaResponse
     {
-        return response('Admin product create placeholder');
+        return Inertia::render('admin/catalog/products/create');
     }
 
     public function store(StoreProductRequest $request): Response
@@ -30,14 +32,14 @@ class ProductController extends Controller
         return response('Admin product store placeholder', Response::HTTP_CREATED);
     }
 
-    public function show(Product $product): Response
+    public function show(Product $product): InertiaResponse
     {
-        return response("Admin product show placeholder: {$product->getKey()}");
+        return Inertia::render('admin/catalog/products/show');
     }
 
-    public function edit(Product $product): Response
+    public function edit(Product $product): InertiaResponse
     {
-        return response("Admin product edit placeholder: {$product->getKey()}");
+        return Inertia::render('admin/catalog/products/edit');
     }
 
     public function update(UpdateProductRequest $request, Product $product): Response

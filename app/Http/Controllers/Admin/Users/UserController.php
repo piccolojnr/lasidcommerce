@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateUserStatusRequest;
 use App\Models\User;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class UserController extends Controller
 {
@@ -14,14 +16,14 @@ class UserController extends Controller
         $this->authorizeResource(User::class, 'user');
     }
 
-    public function index(): Response
+    public function index(): InertiaResponse
     {
-        return response('Admin user index placeholder');
+        return Inertia::render('admin/users/index');
     }
 
-    public function show(User $user): Response
+    public function show(User $user): InertiaResponse
     {
-        return response("Admin user show placeholder: {$user->getKey()}");
+        return Inertia::render('admin/users/show');
     }
 
     public function update(UpdateUserStatusRequest $request, User $user): Response

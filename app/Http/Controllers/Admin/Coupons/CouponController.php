@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreCouponRequest;
 use App\Http\Requests\Admin\UpdateCouponRequest;
 use App\Models\Coupon;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class CouponController extends Controller
 {
@@ -15,14 +17,14 @@ class CouponController extends Controller
         $this->authorizeResource(Coupon::class, 'coupon');
     }
 
-    public function index(): Response
+    public function index(): InertiaResponse
     {
-        return response('Admin coupon index placeholder');
+        return Inertia::render('admin/coupons/index');
     }
 
-    public function create(): Response
+    public function create(): InertiaResponse
     {
-        return response('Admin coupon create placeholder');
+        return Inertia::render('admin/coupons/create');
     }
 
     public function store(StoreCouponRequest $request): Response
@@ -30,14 +32,14 @@ class CouponController extends Controller
         return response('Admin coupon store placeholder', Response::HTTP_CREATED);
     }
 
-    public function show(Coupon $coupon): Response
+    public function show(Coupon $coupon): InertiaResponse
     {
-        return response("Admin coupon show placeholder: {$coupon->getKey()}");
+        return Inertia::render('admin/coupons/index');
     }
 
-    public function edit(Coupon $coupon): Response
+    public function edit(Coupon $coupon): InertiaResponse
     {
-        return response("Admin coupon edit placeholder: {$coupon->getKey()}");
+        return Inertia::render('admin/coupons/edit');
     }
 
     public function update(UpdateCouponRequest $request, Coupon $coupon): Response

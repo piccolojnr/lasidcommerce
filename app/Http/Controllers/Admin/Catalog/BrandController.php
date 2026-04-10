@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreBrandRequest;
 use App\Http\Requests\Admin\UpdateBrandRequest;
 use App\Models\Brand;
 use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class BrandController extends Controller
 {
@@ -15,14 +17,14 @@ class BrandController extends Controller
         $this->authorizeResource(Brand::class, 'brand');
     }
 
-    public function index(): Response
+    public function index(): InertiaResponse
     {
-        return response('Admin brand index placeholder');
+        return Inertia::render('admin/catalog/brands/index');
     }
 
-    public function create(): Response
+    public function create(): InertiaResponse
     {
-        return response('Admin brand create placeholder');
+        return Inertia::render('admin/catalog/brands/create');
     }
 
     public function store(StoreBrandRequest $request): Response
@@ -30,14 +32,14 @@ class BrandController extends Controller
         return response('Admin brand store placeholder', Response::HTTP_CREATED);
     }
 
-    public function show(Brand $brand): Response
+    public function show(Brand $brand): InertiaResponse
     {
-        return response("Admin brand show placeholder: {$brand->getKey()}");
+        return Inertia::render('admin/catalog/brands/show');
     }
 
-    public function edit(Brand $brand): Response
+    public function edit(Brand $brand): InertiaResponse
     {
-        return response("Admin brand edit placeholder: {$brand->getKey()}");
+        return Inertia::render('admin/catalog/brands/edit');
     }
 
     public function update(UpdateBrandRequest $request, Brand $brand): Response
