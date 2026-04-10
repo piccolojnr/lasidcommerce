@@ -1,6 +1,8 @@
-import type { ReactNode } from 'react';
 import { Head } from '@inertiajs/react';
-import { AdminShell } from '@/layouts/app/admin-shell';
+import type { ReactNode } from 'react';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/support/app-routes';
+import type { BreadcrumbItem } from '@/types';
 
 interface AdminLayoutProps {
     title: string;
@@ -8,13 +10,19 @@ interface AdminLayoutProps {
     children: ReactNode;
 }
 
-export function AdminLayout({ title, description, children }: AdminLayoutProps) {
+export function AdminLayout({ title, children }: AdminLayoutProps) {
+    const breadcrumbs: BreadcrumbItem[] =
+        title === 'Dashboard'
+            ? [{ title: 'Dashboard', href: dashboard() }]
+            : [
+                  { title: 'Dashboard', href: dashboard() },
+                  { title, href: '#' },
+              ];
+
     return (
         <>
             <Head title={title} />
-            <AdminShell title={title} description={description}>
-                {children}
-            </AdminShell>
+            <AppLayout breadcrumbs={breadcrumbs}>{children}</AppLayout>
         </>
     );
 }
