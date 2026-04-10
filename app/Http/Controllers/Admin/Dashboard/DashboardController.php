@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin\Dashboard;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Response;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
@@ -11,6 +12,6 @@ class DashboardController extends Controller
     {
         $this->authorize('viewAdminDashboard');
 
-        return response('Admin dashboard placeholder');
+        return Inertia::render('admin/dashboard/index');
     }
 }

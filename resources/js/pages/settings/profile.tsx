@@ -1,13 +1,13 @@
 import { Form, Head, Link, usePage } from '@inertiajs/react';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
+import { profileEdit, profileUpdateForm } from '@/support/settings-wayfinder';
+import type { AuthUser } from '@/types/shared/auth';
 
 export default function Profile({
     mustVerifyEmail,
@@ -16,7 +16,7 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const { auth } = usePage().props;
+    const { auth } = usePage<{ auth: { user: AuthUser } }>().props;
 
     return (
         <>
@@ -28,11 +28,11 @@ export default function Profile({
                 <Heading
                     variant="small"
                     title="Profile information"
-                    description="Update your name and email address"
+                    description="Update your personal details and email address"
                 />
 
                 <Form
-                    {...ProfileController.update.form()}
+                    {...profileUpdateForm()}
                     options={{
                         preserveScroll: true,
                     }}
@@ -41,21 +41,40 @@ export default function Profile({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="first_name">First name</Label>
 
                                 <Input
-                                    id="name"
+                                    id="first_name"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
-                                    name="name"
+                                    defaultValue={auth.user.first_name}
+                                    name="first_name"
                                     required
-                                    autoComplete="name"
-                                    placeholder="Full name"
+                                    autoComplete="given-name"
+                                    placeholder="First name"
                                 />
 
                                 <InputError
                                     className="mt-2"
-                                    message={errors.name}
+                                    message={errors.first_name}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="last_name">Last name</Label>
+
+                                <Input
+                                    id="last_name"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.last_name}
+                                    name="last_name"
+                                    required
+                                    autoComplete="family-name"
+                                    placeholder="Last name"
+                                />
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.last_name}
                                 />
                             </div>
 
@@ -76,6 +95,25 @@ export default function Profile({
                                 <InputError
                                     className="mt-2"
                                     message={errors.email}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone">Phone</Label>
+
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.phone ?? ''}
+                                    name="phone"
+                                    autoComplete="tel"
+                                    placeholder="Phone number"
+                                />
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.phone}
                                 />
                             </div>
 
@@ -126,7 +164,7 @@ Profile.layout = {
     breadcrumbs: [
         {
             title: 'Profile settings',
-            href: edit(),
+            href: profileEdit(),
         },
     ],
 };

@@ -5,25 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
-import { edit as editAppearance } from '@/routes/appearance';
-import { edit } from '@/routes/profile';
-import { edit as editSecurity } from '@/routes/security';
+import {
+    appearanceEdit,
+    profileEdit,
+    securityEdit,
+} from '@/support/settings-wayfinder';
 import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
-        href: edit(),
+        href: profileEdit(),
         icon: null,
     },
     {
         title: 'Security',
-        href: editSecurity(),
+        href: securityEdit(),
         icon: null,
     },
     {
         title: 'Appearance',
-        href: editAppearance(),
+        href: appearanceEdit(),
         icon: null,
     },
 ];

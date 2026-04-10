@@ -32,7 +32,8 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
-import { dashboard } from '@/routes';
+import { dashboard } from '@/support/app-routes';
+import { getUserDisplayName } from '@/support/user-display';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -68,6 +69,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { auth } = page.props;
     const getInitials = useInitials();
     const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
+    const userDisplayName = getUserDisplayName(auth.user);
 
     return (
         <>
@@ -219,10 +221,10 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage
                                             src={auth.user?.avatar}
-                                            alt={auth.user?.name}
+                                            alt={userDisplayName}
                                         />
                                         <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                            {getInitials(auth.user?.name ?? '')}
+                                            {getInitials(userDisplayName)}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>

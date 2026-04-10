@@ -4,11 +4,13 @@ export type GetInitialsFn = (fullName: string) => string;
 
 export function useInitials(): GetInitialsFn {
     return useCallback((fullName: string): string => {
-        const names = fullName.trim().split(' ');
+        const normalizedName = typeof fullName === 'string' ? fullName.trim() : '';
 
-        if (names.length === 0) {
+        if (normalizedName.length === 0) {
             return '';
         }
+
+        const names = normalizedName.split(' ');
 
         if (names.length === 1) {
             return names[0].charAt(0).toUpperCase();

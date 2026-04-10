@@ -1,7 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
@@ -10,8 +9,8 @@ import TwoFactorSetupModal from '@/components/two-factor-setup-modal';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
-import { edit } from '@/routes/security';
 import { disable, enable } from '@/routes/two-factor';
+import { securityEdit, securityUpdateForm } from '@/support/settings-wayfinder';
 
 type Props = {
     canManageTwoFactor?: boolean;
@@ -63,7 +62,7 @@ export default function Security({
                 />
 
                 <Form
-                    {...SecurityController.update.form()}
+                    {...securityUpdateForm()}
                     options={{
                         preserveScroll: true,
                     }}
@@ -243,7 +242,7 @@ Security.layout = {
     breadcrumbs: [
         {
             title: 'Security settings',
-            href: edit(),
+            href: securityEdit(),
         },
     ],
 };
