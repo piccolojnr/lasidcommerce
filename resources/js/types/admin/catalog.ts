@@ -4,9 +4,15 @@ export interface AdminCategory {
     id: number;
     name: string;
     slug: string;
+    description: string | null;
     is_active: boolean;
     sort_order: number;
-    parent_name?: string | null;
+    parent_id: number | null;
+    parent_name: string | null;
+    depth: number;
+    image_url: string | null;
+    children_count: number;
+    created_at: string;
 }
 
 export interface AdminBrand {
