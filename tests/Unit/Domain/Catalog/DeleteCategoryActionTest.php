@@ -47,7 +47,9 @@ class DeleteCategoryActionTest extends TestCase
 
         try {
             $this->action->execute($parent);
+            $this->fail('Expected CannotDeleteCategoryException was not thrown.');
         } catch (CannotDeleteCategoryException) {
+            // Expected — verify the record was not deleted below
         }
 
         $this->assertDatabaseHas('categories', ['id' => $parent->id, 'deleted_at' => null]);
@@ -85,7 +87,9 @@ class DeleteCategoryActionTest extends TestCase
 
         try {
             $this->action->execute($category);
+            $this->fail('Expected CannotDeleteCategoryException was not thrown.');
         } catch (CannotDeleteCategoryException) {
+            // Expected — verify the record was not deleted below
         }
 
         $this->assertDatabaseHas('categories', ['id' => $category->id, 'deleted_at' => null]);
