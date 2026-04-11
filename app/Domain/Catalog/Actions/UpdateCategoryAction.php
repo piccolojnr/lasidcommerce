@@ -13,7 +13,7 @@ class UpdateCategoryAction
 
     public function execute(Category $category, array $attributes): Category
     {
-        if (isset($attributes['name']) && empty($attributes['slug'])) {
+        if (isset($attributes['name']) && $attributes['name'] !== $category->name && empty($attributes['slug'])) {
             $attributes['slug'] = $this->slugGenerator->generate($attributes['name'], $category->id);
         }
 

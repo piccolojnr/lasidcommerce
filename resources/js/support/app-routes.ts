@@ -1,7 +1,5 @@
 import {
-    queryParams
-    
-    
+    queryParams,
 } from '@/wayfinder';
 import type {RouteDefinition, RouteQueryOptions} from '@/wayfinder';
 
