@@ -44,6 +44,8 @@ Route::middleware(['auth', 'verified'])
             Route::patch('brands/{brand}/toggle-status', [BrandController::class, 'toggleStatus'])
                 ->name('brands.toggle-status');
             Route::resource('products', ProductController::class);
+            Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])
+                ->name('products.toggle-status');
             Route::resource('products.variants', ProductVariantController::class)->shallow();
             Route::resource('products.option-types', ProductOptionTypeController::class)->shallow();
             Route::resource('option-types.values', ProductOptionValueController::class)->shallow();
