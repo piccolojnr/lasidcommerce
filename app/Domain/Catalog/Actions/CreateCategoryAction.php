@@ -8,6 +8,6 @@ class CreateCategoryAction
 {
     public function execute(array $attributes): Category
     {
-        return new Category($attributes);
+        return Category::create($attributes);
     }
 }
