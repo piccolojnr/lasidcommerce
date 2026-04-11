@@ -17,12 +17,13 @@ class UpdateCategoryRequest extends FormRequest
         $categoryId = $this->route('category')?->getKey();
 
         return [
-            'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
             'name' => ['sometimes', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($categoryId)],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($categoryId)],
+            'parent_id' => ['nullable', 'integer', 'exists:categories,id', Rule::notIn([$categoryId])],
             'description' => ['nullable', 'string'],
-            'is_active' => ['sometimes', 'boolean'],
-            'sort_order' => ['sometimes', 'integer', 'min:0'],
+            'is_active' => ['boolean'],
+            'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_image' => ['boolean'],
         ];
     }
 }
