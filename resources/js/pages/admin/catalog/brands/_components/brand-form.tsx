@@ -1,24 +1,182 @@
+import { Form } from '@inertiajs/react';
+import { useState } from 'react';
+import * as BrandController from '@/actions/App/Http/Controllers/Admin/Catalog/BrandController';
+import { FieldError } from '@/components/shared/forms/field-error';
 import { FormActions } from '@/components/shared/forms/form-actions';
 import { FormSection } from '@/components/shared/forms/form-section';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { AdminBrand } from '@/types/admin/catalog';
 
-export function BrandForm() {
+interface BrandFormProps {
+    brand?: AdminBrand;
+}
+
+function slugify(value: string): string {
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+}
+
+export function BrandForm({ brand }: BrandFormProps) {
+    const isEdit = brand !== undefined;
+    const [slugManual, setSlugManual] = useState(isEdit);
+    const [slugValue, setSlugValue] = useState(brand?.slug ?? '');
+    const [isActive, setIsActive] = useState(brand?.is_active ?? true);
+
+    const formProps = isEdit
+        ? BrandController.update.form.patch(brand)
+        : BrandController.store.form.post();
+
     return (
-        <form className="space-y-6">
-            <FormSection title="Brand details" description="Basic branding information for catalog display.">
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="brand-name">Name</Label>
-                        <Input id="brand-name" placeholder="Acme" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="brand-slug">Slug</Label>
-                        <Input id="brand-slug" placeholder="acme" />
-                    </div>
-                </div>
-            </FormSection>
-            <FormActions />
-        </form>
+        <Form
+            {...formProps}
+            options={{ preserveScroll: true }}
+            className="space-y-6"
+        >
+            {({ errors }) => (
+                <>
+                    {/* Hidden fields so boolean values are always submitted */}
+                    <input type="hidden" name="slug" value={slugValue} />
+                    <input
+                        type="hidden"
+                        name="is_active"
+                        value={isActive ? '1' : '0'}
+                    />
+
+                    <FormSection
+                        title="Brand details"
+                        description="Basic information for catalog display."
+                    >
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    defaultValue={brand?.name ?? ''}
+                                    placeholder="Nike"
+                                    onChange={(e) => {
+                                        if (!slugManual) {
+                                            setSlugValue(slugify(e.target.value));
+                                        }
+                                    }}
+                                />
+                                <FieldError message={errors.name} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="slug-display">Slug</Label>
+                                    <button
+                                        type="button"
+                                        className="text-xs text-muted-foreground hover:text-foreground"
+                                        onClick={() => setSlugManual((v) => !v)}
+                                    >
+                                        {slugManual ? '🔒 Manual' : '🔓 Auto'}
+                                    </button>
+                                </div>
+                                <Input
+                                    id="slug-display"
+                                    value={slugValue}
+                                    placeholder="nike"
+                                    readOnly={!slugManual}
+                                    className={!slugManual ? 'bg-muted text-muted-foreground' : ''}
+                                    onChange={(e) => {
+                                        if (slugManual) {
+                                            setSlugValue(e.target.value);
+                                        }
+                                    }}
+                                />
+                                <FieldError message={errors.slug} />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                defaultValue={brand?.description ?? ''}
+                                placeholder="Optional description shown on storefront..."
+                                rows={3}
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                            <FieldError message={errors.description} />
+                        </div>
+                    </FormSection>
+
+                    <FormSection
+                        title="Visibility"
+                        description="Control whether this brand is shown on the storefront."
+                    >
+                        <div className="flex items-center gap-3">
+                            <Checkbox
+                                id="is_active"
+                                checked={isActive}
+                                onCheckedChange={(checked) => setIsActive(Boolean(checked))}
+                            />
+                            <Label htmlFor="is_active" className="cursor-pointer font-normal">
+                                Active — visible on the storefront
+                            </Label>
+                        </div>
+                        <FieldError message={errors.is_active} />
+                    </FormSection>
+
+                    <FormSection
+                        title="Image"
+                        description="Upload a brand logo. Recommended: square, at least 400×400px."
+                    >
+                        {isEdit && brand.image_url && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">Current image</p>
+                                <img
+                                    src={brand.image_url}
+                                    alt={brand.name}
+                                    className="h-20 w-20 rounded-md border object-cover"
+                                />
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <Label htmlFor="image">
+                                {isEdit && brand.image_url ? 'Replace image' : 'Upload image'}
+                            </Label>
+                            <Input
+                                id="image"
+                                name="image"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="cursor-pointer"
+                            />
+                            <FieldError message={errors.image} />
+                        </div>
+                        {isEdit && brand.image_url && (
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id="remove_image"
+                                    name="remove_image"
+                                    value="1"
+                                />
+                                <Label
+                                    htmlFor="remove_image"
+                                    className="cursor-pointer font-normal text-destructive"
+                                >
+                                    Remove current image
+                                </Label>
+                            </div>
+                        )}
+                    </FormSection>
+
+                    <FormActions
+                        submitLabel={isEdit ? 'Update brand' : 'Create brand'}
+                        onCancel={() => window.history.back()}
+                    />
+                </>
+            )}
+        </Form>
     );
 }

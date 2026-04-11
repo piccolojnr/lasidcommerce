@@ -1,4 +1,4 @@
-import type { PaginationMeta } from '@/types/shared/pagination';
+import type { PaginationLink } from '@/types/shared/pagination';
 
 export interface AdminCategory {
     id: number;
@@ -19,7 +19,11 @@ export interface AdminBrand {
     id: number;
     name: string;
     slug: string;
+    description: string | null;
     is_active: boolean;
+    image_url: string | null;
+    products_count: number;
+    created_at: string;
 }
 
 export interface AdminProduct {
@@ -35,5 +39,11 @@ export interface AdminProduct {
 
 export interface AdminCatalogListPage<T> {
     data: T[];
-    meta?: PaginationMeta;
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    links: PaginationLink[];
 }
