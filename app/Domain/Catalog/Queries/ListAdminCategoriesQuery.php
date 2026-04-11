@@ -10,6 +10,7 @@ class ListAdminCategoriesQuery
     public function get(): array
     {
         $roots = Category::with($this->childrenRelation())
+            ->with('media')
             ->whereNull('parent_id')
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -23,12 +24,15 @@ class ListAdminCategoriesQuery
         return [
             'children' => function ($query) {
                 $query->orderBy('sort_order')->orderBy('name')
+                    ->with('media')
                     ->with([
                         'children' => function ($q) {
                             $q->orderBy('sort_order')->orderBy('name')
+                                ->with('media')
                                 ->with([
                                     'children' => function ($q2) {
-                                        $q2->orderBy('sort_order')->orderBy('name');
+                                        $q2->orderBy('sort_order')->orderBy('name')
+                                            ->with('media');
                                     },
                                 ]);
                         },
