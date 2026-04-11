@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBrandRequest extends FormRequest
 {
@@ -15,7 +16,7 @@ class StoreBrandRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:brands,slug'],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('brands', 'slug')],
             'description' => ['nullable', 'string'],
             'is_active' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048'],

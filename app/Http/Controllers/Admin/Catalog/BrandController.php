@@ -84,8 +84,6 @@ class BrandController extends Controller
                 'description' => $brand->description,
                 'is_active' => $brand->is_active,
                 'image_url' => $brand->getFirstMediaUrl('images') ?: null,
-                'products_count' => 0,
-                'created_at' => $brand->created_at?->toISOString(),
             ],
         ]);
     }
