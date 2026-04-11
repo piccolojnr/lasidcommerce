@@ -37,6 +37,8 @@ Route::middleware(['auth', 'verified'])
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
         Route::prefix('catalog')->name('catalog.')->group(function () {
+            // destroy is intentionally excluded — category deletion requires handling child categories
+            // and product associations; that logic will be added in a future batch.
             Route::resource('categories', CategoryController::class)->except(['destroy']);
             Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])
                 ->name('categories.toggle-status');

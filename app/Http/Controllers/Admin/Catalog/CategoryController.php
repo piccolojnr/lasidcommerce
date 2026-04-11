@@ -7,7 +7,6 @@ use App\Domain\Catalog\Actions\SyncCategoryMediaAction;
 use App\Domain\Catalog\Actions\ToggleCategoryStatusAction;
 use App\Domain\Catalog\Actions\UpdateCategoryAction;
 use App\Domain\Catalog\Queries\ListAdminCategoriesQuery;
-use App\Domain\Catalog\Services\CategorySlugGenerator;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
@@ -20,7 +19,6 @@ class CategoryController extends Controller
 {
     public function __construct(
         private ListAdminCategoriesQuery $listQuery,
-        private CategorySlugGenerator $slugGenerator,
         private CreateCategoryAction $createAction,
         private UpdateCategoryAction $updateAction,
         private ToggleCategoryStatusAction $toggleAction,
@@ -46,10 +44,6 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request): RedirectResponse
     {
         $data = $request->safe()->except(['image', 'remove_image']);
-
-        if (empty($data['slug'])) {
-            $data['slug'] = $this->slugGenerator->generate($data['name']);
-        }
 
         $category = $this->createAction->execute($data);
         $this->syncMediaAction->execute($category, $request->file('image'));
@@ -89,6 +83,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category): InertiaResponse
     {
+        $category->load('parent');
         $category->loadMedia();
 
         return Inertia::render('admin/catalog/categories/edit', [
@@ -114,10 +109,6 @@ class CategoryController extends Controller
     {
         $data = $request->safe()->except(['image', 'remove_image']);
 
-        if (isset($data['name']) && empty($data['slug'])) {
-            $data['slug'] = $this->slugGenerator->generate($data['name'], $category->id);
-        }
-
         $this->updateAction->execute($category, $data);
         $this->syncMediaAction->execute(
             $category,
@@ -131,6 +122,7 @@ class CategoryController extends Controller
 
     public function toggleStatus(Category $category): RedirectResponse
     {
+        // toggleStatus is a custom route — authorizeResource does not cover it automatically.
         $this->authorize('update', $category);
         $this->toggleAction->execute($category);
 

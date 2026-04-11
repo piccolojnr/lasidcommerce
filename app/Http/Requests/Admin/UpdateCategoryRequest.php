@@ -19,6 +19,8 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($categoryId)],
+            // notIn prevents direct self-parenting. Circular ancestry (A → B → A) is not
+            // validated here; it must be enforced at the application level if needed.
             'parent_id' => ['nullable', 'integer', 'exists:categories,id', Rule::notIn([$categoryId])],
             'description' => ['nullable', 'string'],
             'is_active' => ['boolean'],
