@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin\Catalog;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -134,5 +135,70 @@ class CategoryTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page->component('admin/catalog/categories/show'));
+    }
+
+    public function test_admin_can_soft_delete_category(): void
+    {
+        $this->actingAs($this->admin);
+        $category = Category::factory()->create();
+
+        $response = $this->delete(route('admin.catalog.categories.destroy', $category));
+
+        $response->assertRedirect(route('admin.catalog.categories.index'));
+        $this->assertSoftDeleted('categories', ['id' => $category->id]);
+    }
+
+    public function test_delete_is_blocked_when_category_has_children(): void
+    {
+        $this->actingAs($this->admin);
+        $parent = Category::factory()->create();
+        Category::factory()->create(['parent_id' => $parent->id]);
+
+        $response = $this->delete(route('admin.catalog.categories.destroy', $parent));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('categories', ['id' => $parent->id, 'deleted_at' => null]);
+    }
+
+    public function test_delete_is_blocked_when_category_has_products(): void
+    {
+        $this->actingAs($this->admin);
+        $category = Category::factory()->create();
+        \DB::table('products')->insert([
+            'category_id' => $category->id,
+            'name' => 'Blocked Product',
+            'slug' => 'blocked-product',
+            'sku' => 'BLK-001',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->delete(route('admin.catalog.categories.destroy', $category));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'deleted_at' => null]);
+    }
+
+    public function test_guest_is_redirected_from_destroy(): void
+    {
+        $category = Category::factory()->create();
+
+        $response = $this->delete(route('admin.catalog.categories.destroy', $category));
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_soft_deleted_category_excluded_from_index(): void
+    {
+        $this->actingAs($this->admin);
+        $category = Category::factory()->create();
+        $category->delete();
+
+        $response = $this->get(route('admin.catalog.categories.index'));
+
+        $response->assertInertia(fn ($page) => $page
+            ->component('admin/catalog/categories/index')
+            ->where('categories', fn ($cats) => collect($cats)->every(fn ($c) => $c['id'] !== $category->id))
+        );
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin\Catalog;
 
 use App\Domain\Catalog\Actions\CreateCategoryAction;
+use App\Domain\Catalog\Actions\DeleteCategoryAction;
 use App\Domain\Catalog\Actions\SyncCategoryMediaAction;
 use App\Domain\Catalog\Actions\ToggleCategoryStatusAction;
 use App\Domain\Catalog\Actions\UpdateCategoryAction;
+use App\Domain\Catalog\Exceptions\CannotDeleteCategoryException;
 use App\Domain\Catalog\Queries\ListAdminCategoriesQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
@@ -23,6 +25,7 @@ class CategoryController extends Controller
         private UpdateCategoryAction $updateAction,
         private ToggleCategoryStatusAction $toggleAction,
         private SyncCategoryMediaAction $syncMediaAction,
+        private DeleteCategoryAction $deleteAction,
     ) {
         $this->authorizeResource(Category::class, 'category');
     }
@@ -127,5 +130,17 @@ class CategoryController extends Controller
         $this->toggleAction->execute($category);
 
         return back()->with('success', 'Category status updated.');
+    }
+
+    public function destroy(Category $category): RedirectResponse
+    {
+        try {
+            $this->deleteAction->execute($category);
+        } catch (CannotDeleteCategoryException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('admin.catalog.categories.index')
+            ->with('success', 'Category deleted.');
     }
 }
