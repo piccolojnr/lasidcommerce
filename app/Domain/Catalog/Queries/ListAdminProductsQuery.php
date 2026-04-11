@@ -3,12 +3,15 @@
 namespace App\Domain\Catalog\Queries;
 
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ListAdminProductsQuery
 {
-    public function execute(): Builder
+    public function paginate(): LengthAwarePaginator
     {
-        return Product::query()->latest('id');
+        return Product::withCount('variants')
+            ->with(['media', 'category', 'brand'])
+            ->orderByDesc('id')
+            ->paginate(20);
     }
 }
