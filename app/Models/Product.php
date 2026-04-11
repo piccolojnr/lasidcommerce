@@ -109,4 +109,9 @@ class Product extends Model implements HasMedia
     {
         return $this->published_at !== null && $this->published_at->isPast();
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images');
+    }
 }
