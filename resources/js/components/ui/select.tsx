@@ -4,6 +4,17 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+export const EMPTY_SENTINEL = "__empty__"
+
+
+export function normalizeSelectValue(value: string | null | undefined) {
+  return value == null || value === "" ? EMPTY_SENTINEL : value
+}
+
+export function denormalizeSelectValue(value: string) {
+  return value === EMPTY_SENTINEL ? "" : value
+}
+
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {

@@ -25,23 +25,29 @@ interface Props {
 export default function CategoryShowPage({ category }: Props) {
     return (
         <AdminLayout title="Category Details">
-            <div className="space-y-6">
+            <div className="mx-auto w-full max-w-6xl space-y-6">
                 <PageHeader
                     title={category.name}
                     description="Review this category's configuration."
                     actions={
                         <div className="flex items-center gap-2">
                             <Button variant="outline" asChild>
-                                <Link href={CategoryController.index.url()}>Back to list</Link>
+                                <Link href={CategoryController.index.url()}>
+                                    Back to list
+                                </Link>
                             </Button>
                             <Button asChild>
-                                <Link href={CategoryController.edit.url(category)}>Edit</Link>
+                                <Link
+                                    href={CategoryController.edit.url(category)}
+                                >
+                                    Edit
+                                </Link>
                             </Button>
                         </div>
                     }
                 />
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-6 md:col-span-2">
                         <Card>
                             <CardHeader>
@@ -49,27 +55,49 @@ export default function CategoryShowPage({ category }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-3 text-sm">
                                 <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Name</span>
-                                    <span className="font-medium">{category.name}</span>
+                                    <span className="text-muted-foreground">
+                                        Name
+                                    </span>
+                                    <span className="font-medium">
+                                        {category.name}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Slug</span>
-                                    <span className="font-mono text-xs">{category.slug}</span>
+                                    <span className="text-muted-foreground">
+                                        Slug
+                                    </span>
+                                    <span className="font-mono text-xs">
+                                        {category.slug}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Parent</span>
+                                    <span className="text-muted-foreground">
+                                        Parent
+                                    </span>
                                     <span>
                                         {category.parent_name ?? (
-                                            <span className="italic text-muted-foreground">Root category</span>
+                                            <span className="text-muted-foreground italic">
+                                                Root category
+                                            </span>
                                         )}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Status</span>
-                                    <StatusBadge status={category.is_active ? 'active' : 'inactive'} />
+                                    <span className="text-muted-foreground">
+                                        Status
+                                    </span>
+                                    <StatusBadge
+                                        status={
+                                            category.is_active
+                                                ? 'active'
+                                                : 'inactive'
+                                        }
+                                    />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">Sort order</span>
+                                    <span className="text-muted-foreground">
+                                        Sort order
+                                    </span>
                                     <span>{category.sort_order}</span>
                                 </div>
                             </CardContent>
@@ -81,7 +109,9 @@ export default function CategoryShowPage({ category }: Props) {
                                     <CardTitle>Description</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {category.description}
+                                    </p>
                                 </CardContent>
                             </Card>
                         )}
@@ -89,19 +119,33 @@ export default function CategoryShowPage({ category }: Props) {
                         {category.children.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Sub-categories ({category.children.length})</CardTitle>
+                                    <CardTitle>
+                                        Sub-categories (
+                                        {category.children.length})
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <ul className="space-y-2">
                                         {category.children.map((child) => (
-                                            <li key={child.id} className="flex items-center justify-between text-sm">
+                                            <li
+                                                key={child.id}
+                                                className="flex items-center justify-between text-sm"
+                                            >
                                                 <Link
-                                                    href={CategoryController.show.url(child)}
+                                                    href={CategoryController.show.url(
+                                                        child,
+                                                    )}
                                                     className="hover:underline"
                                                 >
                                                     {child.name}
                                                 </Link>
-                                                <StatusBadge status={child.is_active ? 'active' : 'inactive'} />
+                                                <StatusBadge
+                                                    status={
+                                                        child.is_active
+                                                            ? 'active'
+                                                            : 'inactive'
+                                                    }
+                                                />
                                             </li>
                                         ))}
                                     </ul>

@@ -13,7 +13,7 @@ interface Props {
 export default function CategoryIndexPage({ categories }: Props) {
     return (
         <AdminLayout title="Categories">
-            <div className="space-y-6">
+            <div className="mx-auto w-full max-w-6xl space-y-6">
                 <PageHeader
                     title="Categories"
                     description="Manage hierarchy, ordering, and active visibility."

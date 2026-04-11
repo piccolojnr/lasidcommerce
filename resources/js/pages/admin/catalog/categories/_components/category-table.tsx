@@ -12,23 +12,37 @@ export function CategoryTable({ categories }: CategoryTableProps) {
     if (categories.length === 0) {
         return (
             <div className="rounded-lg border bg-background px-6 py-12 text-center">
-                <p className="text-sm text-muted-foreground">No categories yet. Create one to get started.</p>
+                <p className="text-sm text-muted-foreground">
+                    No categories yet. Create one to get started.
+                </p>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-lg border bg-background">
+        <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-lg border bg-background">
             <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
+                <table className="min-w-full text-center text-sm">
                     <thead className="bg-muted/40">
                         <tr>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Name</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Slug</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Parent</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Order</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
+                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                                Name
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                                Slug
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                                Parent
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                                Order
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                                Status
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,11 +50,15 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                             <tr key={category.id} className="border-t">
                                 <td className="px-4 py-3 align-middle">
                                     <span
-                                        className="flex items-center gap-1"
-                                        style={{ paddingLeft: `${category.depth * 20}px` }}
+                                        className="inline-flex items-center gap-1"
+                                        style={{
+                                            paddingLeft: `${category.depth * 20}px`,
+                                        }}
                                     >
                                         {category.depth > 0 && (
-                                            <span className="select-none text-muted-foreground">└</span>
+                                            <span className="text-muted-foreground select-none">
+                                                └
+                                            </span>
                                         )}
                                         {category.name}
                                         {category.children_count > 0 && (
@@ -50,26 +68,66 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                         )}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 align-middle text-muted-foreground">{category.slug}</td>
                                 <td className="px-4 py-3 align-middle text-muted-foreground">
-                                    {category.parent_name ?? <span className="italic">Root</span>}
+                                    {category.slug}
                                 </td>
-                                <td className="px-4 py-3 align-middle">{category.sort_order}</td>
-                                <td className="px-4 py-3 align-middle">
-                                    <StatusBadge status={category.is_active ? 'active' : 'inactive'} />
+                                <td className="px-4 py-3 align-middle text-muted-foreground">
+                                    {category.parent_name ?? (
+                                        <span className="italic">Root</span>
+                                    )}
                                 </td>
                                 <td className="px-4 py-3 align-middle">
-                                    <div className="flex items-center gap-2">
-                                        <Button variant="outline" size="sm" asChild>
-                                            <Link href={CategoryController.show.url(category)}>View</Link>
+                                    {category.sort_order}
+                                </td>
+                                <td className="px-4 py-3 align-middle">
+                                    <StatusBadge
+                                        status={
+                                            category.is_active
+                                                ? 'active'
+                                                : 'inactive'
+                                        }
+                                    />
+                                </td>
+                                <td className="px-4 py-3 align-middle">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={CategoryController.show.url(
+                                                    category,
+                                                )}
+                                            >
+                                                View
+                                            </Link>
                                         </Button>
-                                        <Button variant="outline" size="sm" asChild>
-                                            <Link href={CategoryController.edit.url(category)}>Edit</Link>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={CategoryController.edit.url(
+                                                    category,
+                                                )}
+                                            >
+                                                Edit
+                                            </Link>
                                         </Button>
                                         <Form
-                                            {...CategoryController.destroy.form.delete(category)}
+                                            {...CategoryController.destroy.form.delete(
+                                                category,
+                                            )}
                                             onSubmit={(e) => {
-                                                if (!window.confirm('Are you sure you want to delete "' + category.name + '"?')) {
+                                                if (
+                                                    !window.confirm(
+                                                        'Are you sure you want to delete "' +
+                                                            category.name +
+                                                            '"?',
+                                                    )
+                                                ) {
                                                     e.preventDefault();
                                                 }
                                             }}

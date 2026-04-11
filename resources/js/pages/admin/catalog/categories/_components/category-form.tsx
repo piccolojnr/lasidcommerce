@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+    EMPTY_SENTINEL,
+    normalizeSelectValue,
     Select,
     SelectContent,
     SelectItem,
@@ -40,6 +42,10 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
     const isEdit = category !== undefined;
     const [slugManual, setSlugManual] = useState(isEdit);
     const [slugValue, setSlugValue] = useState(category?.slug ?? '');
+    const [isActive, setIsActive] = useState(category?.is_active ?? true);
+    const [parentId, setParentId] = useState(
+        normalizeSelectValue(category?.parent_id?.toString() ?? null),
+    );
 
     const parentOptions = isEdit
         ? categories.filter((c) => c.id !== category.id)
@@ -57,10 +63,23 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
         >
             {({ errors }) => (
                 <>
-                    {/* Hidden slug field so it is always submitted */}
+                    {/* Hidden fields so boolean values are always submitted */}
                     <input type="hidden" name="slug" value={slugValue} />
+                    <input
+                        type="hidden"
+                        name="parent_id"
+                        value={parentId === EMPTY_SENTINEL ? '' : parentId}
+                    />
+                    <input
+                        type="hidden"
+                        name="is_active"
+                        value={isActive ? '1' : '0'}
+                    />
 
-                    <FormSection title="Category details" description="Basic information for organising the catalog.">
+                    <FormSection
+                        title="Category details"
+                        description="Basic information for organising the catalog."
+                    >
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Name</Label>
@@ -71,7 +90,9 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                                     placeholder="New arrivals"
                                     onChange={(e) => {
                                         if (!slugManual) {
-                                            setSlugValue(slugify(e.target.value));
+                                            setSlugValue(
+                                                slugify(e.target.value),
+                                            );
                                         }
                                     }}
                                 />
@@ -94,7 +115,11 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                                     value={slugValue}
                                     placeholder="new-arrivals"
                                     readOnly={!slugManual}
-                                    className={!slugManual ? 'bg-muted text-muted-foreground' : ''}
+                                    className={
+                                        !slugManual
+                                            ? 'bg-muted text-muted-foreground'
+                                            : ''
+                                    }
                                     onChange={(e) => {
                                         if (slugManual) {
                                             setSlugValue(e.target.value);
@@ -108,16 +133,21 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                         <div className="space-y-2">
                             <Label htmlFor="parent_id">Parent category</Label>
                             <Select
-                                name="parent_id"
-                                defaultValue={category?.parent_id?.toString() ?? ''}
+                                defaultValue={parentId}
+                                onValueChange={(value) => setParentId(value)}
                             >
                                 <SelectTrigger id="parent_id">
                                     <SelectValue placeholder="None (root category)" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None (root category)</SelectItem>
+                                    <SelectItem value={EMPTY_SENTINEL}>
+                                        None (root category)
+                                    </SelectItem>
                                     {parentOptions.map((opt) => (
-                                        <SelectItem key={opt.id} value={opt.id.toString()}>
+                                        <SelectItem
+                                            key={opt.id}
+                                            value={opt.id.toString()}
+                                        >
                                             {opt.name}
                                         </SelectItem>
                                     ))}
@@ -134,30 +164,43 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                                 defaultValue={category?.description ?? ''}
                                 placeholder="Optional description shown on storefront..."
                                 rows={3}
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             <FieldError message={errors.description} />
                         </div>
                     </FormSection>
 
-                    <FormSection title="Visibility" description="Control whether this category is shown on the storefront.">
+                    <FormSection
+                        title="Visibility"
+                        description="Control whether this category is shown on the storefront."
+                    >
                         <div className="flex items-center gap-3">
                             <Checkbox
                                 id="is_active"
-                                name="is_active"
-                                defaultChecked={category?.is_active ?? true}
+                                checked={isActive}
+                                onCheckedChange={(checked) =>
+                                    setIsActive(Boolean(checked))
+                                }
                             />
-                            <Label htmlFor="is_active" className="cursor-pointer font-normal">
+                            <Label
+                                htmlFor="is_active"
+                                className="cursor-pointer font-normal"
+                            >
                                 Active — visible on the storefront
                             </Label>
                         </div>
                         <FieldError message={errors.is_active} />
                     </FormSection>
 
-                    <FormSection title="Image" description="Upload a category image. Recommended: square, at least 400×400px.">
+                    <FormSection
+                        title="Image"
+                        description="Upload a category image. Recommended: square, at least 400×400px."
+                    >
                         {isEdit && category.image_url && (
                             <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">Current image</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Current image
+                                </p>
                                 <img
                                     src={category.image_url}
                                     alt={category.name}
@@ -167,7 +210,9 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                         )}
                         <div className="space-y-2">
                             <Label htmlFor="image">
-                                {isEdit && category.image_url ? 'Replace image' : 'Upload image'}
+                                {isEdit && category.image_url
+                                    ? 'Replace image'
+                                    : 'Upload image'}
                             </Label>
                             <Input
                                 id="image"
@@ -180,8 +225,15 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                         </div>
                         {isEdit && category.image_url && (
                             <div className="flex items-center gap-2">
-                                <Checkbox id="remove_image" name="remove_image" value="1" />
-                                <Label htmlFor="remove_image" className="cursor-pointer font-normal text-destructive">
+                                <Checkbox
+                                    id="remove_image"
+                                    name="remove_image"
+                                    value="1"
+                                />
+                                <Label
+                                    htmlFor="remove_image"
+                                    className="cursor-pointer font-normal text-destructive"
+                                >
                                     Remove current image
                                 </Label>
                             </div>
@@ -189,7 +241,9 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
                     </FormSection>
 
                     <FormActions
-                        submitLabel={isEdit ? 'Update category' : 'Create category'}
+                        submitLabel={
+                            isEdit ? 'Update category' : 'Create category'
+                        }
                         onCancel={() => window.history.back()}
                     />
                 </>
