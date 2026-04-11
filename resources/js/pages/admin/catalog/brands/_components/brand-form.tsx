@@ -1,7 +1,7 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { FormActions } from '@/components/shared/forms/form-actions';
 import { FormSection } from '@/components/shared/forms/form-section';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export function BrandForm() {
     return (

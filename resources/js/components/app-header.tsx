@@ -32,8 +32,8 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
-import { dashboard } from '@/support/app-routes';
 import { adminHeaderNavItems } from '@/support/admin-navigation';
+import { dashboard } from '@/support/app-routes';
 import { getUserDisplayName } from '@/support/user-display';
 import type { BreadcrumbItem } from '@/types';
 

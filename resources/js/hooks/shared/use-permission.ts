@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
 import { usePage } from '@inertiajs/react';
-import { hasPermission, type AdminPermission } from '@/lib/permissions';
+import { useMemo } from 'react';
+import { hasPermission  } from '@/lib/permissions';
+import type {AdminPermission} from '@/lib/permissions';
 import type { AuthState } from '@/types/shared/auth';
 
 interface PermissionPageProps {

@@ -1,11 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { DataTable, type DataTableColumn } from '@/components/shared/data-table/data-table';
+import { DataTable  } from '@/components/shared/data-table/data-table';
+import type {DataTableColumn} from '@/components/shared/data-table/data-table';
 import { DataTableToolbar } from '@/components/shared/data-table/data-table-toolbar';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
+import { Button } from '@/components/ui/button';
+import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatDate } from '@/lib/formatters/date';
 import { formatMoney } from '@/lib/formatters/money';
-import { AdminLayout } from '@/layouts/app/admin-layout';
 import type { AdminCoupon } from '@/types/admin/coupon';
 
 const coupons: AdminCoupon[] = [{ id: 1, code: 'WELCOME10', type: 'fixed', value: 1000, is_active: true, expires_at: null }];

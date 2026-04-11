@@ -1,11 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { DataTable, type DataTableColumn } from '@/components/shared/data-table/data-table';
+import { DataTable  } from '@/components/shared/data-table/data-table';
+import type {DataTableColumn} from '@/components/shared/data-table/data-table';
 import { DataTableToolbar } from '@/components/shared/data-table/data-table-toolbar';
 import { EmptyState } from '@/components/shared/empty-state/empty-state';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
-import { formatMoney } from '@/lib/formatters/money';
+import { Button } from '@/components/ui/button';
 import { AdminLayout } from '@/layouts/app/admin-layout';
+import { formatMoney } from '@/lib/formatters/money';
 import type { AdminProduct } from '@/types/admin/catalog';
 
 const products: AdminProduct[] = [

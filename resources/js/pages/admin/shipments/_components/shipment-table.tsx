@@ -1,4 +1,5 @@
-import { DataTable, type DataTableColumn } from '@/components/shared/data-table/data-table';
+import { DataTable  } from '@/components/shared/data-table/data-table';
+import type {DataTableColumn} from '@/components/shared/data-table/data-table';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { formatDate } from '@/lib/formatters/date';
 import type { AdminShipment } from '@/types/admin/shipment';

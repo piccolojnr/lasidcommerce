@@ -10,8 +10,8 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { NavItem } from '@/types';
 import type { SidebarNavGroup } from '@/support/admin-navigation';
+import type { NavItem } from '@/types';
 
 export function NavMain({ groups = [] }: { groups: SidebarNavGroup[] }) {
     const { isCurrentOrParentUrl } = useCurrentUrl();

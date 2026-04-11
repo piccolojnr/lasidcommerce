@@ -11,8 +11,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/support/app-routes';
 import { adminSidebarGroups } from '@/support/admin-navigation';
+import { dashboard } from '@/support/app-routes';
 
 export function AppSidebar() {
     return (
