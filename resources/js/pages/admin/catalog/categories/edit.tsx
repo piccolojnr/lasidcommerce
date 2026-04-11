@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { PageHeader } from '@/components/shared/page-header/page-header';
-import { AdminLayout } from '@/layouts/app/admin-layout';
 import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
+import { PageHeader } from '@/components/shared/page-header/page-header';
+import { Button } from '@/components/ui/button';
+import { AdminLayout } from '@/layouts/app/admin-layout';
 import { CategoryForm } from '@/pages/admin/catalog/categories/_components/category-form';
 import type { AdminCategory } from '@/types/admin/catalog';
 

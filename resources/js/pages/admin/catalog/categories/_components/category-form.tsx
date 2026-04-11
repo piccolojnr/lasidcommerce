@@ -1,5 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { useState } from 'react';
+import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
 import { FieldError } from '@/components/shared/forms/field-error';
 import { FormActions } from '@/components/shared/forms/form-actions';
 import { FormSection } from '@/components/shared/forms/form-section';
@@ -13,7 +14,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
 import type { AdminCategory } from '@/types/admin/catalog';
 
 interface ParentOption {
@@ -55,7 +55,7 @@ export function CategoryForm({ category, categories }: CategoryFormProps) {
             options={{ preserveScroll: true }}
             className="space-y-6"
         >
-            {({ processing, errors }) => (
+            {({ errors }) => (
                 <>
                     {/* Hidden slug field so it is always submitted */}
                     <input type="hidden" name="slug" value={slugValue} />

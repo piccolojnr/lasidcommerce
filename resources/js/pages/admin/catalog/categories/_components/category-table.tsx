@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
+import { StatusBadge } from '@/components/shared/status-badge/status-badge';
+import { Button } from '@/components/ui/button';
 import type { AdminCategory } from '@/types/admin/catalog';
 
 interface CategoryTableProps {

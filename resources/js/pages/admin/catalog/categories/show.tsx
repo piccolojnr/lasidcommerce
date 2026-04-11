@@ -1,10 +1,10 @@
 import { Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
-import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
 import type { AdminCategory } from '@/types/admin/catalog';
 
 interface ChildSummary {
