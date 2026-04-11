@@ -2,8 +2,7 @@ import type { PaginationMeta } from '@/types/shared/pagination';
 
 export interface AdminUser {
     id: number;
-    first_name: string;
-    last_name: string;
+    name: string;
     email: string;
     status: string;
     created_at?: string;

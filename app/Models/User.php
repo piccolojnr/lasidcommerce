@@ -18,8 +18,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes, HasRoles, TwoFactorAuthenticatable;
 
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'phone',
         'password',
@@ -81,7 +80,7 @@ class User extends Authenticatable
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => trim(implode(' ', array_filter([$this->first_name, $this->last_name]))),
+            get: fn() => trim(implode(' ', array_filter([$this->name]))),
         );
     }
 }

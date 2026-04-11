@@ -2,7 +2,6 @@ import {
     BadgePercent,
     Boxes,
     LayoutGrid,
-    Package,
     Settings,
     ShieldCheck,
     ShoppingCart,

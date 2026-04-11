@@ -13,8 +13,7 @@ class AdminUserSeeder extends Seeder
         $user = User::query()->updateOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'first_name' => 'Super',
-                'last_name' => 'Admin',
+                'name' => 'Super Admin',
                 'phone' => '+233200000000',
                 'status' => 'active',
                 'password' => 'password123!',

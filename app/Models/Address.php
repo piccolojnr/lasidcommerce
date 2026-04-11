@@ -15,8 +15,7 @@ class Address extends Model
     protected $fillable = [
         'user_id',
         'type',
-        'first_name',
-        'last_name',
+        'name',
         'phone',
         'country',
         'region',
@@ -49,7 +48,7 @@ class Address extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => trim(implode(' ', array_filter([$this->first_name, $this->last_name]))),
+            get: fn() => trim(implode(' ', array_filter([$this->name]))),
         );
     }
 }

@@ -15,8 +15,7 @@ class UpdateAddressRequest extends FormRequest
     {
         return [
             'type' => ['sometimes', 'string', 'max:50'],
-            'first_name' => ['sometimes', 'string', 'max:255'],
-            'last_name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'country' => ['sometimes', 'string', 'max:255'],
             'region' => ['nullable', 'string', 'max:255'],

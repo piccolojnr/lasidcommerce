@@ -25,8 +25,7 @@ class CreateNewUser implements CreatesNewUsers
         ])->validate();
 
         return User::create([
-            'first_name' => $input['first_name'],
-            'last_name' => $input['last_name'],
+            'name' => $input['name'],
             'email' => $input['email'],
             'phone' => $input['phone'] ?? null,
             'status' => 'active',

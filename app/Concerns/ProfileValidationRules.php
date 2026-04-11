@@ -15,29 +15,18 @@ trait ProfileValidationRules
     protected function profileRules(?int $userId = null): array
     {
         return [
-            'first_name' => $this->firstNameRules(),
-            'last_name' => $this->lastNameRules(),
+            'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
             'phone' => $this->phoneRules(),
         ];
     }
 
     /**
-     * Get the validation rules used to validate user first names.
+     * Get the validation rules used to validate user names.
      *
      * @return array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>
      */
-    protected function firstNameRules(): array
-    {
-        return ['required', 'string', 'max:255'];
-    }
-
-    /**
-     * Get the validation rules used to validate user last names.
-     *
-     * @return array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>
-     */
-    protected function lastNameRules(): array
+    protected function nameRules(): array
     {
         return ['required', 'string', 'max:255'];
     }
@@ -55,8 +44,8 @@ trait ProfileValidationRules
             'email',
             'max:255',
             $userId === null
-                ? Rule::unique(User::class)
-                : Rule::unique(User::class)->ignore($userId),
+            ? Rule::unique(User::class)
+            : Rule::unique(User::class)->ignore($userId),
         ];
     }
 
