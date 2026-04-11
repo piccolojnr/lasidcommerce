@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Form, Link } from '@inertiajs/react';
 import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
@@ -66,6 +66,25 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                         <Button variant="outline" size="sm" asChild>
                                             <Link href={CategoryController.edit.url(category)}>Edit</Link>
                                         </Button>
+                                        <Form
+                                            {...CategoryController.destroy.form.delete(category)}
+                                            onSubmit={(e) => {
+                                                if (!window.confirm('Are you sure you want to delete "' + category.name + '"?')) {
+                                                    e.preventDefault();
+                                                }
+                                            }}
+                                        >
+                                            {() => (
+                                                <Button
+                                                    type="submit"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="text-destructive hover:text-destructive"
+                                                >
+                                                    Delete
+                                                </Button>
+                                            )}
+                                        </Form>
                                     </div>
                                 </td>
                             </tr>
