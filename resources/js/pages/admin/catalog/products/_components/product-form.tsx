@@ -33,14 +33,24 @@ function slugify(value: string): string {
 }
 
 function centsToDisplay(cents: number | null | undefined): string {
-    if (cents == null) return '';
+    if (cents == null) {
+        return '';
+    }
+
     return (cents / 100).toFixed(2);
 }
 
 function displayToCents(display: string): string {
-    if (display === '' || display == null) return '';
+    if (display === '' || display == null) {
+        return '';
+    }
+
     const num = parseFloat(display);
-    if (isNaN(num)) return '0';
+
+    if (isNaN(num)) {
+        return '0';
+    }
+
     return String(Math.round(num * 100));
 }
 
@@ -104,7 +114,9 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                                     defaultValue={product?.name ?? ''}
                                     placeholder="Classic Sneaker"
                                     onChange={(e) => {
-                                        if (!slugManual) setSlugValue(slugify(e.target.value));
+                                        if (!slugManual) {
+                                            setSlugValue(slugify(e.target.value));
+                                        }
                                     }}
                                 />
                                 <FieldError message={errors.name} />
@@ -127,7 +139,11 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                                     placeholder="classic-sneaker"
                                     readOnly={!slugManual}
                                     className={!slugManual ? 'bg-muted text-muted-foreground' : ''}
-                                    onChange={(e) => { if (slugManual) setSlugValue(e.target.value); }}
+                                    onChange={(e) => {
+                                        if (slugManual) {
+                                            setSlugValue(e.target.value);
+                                        }
+                                    }}
                                 />
                                 <FieldError message={errors.slug} />
                             </div>
