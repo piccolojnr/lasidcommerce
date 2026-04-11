@@ -37,7 +37,9 @@ Route::middleware(['auth', 'verified'])
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
         Route::prefix('catalog')->name('catalog.')->group(function () {
-            Route::resource('categories', CategoryController::class);
+            Route::resource('categories', CategoryController::class)->except(['destroy']);
+            Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])
+                ->name('categories.toggle-status');
             Route::resource('brands', BrandController::class);
             Route::resource('products', ProductController::class);
             Route::resource('products.variants', ProductVariantController::class)->shallow();
