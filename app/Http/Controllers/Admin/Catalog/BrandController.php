@@ -75,6 +75,7 @@ class BrandController extends Controller
     public function edit(Brand $brand): InertiaResponse
     {
         $brand->loadMedia('images');
+        $brand->loadCount('products');
 
         return Inertia::render('admin/catalog/brands/edit', [
             'brand' => [
@@ -84,6 +85,8 @@ class BrandController extends Controller
                 'description' => $brand->description,
                 'is_active' => $brand->is_active,
                 'image_url' => $brand->getFirstMediaUrl('images') ?: null,
+                'products_count' => $brand->products_count,
+                'created_at' => $brand->created_at?->toISOString(),
             ],
         ]);
     }
