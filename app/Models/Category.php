@@ -55,4 +55,9 @@ class Category extends Model implements HasMedia
     {
         return $this->is_active;
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')->singleFile();
+    }
 }
