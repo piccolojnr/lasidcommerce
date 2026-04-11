@@ -5,7 +5,6 @@ namespace Tests\Feature\Admin\Catalog;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -164,6 +163,7 @@ class CategoryTest extends TestCase
     {
         $this->actingAs($this->admin);
         $category = Category::factory()->create();
+        // No Product factory exists yet — insert directly to avoid depending on unbuilt fixtures.
         \DB::table('products')->insert([
             'category_id' => $category->id,
             'name' => 'Blocked Product',
@@ -191,14 +191,16 @@ class CategoryTest extends TestCase
     public function test_soft_deleted_category_excluded_from_index(): void
     {
         $this->actingAs($this->admin);
-        $category = Category::factory()->create();
-        $category->delete();
+        $live = Category::factory()->create();
+        $deleted = Category::factory()->create();
+        $deleted->delete();
 
         $response = $this->get(route('admin.catalog.categories.index'));
 
         $response->assertInertia(fn ($page) => $page
             ->component('admin/catalog/categories/index')
-            ->where('categories', fn ($cats) => collect($cats)->every(fn ($c) => $c['id'] !== $category->id))
+            ->where('categories', fn ($cats) => collect($cats)->contains('id', $live->id))
+            ->where('categories', fn ($cats) => collect($cats)->doesntContain('id', $deleted->id))
         );
     }
 }
