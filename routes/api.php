@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Addresses\AddressController;
+use App\Http\Controllers\Api\Payments\PaymentController;
 use App\Http\Controllers\Api\Cart\CartController;
 use App\Http\Controllers\Api\Cart\CartCouponController;
 use App\Http\Controllers\Api\Cart\CartItemController;
@@ -39,6 +40,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+        Route::post('payments/initialize', [PaymentController::class, 'initialize'])->name('payments.initialize');
 
         Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
         Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update'])->name('profile.update');
