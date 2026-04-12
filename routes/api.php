@@ -32,6 +32,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::prefix('checkout')->name('checkout.')->group(function () {
             Route::post('preview', [CheckoutController::class, 'preview'])->name('preview');
+            Route::post('orders', [CheckoutController::class, 'createOrder'])->name('orders.create');
             Route::post('initialize', [CheckoutController::class, 'initialize'])->name('initialize');
         });
         Route::apiResource('addresses', AddressController::class)->except(['create', 'edit', 'show'])->names('addresses');
