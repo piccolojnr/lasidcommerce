@@ -56,7 +56,7 @@ Route::middleware(['auth', 'verified'])
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('orders/{order}/status', [OrderStatusController::class, 'update'])->name('orders.status.update');
 
-        Route::resource('shipments', ShipmentController::class)->only(['index', 'show', 'update']);
+        Route::resource('shipments', ShipmentController::class)->only(['index', 'show', 'store', 'update']);
         Route::patch('shipments/{shipment}/status', [ShipmentStatusController::class, 'update'])->name('shipments.status.update');
 
         Route::prefix('shipping')->name('shipping.')->group(function () {
