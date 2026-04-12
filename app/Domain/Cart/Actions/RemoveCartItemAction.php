@@ -6,8 +6,8 @@ use App\Models\CartItem;
 
 class RemoveCartItemAction
 {
-    public function execute(CartItem $cartItem): bool|null
+    public function execute(CartItem $cartItem): void
     {
-        return $cartItem->delete();
+        $cartItem->delete();
     }
 }
