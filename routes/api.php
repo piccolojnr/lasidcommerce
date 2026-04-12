@@ -40,6 +40,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('orders/{order}/timeline', [OrderController::class, 'timeline'])->name('orders.timeline');
 
         Route::post('payments/initialize', [PaymentController::class, 'initialize'])->name('payments.initialize');
 
