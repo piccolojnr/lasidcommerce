@@ -14,7 +14,7 @@ class UpdateAddressRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['sometimes', 'string', 'max:50'],
+            'type' => ['sometimes', 'string', 'in:shipping,billing'],
             'name' => ['sometimes', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'country' => ['sometimes', 'string', 'max:255'],

@@ -33,8 +33,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('initialize', [CheckoutController::class, 'initialize'])->name('initialize');
     });
 
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::apiResource('addresses', AddressController::class)->except(['create', 'edit'])->names('addresses');
+    Route::middleware('auth')->group(function () {
+        Route::apiResource('addresses', AddressController::class)->except(['create', 'edit', 'show'])->names('addresses');
+        Route::patch('addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
