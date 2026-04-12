@@ -14,9 +14,8 @@ class PreviewCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address_id' => ['nullable', 'integer', 'exists:addresses,id'],
-            'shipping_method_id' => ['nullable', 'integer', 'exists:shipping_methods,id'],
-            'coupon_code' => ['nullable', 'string', 'max:255'],
+            'address_id'         => ['required', 'integer', 'exists:addresses,id'],
+            'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
         ];
     }
 }

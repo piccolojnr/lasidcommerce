@@ -27,13 +27,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('cart/coupon', [CartCouponController::class, 'store'])->name('cart.coupon.store');
     Route::delete('cart/coupon', [CartCouponController::class, 'destroy'])->name('cart.coupon.destroy');
 
-    Route::prefix('checkout')->name('checkout.')->group(function () {
-        Route::post('shipping-methods/resolve', [CheckoutController::class, 'resolveShippingMethods'])->name('shipping-methods.resolve');
-        Route::post('preview', [CheckoutController::class, 'preview'])->name('preview');
-        Route::post('initialize', [CheckoutController::class, 'initialize'])->name('initialize');
-    });
+    Route::post('checkout/shipping-methods/resolve', [CheckoutController::class, 'resolveShippingMethods'])->name('checkout.shipping-methods.resolve');
 
     Route::middleware('auth')->group(function () {
+        Route::prefix('checkout')->name('checkout.')->group(function () {
+            Route::post('preview', [CheckoutController::class, 'preview'])->name('preview');
+            Route::post('initialize', [CheckoutController::class, 'initialize'])->name('initialize');
+        });
         Route::apiResource('addresses', AddressController::class)->except(['create', 'edit', 'show'])->names('addresses');
         Route::patch('addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');

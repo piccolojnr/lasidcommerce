@@ -2,12 +2,76 @@
 
 namespace App\Domain\Checkout\Actions;
 
-use App\Domain\Checkout\DTOs\CheckoutData;
+use App\Domain\Cart\Services\CartItemValidator;
+use App\Domain\Checkout\Exceptions\CheckoutException;
+use App\Domain\Shipping\DTOs\ShippingAddressData;
+use App\Domain\Shipping\Services\ShippingFeeCalculator;
+use App\Domain\Shipping\Services\ShippingZoneResolver;
+use App\Models\Address;
+use App\Models\Cart;
+use App\Models\ShippingMethod;
+use App\Models\ShippingZone;
 
 class PreviewCheckoutAction
 {
-    public function execute(CheckoutData $checkoutData): array
+    public function __construct(
+        private ShippingZoneResolver $zoneResolver,
+        private ShippingFeeCalculator $feeCalculator,
+        private CartItemValidator $itemValidator,
+    ) {}
+
+    /**
+     * @throws CheckoutException
+     */
+    public function execute(Cart $cart, Address $address, ShippingMethod $shippingMethod): array
     {
-        return $checkoutData->toArray();
+        $cart->loadMissing('cartItems.product', 'cartItems.productVariant');
+
+        if ($cart->cartItems->isEmpty()) {
+            throw new CheckoutException('Cart is empty.');
+        }
+
+        $addressData = new ShippingAddressData(
+            country:  $address->country,
+            region:   $address->region,
+            city:     $address->city,
+            district: $address->district,
+        );
+
+        $zone = $this->zoneResolver->resolve($addressData);
+
+        if ($zone === null) {
+            throw new CheckoutException('No shipping zone available for your address.');
+        }
+
+        if ($shippingMethod->shipping_zone_id !== $zone->id || ! $shippingMethod->is_active) {
+            throw new CheckoutException('Selected shipping method is not available for your address.');
+        }
+
+        foreach ($cart->cartItems as $item) {
+            try {
+                $this->itemValidator->validate($item->product, $item->productVariant ?? null);
+            } catch (\RuntimeException $e) {
+                throw new CheckoutException("Cart item \"{$item->product_name_snapshot}\" is no longer available: {$e->getMessage()}");
+            }
+        }
+
+        $subtotal = $cart->cartItems->sum('line_total');
+        $shipping = $this->feeCalculator->calculate($shippingMethod);
+        $discount = 0;
+        $tax      = 0;
+        $total    = $subtotal + $shipping - $discount + $tax;
+
+        return [
+            'cart'            => $cart,
+            'address'         => $address,
+            'shipping_zone'   => $zone,
+            'shipping_method' => $shippingMethod,
+            'subtotal_amount' => $subtotal,
+            'discount_amount' => $discount,
+            'tax_amount'      => $tax,
+            'shipping_amount' => $shipping,
+            'total_amount'    => $total,
+        ];
     }
 }
