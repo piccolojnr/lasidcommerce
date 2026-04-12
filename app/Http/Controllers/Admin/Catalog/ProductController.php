@@ -16,6 +16,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -32,13 +33,23 @@ class ProductController extends Controller
         $this->authorizeResource(Product::class, 'product');
     }
 
-    public function index(): InertiaResponse
+    public function index(Request $request): InertiaResponse
     {
-        $products = $this->listQuery->paginate();
+        $filters = [
+            'search'      => $request->query('search') ?: null,
+            'status'      => $request->query('status') ?: null,
+            'category_id' => $request->query('category_id') ?: null,
+            'brand_id'    => $request->query('brand_id') ?: null,
+        ];
+
+        $products = $this->listQuery->withFilters($filters)->paginate();
         $products->getCollection()->transform(fn (Product $product) => $this->formatProduct($product));
 
         return Inertia::render('admin/catalog/products/index', [
-            'products' => $products,
+            'products'   => $products,
+            'filters'    => $filters,
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'brands'     => Brand::orderBy('name')->get(['id', 'name']),
         ]);
     }
 

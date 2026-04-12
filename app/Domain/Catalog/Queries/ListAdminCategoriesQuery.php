@@ -7,6 +7,17 @@ use Illuminate\Support\Collection;
 
 class ListAdminCategoriesQuery
 {
+    private ?string $search = null;
+    private ?bool $isActive = null;
+
+    public function withFilters(array $filters): static
+    {
+        $clone = clone $this;
+        $clone->search   = $filters['search'] ?? null;
+        $clone->isActive = isset($filters['is_active']) ? (bool) $filters['is_active'] : null;
+        return $clone;
+    }
+
     public function get(): array
     {
         $roots = Category::with($this->childrenRelation())
@@ -16,7 +27,18 @@ class ListAdminCategoriesQuery
             ->orderBy('name')
             ->get();
 
-        return $this->flatten($roots, 0, null);
+        $result = $this->flatten($roots, 0, null);
+
+        if ($this->search !== null && $this->search !== '') {
+            $lower  = strtolower($this->search);
+            $result = array_values(array_filter($result, fn ($c) => str_contains(strtolower($c['name']), $lower)));
+        }
+
+        if ($this->isActive !== null) {
+            $result = array_values(array_filter($result, fn ($c) => $c['is_active'] === $this->isActive));
+        }
+
+        return $result;
     }
 
     private function childrenRelation(): array

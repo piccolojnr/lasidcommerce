@@ -191,4 +191,32 @@ class BrandTest extends TestCase
             ->where('brands.data', fn ($data) => collect($data)->doesntContain('id', $deleted->id))
         );
     }
+
+    public function test_index_filters_brands_by_name(): void
+    {
+        $this->actingAs($this->admin);
+        $match = Brand::factory()->create(['name' => 'Nike Running']);
+        $other = Brand::factory()->create(['name' => 'Adidas Sport']);
+
+        $response = $this->get(route('admin.catalog.brands.index', ['search' => 'Nike']));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('brands.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('brands.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
+    public function test_index_filters_brands_by_active_state(): void
+    {
+        $this->actingAs($this->admin);
+        $active   = Brand::factory()->create(['is_active' => true]);
+        $inactive = Brand::factory()->create(['is_active' => false]);
+
+        $response = $this->get(route('admin.catalog.brands.index', ['is_active' => '1']));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('brands.data', fn ($data) => collect($data)->contains('id', $active->id))
+            ->where('brands.data', fn ($data) => collect($data)->doesntContain('id', $inactive->id))
+        );
+    }
 }

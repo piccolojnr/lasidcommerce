@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Admin\Catalog;
 
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -231,6 +233,96 @@ class ProductTest extends TestCase
 
         $response->assertInertia(fn ($page) => $page
             ->component('admin/catalog/products/create')
+            ->has('categories')
+            ->has('brands')
+        );
+    }
+
+    public function test_index_filters_by_search_name(): void
+    {
+        $this->actingAs($this->admin);
+        $match = Product::factory()->create(['name' => 'Classic Sneaker']);
+        $other = Product::factory()->create(['name' => 'Running Boot']);
+
+        $response = $this->get(route('admin.catalog.products.index', ['search' => 'Sneaker']));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
+    public function test_index_filters_by_sku(): void
+    {
+        $this->actingAs($this->admin);
+        $match = Product::factory()->create(['sku' => 'SNK-FIND-001']);
+        $other = Product::factory()->create(['sku' => 'BOOT-999']);
+
+        $response = $this->get(route('admin.catalog.products.index', ['search' => 'SNK-FIND']));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
+    public function test_index_filters_by_status(): void
+    {
+        $this->actingAs($this->admin);
+        $active = Product::factory()->create(['status' => 'active']);
+        $draft  = Product::factory()->create(['status' => 'draft']);
+
+        $response = $this->get(route('admin.catalog.products.index', ['status' => 'active']));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $active->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $draft->id))
+        );
+    }
+
+    public function test_index_filters_by_category(): void
+    {
+        $this->actingAs($this->admin);
+        $category = Category::factory()->create();
+        $match    = Product::factory()->create(['category_id' => $category->id]);
+        $other    = Product::factory()->create(['category_id' => null]);
+
+        $response = $this->get(route('admin.catalog.products.index', ['category_id' => $category->id]));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
+    public function test_index_filters_by_brand(): void
+    {
+        $this->actingAs($this->admin);
+        $brand = Brand::factory()->create();
+        $match = Product::factory()->create(['brand_id' => $brand->id]);
+        $other = Product::factory()->create(['brand_id' => null]);
+
+        $response = $this->get(route('admin.catalog.products.index', ['brand_id' => $brand->id]));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
+    public function test_index_passes_filter_values_as_props(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('admin.catalog.products.index', [
+            'search' => 'shoe',
+            'status' => 'active',
+        ]));
+
+        $response->assertInertia(fn ($page) => $page
+            ->component('admin/catalog/products/index')
+            ->where('filters.search', 'shoe')
+            ->where('filters.status', 'active')
             ->has('categories')
             ->has('brands')
         );

@@ -14,6 +14,7 @@ use App\Http\Requests\Admin\StoreBrandRequest;
 use App\Http\Requests\Admin\UpdateBrandRequest;
 use App\Models\Brand;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -30,10 +31,18 @@ class BrandController extends Controller
         $this->authorizeResource(Brand::class, 'brand');
     }
 
-    public function index(): InertiaResponse
+    public function index(Request $request): InertiaResponse
     {
+        $filters = [
+            'search'    => $request->query('search') ?: null,
+            'is_active' => $request->query('is_active') !== null
+                ? filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                : null,
+        ];
+
         return Inertia::render('admin/catalog/brands/index', [
-            'brands' => $this->listQuery->paginate(),
+            'brands'  => $this->listQuery->withFilters($filters)->paginate(),
+            'filters' => $filters,
         ]);
     }
 

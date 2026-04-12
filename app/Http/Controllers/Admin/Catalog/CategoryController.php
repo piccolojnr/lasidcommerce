@@ -14,6 +14,7 @@ use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -30,10 +31,18 @@ class CategoryController extends Controller
         $this->authorizeResource(Category::class, 'category');
     }
 
-    public function index(): InertiaResponse
+    public function index(Request $request): InertiaResponse
     {
+        $filters = [
+            'search'    => $request->query('search') ?: null,
+            'is_active' => $request->query('is_active') !== null
+                ? filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                : null,
+        ];
+
         return Inertia::render('admin/catalog/categories/index', [
-            'categories' => $this->listQuery->get(),
+            'categories' => $this->listQuery->withFilters($filters)->get(),
+            'filters'    => $filters,
         ]);
     }
 
