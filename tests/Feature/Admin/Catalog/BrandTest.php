@@ -5,6 +5,8 @@ namespace Tests\Feature\Admin\Catalog;
 use App\Models\Brand;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -218,5 +220,56 @@ class BrandTest extends TestCase
             ->where('brands.data', fn ($data) => collect($data)->contains('id', $active->id))
             ->where('brands.data', fn ($data) => collect($data)->doesntContain('id', $inactive->id))
         );
+    }
+
+    // --- Permission denial ---
+
+    public function test_user_without_permission_cannot_view_brands_index(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('admin.catalog.brands.index'));
+
+        $response->assertForbidden();
+    }
+
+    public function test_user_without_permission_cannot_access_create_form(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('admin.catalog.brands.create'));
+
+        $response->assertForbidden();
+    }
+
+    // --- Media upload ---
+
+    public function test_store_attaches_uploaded_image(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+
+        $this->post(route('admin.catalog.brands.store'), [
+            'name'  => 'Logo Brand',
+            'image' => UploadedFile::fake()->image('logo.png'),
+        ]);
+
+        $brand = Brand::where('name', 'Logo Brand')->first();
+        $this->assertCount(1, $brand->getMedia('images'));
+    }
+
+    public function test_update_removes_image_when_flag_set(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+        $brand = Brand::factory()->create();
+        $brand->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('images');
+
+        $this->put(route('admin.catalog.brands.update', $brand), [
+            'name'         => $brand->name,
+            'remove_image' => true,
+        ]);
+
+        $this->assertCount(0, $brand->fresh()->getMedia('images'));
     }
 }

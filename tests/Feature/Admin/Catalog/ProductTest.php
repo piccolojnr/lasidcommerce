@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -326,5 +328,96 @@ class ProductTest extends TestCase
             ->has('categories')
             ->has('brands')
         );
+    }
+
+    // --- Permission denial ---
+
+    public function test_user_without_permission_cannot_view_products_index(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('admin.catalog.products.index'));
+
+        $response->assertForbidden();
+    }
+
+    public function test_user_without_permission_cannot_access_create_form(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('admin.catalog.products.create'));
+
+        $response->assertForbidden();
+    }
+
+    public function test_user_without_permission_cannot_delete_product(): void
+    {
+        $user    = User::factory()->create();
+        $product = Product::factory()->create();
+
+        $response = $this->actingAs($user)->delete(route('admin.catalog.products.destroy', $product));
+
+        $response->assertForbidden();
+    }
+
+    // --- Media upload ---
+
+    public function test_store_attaches_uploaded_images(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+
+        $this->post(route('admin.catalog.products.store'), [
+            'name'         => 'Image Product',
+            'sku'          => 'IMG-001',
+            'status'       => 'draft',
+            'product_type' => 'physical',
+            'base_price'   => 1000,
+            'images'       => [UploadedFile::fake()->image('photo.jpg')],
+        ]);
+
+        $product = Product::where('sku', 'IMG-001')->first();
+        $this->assertCount(1, $product->getMedia('images'));
+    }
+
+    public function test_update_removes_specified_images(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+        $product = Product::factory()->create();
+        $media   = $product->addMedia(UploadedFile::fake()->image('old.jpg'))
+            ->toMediaCollection('images');
+
+        $this->put(route('admin.catalog.products.update', $product), [
+            'name'             => $product->name,
+            'sku'              => $product->sku,
+            'status'           => 'draft',
+            'product_type'     => 'physical',
+            'base_price'       => $product->base_price,
+            'remove_image_ids' => [$media->id],
+        ]);
+
+        $this->assertCount(0, $product->fresh()->getMedia('images'));
+    }
+
+    public function test_remove_image_ids_cannot_delete_another_products_image(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+        $target     = Product::factory()->create();
+        $other      = Product::factory()->create();
+        $otherMedia = $other->addMedia(UploadedFile::fake()->image('other.jpg'))
+            ->toMediaCollection('images');
+
+        $this->put(route('admin.catalog.products.update', $target), [
+            'name'             => $target->name,
+            'sku'              => $target->sku,
+            'status'           => 'draft',
+            'product_type'     => 'physical',
+            'base_price'       => $target->base_price,
+            'remove_image_ids' => [$otherMedia->id],
+        ]);
+
+        $this->assertCount(1, $other->fresh()->getMedia('images'));
     }
 }

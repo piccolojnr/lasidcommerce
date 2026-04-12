@@ -5,6 +5,8 @@ namespace Tests\Feature\Admin\Catalog;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -202,5 +204,56 @@ class CategoryTest extends TestCase
             ->where('categories', fn ($cats) => collect($cats)->contains('id', $live->id))
             ->where('categories', fn ($cats) => collect($cats)->doesntContain('id', $deleted->id))
         );
+    }
+
+    // --- Permission denial ---
+
+    public function test_user_without_permission_cannot_view_categories_index(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('admin.catalog.categories.index'));
+
+        $response->assertForbidden();
+    }
+
+    public function test_user_without_permission_cannot_access_create_form(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('admin.catalog.categories.create'));
+
+        $response->assertForbidden();
+    }
+
+    // --- Media upload ---
+
+    public function test_store_attaches_uploaded_image(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+
+        $this->post(route('admin.catalog.categories.store'), [
+            'name'  => 'Image Category',
+            'image' => UploadedFile::fake()->image('cat.jpg'),
+        ]);
+
+        $category = Category::where('name', 'Image Category')->first();
+        $this->assertCount(1, $category->getMedia('images'));
+    }
+
+    public function test_update_removes_image_when_flag_set(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+        $category = Category::factory()->create();
+        $category->addMedia(UploadedFile::fake()->image('cat.jpg'))->toMediaCollection('images');
+
+        $this->put(route('admin.catalog.categories.update', $category), [
+            'name'         => $category->name,
+            'remove_image' => true,
+        ]);
+
+        $this->assertCount(0, $category->fresh()->getMedia('images'));
     }
 }
