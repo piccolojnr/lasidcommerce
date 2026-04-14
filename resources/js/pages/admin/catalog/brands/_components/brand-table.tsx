@@ -32,8 +32,22 @@ export function BrandTable({ brands }: BrandTableProps) {
                     </thead>
                     <tbody>
                         {brands.map((brand) => (
-                            <tr key={brand.id} className="border-t">
-                                <td className="px-4 py-3 align-middle font-medium">{brand.name}</td>
+                            <tr key={brand.id} className="border-t align-top">
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border bg-muted/30">
+                                            {brand.image_url ? (
+                                                <img src={brand.image_url} alt={brand.name} className="h-full w-full object-cover" />
+                                            ) : null}
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="font-medium">{brand.name}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {brand.products_count} linked product{brand.products_count === 1 ? '' : 's'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td className="px-4 py-3 align-middle font-mono text-xs text-muted-foreground">{brand.slug}</td>
                                 <td className="px-4 py-3 align-middle">
                                     <StatusBadge status={brand.is_active ? 'active' : 'inactive'} />

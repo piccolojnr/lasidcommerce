@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { EMPTY_SENTINEL, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFilters } from '@/hooks/use-filters';
@@ -29,19 +30,50 @@ interface Props {
 
 export default function ProductIndexPage({ products, filters, categories, brands }: Props) {
     const { search, setSearch, setFilter } = useFilters(ProductController.index.url(), filters);
+    const activeProducts = products.data.filter((product) => product.status === 'active').length;
+    const featuredProducts = products.data.filter((product) => product.is_featured).length;
 
     return (
         <AdminLayout title="Products">
             <div className="mx-auto w-full max-w-6xl space-y-6">
                 <PageHeader
                     title="Products"
-                    description="Manage product catalog entries and publishing state."
+                    description="Manage the active catalog mix, pricing posture, and publishing pipeline."
                     actions={
                         <Button asChild>
                             <Link href={ProductController.create.url()}>Create product</Link>
                         </Button>
                     }
                 />
+                <div className="grid gap-4 md:grid-cols-3">
+                    <Card className="border-border/70">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Visible in this result</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-semibold">{products.data.length}</div>
+                            <p className="text-sm text-muted-foreground">Products on the current page after filters.</p>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-border/70">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Active on this page</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-semibold">{activeProducts}</div>
+                            <p className="text-sm text-muted-foreground">Listings already live to shoppers.</p>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-border/70">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Featured in this slice</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-semibold">{featuredProducts}</div>
+                            <p className="text-sm text-muted-foreground">Products currently flagged for spotlight placement.</p>
+                        </CardContent>
+                    </Card>
+                </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <Input
                         placeholder="Search name or SKU…"

@@ -22,35 +22,35 @@ export function CategoryTable({ categories }: CategoryTableProps) {
     return (
         <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-lg border bg-background">
             <div className="overflow-x-auto">
-                <table className="min-w-full text-center text-sm">
+                <table className="min-w-full text-sm">
                     <thead className="bg-muted/40">
                         <tr>
-                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Name
                             </th>
-                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Slug
                             </th>
-                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Parent
                             </th>
-                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Order
                             </th>
-                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Status
                             </th>
-                            <th className="px-4 py-3 font-medium text-muted-foreground">
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Actions
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         {categories.map((category) => (
-                            <tr key={category.id} className="border-t">
-                                <td className="px-4 py-3 align-middle">
+                            <tr key={category.id} className="border-t align-top">
+                                <td className="px-4 py-4 align-middle">
                                     <span
-                                        className="inline-flex items-center gap-1"
+                                        className="inline-flex items-center gap-2"
                                         style={{
                                             paddingLeft: `${category.depth * 20}px`,
                                         }}
@@ -60,7 +60,7 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                                 └
                                             </span>
                                         )}
-                                        {category.name}
+                                        <span className="font-medium">{category.name}</span>
                                         {category.children_count > 0 && (
                                             <span className="ml-1 text-xs text-muted-foreground">
                                                 ({category.children_count})
@@ -89,7 +89,7 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                     />
                                 </td>
                                 <td className="px-4 py-3 align-middle">
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-center gap-2">
                                         <Button
                                             variant="outline"
                                             size="sm"
