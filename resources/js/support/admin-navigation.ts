@@ -3,6 +3,7 @@ import {
     Boxes,
     ContactRound,
     LayoutGrid,
+    MapPinned,
     Settings,
     ShieldCheck,
     ShoppingCart,
@@ -105,6 +106,21 @@ export const adminSidebarGroups: SidebarNavGroup[] = [
                 title: 'Shipments',
                 href: '/admin/shipments',
                 icon: Truck,
+            },
+            {
+                title: 'Shipping Setup',
+                href: '/admin/shipping/zones',
+                icon: MapPinned,
+                items: [
+                    {
+                        title: 'Shipping Zones',
+                        href: '/admin/shipping/zones',
+                    },
+                    {
+                        title: 'Warehouses',
+                        href: '/admin/shipping/warehouse-locations',
+                    },
+                ],
             },
             {
                 title: 'Coupons',

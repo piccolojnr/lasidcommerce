@@ -2,51 +2,110 @@
 
 namespace App\Http\Controllers\Admin\Shipments;
 
+use App\Domain\Shipping\Actions\CreateWarehouseLocationAction;
+use App\Domain\Shipping\Actions\DeleteWarehouseLocationAction;
+use App\Domain\Shipping\Actions\UpdateWarehouseLocationAction;
+use App\Domain\Shipping\Queries\ListAdminWarehouseLocationsQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreWarehouseLocationRequest;
 use App\Http\Requests\Admin\UpdateWarehouseLocationRequest;
 use App\Models\WarehouseLocation;
-use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class WarehouseLocationController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private ListAdminWarehouseLocationsQuery $listQuery,
+        private CreateWarehouseLocationAction $createAction,
+        private UpdateWarehouseLocationAction $updateAction,
+        private DeleteWarehouseLocationAction $deleteAction,
+    ) {
         $this->authorizeResource(WarehouseLocation::class, 'warehouseLocation');
     }
 
-    public function index(): Response
+    public function index(Request $request): InertiaResponse
     {
-        return response('Admin warehouse location index placeholder');
+        $filters = [
+            'search' => $request->query('search') ?: null,
+            'is_active' => $request->query('is_active') !== null
+                ? filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                : null,
+        ];
+
+        return Inertia::render('admin/shipping/warehouses/index', [
+            'warehouses' => $this->listQuery->withFilters($filters)->paginate(),
+            'filters' => $filters,
+        ]);
     }
 
-    public function create(): Response
+    public function create(): InertiaResponse
     {
-        return response('Admin warehouse location create placeholder');
+        return Inertia::render('admin/shipping/warehouses/create');
     }
 
-    public function store(StoreWarehouseLocationRequest $request): Response
+    public function store(StoreWarehouseLocationRequest $request): RedirectResponse
     {
-        return response('Admin warehouse location store placeholder', Response::HTTP_CREATED);
+        $this->createAction->execute($request->validated());
+
+        return redirect()->route('admin.shipping.warehouse-locations.index')
+            ->with('success', 'Warehouse location created successfully.');
     }
 
-    public function show(WarehouseLocation $warehouseLocation): Response
+    public function show(WarehouseLocation $warehouseLocation): InertiaResponse
     {
-        return response("Admin warehouse location show placeholder: {$warehouseLocation->getKey()}");
+        $warehouseLocation->loadCount('shipments');
+
+        return Inertia::render('admin/shipping/warehouses/show', [
+            'warehouse' => $this->formatWarehouse($warehouseLocation),
+        ]);
     }
 
-    public function edit(WarehouseLocation $warehouseLocation): Response
+    public function edit(WarehouseLocation $warehouseLocation): InertiaResponse
     {
-        return response("Admin warehouse location edit placeholder: {$warehouseLocation->getKey()}");
+        $warehouseLocation->loadCount('shipments');
+
+        return Inertia::render('admin/shipping/warehouses/edit', [
+            'warehouse' => $this->formatWarehouse($warehouseLocation),
+        ]);
     }
 
-    public function update(UpdateWarehouseLocationRequest $request, WarehouseLocation $warehouseLocation): Response
+    public function update(UpdateWarehouseLocationRequest $request, WarehouseLocation $warehouseLocation): RedirectResponse
     {
-        return response("Admin warehouse location update placeholder: {$warehouseLocation->getKey()}");
+        $this->updateAction->execute($warehouseLocation, $request->validated());
+
+        return redirect()->route('admin.shipping.warehouse-locations.show', $warehouseLocation)
+            ->with('success', 'Warehouse location updated successfully.');
     }
 
-    public function destroy(WarehouseLocation $warehouseLocation): Response
+    public function destroy(WarehouseLocation $warehouseLocation): RedirectResponse
     {
-        return response()->noContent();
+        $this->deleteAction->execute($warehouseLocation);
+
+        return redirect()->route('admin.shipping.warehouse-locations.index')
+            ->with('success', 'Warehouse location deleted.');
+    }
+
+    private function formatWarehouse(WarehouseLocation $warehouse): array
+    {
+        return [
+            'id' => $warehouse->id,
+            'name' => $warehouse->name,
+            'code' => $warehouse->code,
+            'country' => $warehouse->country,
+            'region' => $warehouse->region,
+            'city' => $warehouse->city,
+            'address_line_1' => $warehouse->address_line_1,
+            'address_line_2' => $warehouse->address_line_2,
+            'phone' => $warehouse->phone,
+            'email' => $warehouse->email,
+            'is_active' => $warehouse->is_active,
+            'is_default' => $warehouse->is_default,
+            'shipments_count' => $warehouse->shipments_count ?? 0,
+            'created_at' => $warehouse->created_at?->toISOString(),
+            'updated_at' => $warehouse->updated_at?->toISOString(),
+        ];
     }
 }

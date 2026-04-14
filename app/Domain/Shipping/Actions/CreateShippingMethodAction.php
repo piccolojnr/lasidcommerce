@@ -9,7 +9,7 @@ class CreateShippingMethodAction
 {
     public function execute(ShippingZone $zone, array $attributes): ShippingMethod
     {
-        return new ShippingMethod(array_merge($attributes, [
+        return ShippingMethod::query()->create(array_merge($attributes, [
             'shipping_zone_id' => $zone->getKey(),
         ]));
     }

@@ -44,7 +44,7 @@ export function NavMain({ groups = [] }: { groups: SidebarNavGroup[] }) {
                                             hasChildren && itemIsActive
                                                 ? 'bg-primary/10!'
                                                 : '',
-                                            hasChildren ? 'mb-4' : '',
+                                            hasChildren ? 'mb-2' : '',
                                         )}
                                     >
                                         <Link href={item.href} prefetch>

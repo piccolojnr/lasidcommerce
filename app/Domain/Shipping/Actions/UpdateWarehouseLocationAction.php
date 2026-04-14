@@ -9,6 +9,7 @@ class UpdateWarehouseLocationAction
     public function execute(WarehouseLocation $warehouseLocation, array $attributes): WarehouseLocation
     {
         $warehouseLocation->fill($attributes);
+        $warehouseLocation->save();
 
         return $warehouseLocation;
     }

@@ -9,6 +9,7 @@ class UpdateShippingZoneAction
     public function execute(ShippingZone $zone, array $attributes): ShippingZone
     {
         $zone->fill($attributes);
+        $zone->save();
 
         return $zone;
     }

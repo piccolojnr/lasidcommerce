@@ -7,6 +7,10 @@ export const adminRoutes = {
     },
     orders: '/admin/orders',
     shipments: '/admin/shipments',
+    shipping: {
+        zones: '/admin/shipping/zones',
+        warehouses: '/admin/shipping/warehouse-locations',
+    },
     coupons: '/admin/coupons',
     users: '/admin/users',
     customers: '/admin/customers',

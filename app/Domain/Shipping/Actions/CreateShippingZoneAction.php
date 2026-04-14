@@ -8,6 +8,6 @@ class CreateShippingZoneAction
 {
     public function execute(array $attributes): ShippingZone
     {
-        return new ShippingZone($attributes);
+        return ShippingZone::query()->create($attributes);
     }
 }

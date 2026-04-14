@@ -9,7 +9,7 @@ class CreateShippingZoneAreaAction
 {
     public function execute(ShippingZone $zone, array $attributes): ShippingZoneArea
     {
-        return new ShippingZoneArea(array_merge($attributes, [
+        return ShippingZoneArea::query()->create(array_merge($attributes, [
             'shipping_zone_id' => $zone->getKey(),
         ]));
     }

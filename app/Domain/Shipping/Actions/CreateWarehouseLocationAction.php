@@ -8,6 +8,6 @@ class CreateWarehouseLocationAction
 {
     public function execute(array $attributes): WarehouseLocation
     {
-        return new WarehouseLocation($attributes);
+        return WarehouseLocation::query()->create($attributes);
     }
 }
