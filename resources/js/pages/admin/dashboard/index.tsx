@@ -3,7 +3,6 @@ import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog
 import * as CouponController from '@/actions/App/Http/Controllers/Admin/Coupons/CouponController';
 import * as OrderController from '@/actions/App/Http/Controllers/Admin/Orders/OrderController';
 import * as ShipmentController from '@/actions/App/Http/Controllers/Admin/Shipments/ShipmentController';
-import * as UserController from '@/actions/App/Http/Controllers/Admin/Users/UserController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
@@ -68,7 +67,10 @@ export default function AdminDashboardPage({
     recent_shipments,
 }: Props) {
     return (
-        <AdminLayout title="Dashboard" description="Operational overview for the admin workspace.">
+        <AdminLayout
+            title="Dashboard"
+            description="Operational overview for the admin workspace."
+        >
             <div className="space-y-6">
                 <PageHeader
                     title="Dashboard"
@@ -79,7 +81,9 @@ export default function AdminDashboardPage({
                         title="Revenue, last 30 days"
                         value={formatMoney(overview.revenue_last_30_days)}
                         description="Captured from successful and paid payment records."
-                        actionHref={OrderController.index.url({ query: { payment_status: 'paid' } })}
+                        actionHref={OrderController.index.url({
+                            query: { payment_status: 'paid' },
+                        })}
                         actionLabel="View paid orders"
                     />
                     <OverviewCard
@@ -93,7 +97,9 @@ export default function AdminDashboardPage({
                         title="Pending fulfillment"
                         value={overview.pending_fulfillment_orders.toLocaleString()}
                         description="Open orders that still are not fulfilled."
-                        actionHref={OrderController.index.url({ query: { fulfillment_status: 'pending' } })}
+                        actionHref={OrderController.index.url({
+                            query: { fulfillment_status: 'pending' },
+                        })}
                         actionLabel="Review backlog"
                     />
                     <OverviewCard
@@ -107,7 +113,9 @@ export default function AdminDashboardPage({
                         title="Active coupons"
                         value={overview.active_coupons.toLocaleString()}
                         description="Coupons currently redeemable based on schedule and limits."
-                        actionHref={CouponController.index.url({ query: { is_active: '1' } })}
+                        actionHref={CouponController.index.url({
+                            query: { is_active: '1' },
+                        })}
                         actionLabel="View coupons"
                     />
                     <OverviewCard
@@ -123,31 +131,59 @@ export default function AdminDashboardPage({
                     <Card className="gap-4 xl:col-span-1">
                         <CardHeader>
                             <CardTitle>Recent orders</CardTitle>
-                            <CardDescription>Latest placed orders with payment and fulfillment state.</CardDescription>
+                            <CardDescription>
+                                Latest placed orders with payment and
+                                fulfillment state.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {recent_orders.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No orders found.</p>
+                                <p className="text-sm text-muted-foreground">
+                                    No orders found.
+                                </p>
                             ) : (
                                 recent_orders.map((order) => (
-                                    <div key={order.id} className="space-y-2 rounded-lg border p-4">
+                                    <div
+                                        key={order.id}
+                                        className="space-y-2 rounded-lg border p-4"
+                                    >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
-                                                <Link href={OrderController.show.url(order)} className="font-medium hover:underline">
+                                                <Link
+                                                    href={OrderController.show.url(
+                                                        order,
+                                                    )}
+                                                    className="font-medium hover:underline"
+                                                >
                                                     {order.order_number}
                                                 </Link>
-                                                <p className="text-sm text-muted-foreground">{order.email ?? 'No email'}</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {order.email ?? 'No email'}
+                                                </p>
                                             </div>
                                             <p className="text-sm font-medium">
-                                                {formatMoney(order.total_amount, order.currency_code)}
+                                                {formatMoney(
+                                                    order.total_amount,
+                                                    order.currency_code,
+                                                )}
                                             </p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <StatusBadge status={order.status} />
-                                            <StatusBadge status={order.payment_status} />
-                                            <StatusBadge status={order.fulfillment_status} />
+                                            <StatusBadge
+                                                status={order.status}
+                                            />
+                                            <StatusBadge
+                                                status={order.payment_status}
+                                            />
+                                            <StatusBadge
+                                                status={
+                                                    order.fulfillment_status
+                                                }
+                                            />
                                         </div>
-                                        <p className="text-xs text-muted-foreground">{formatDate(order.placed_at)}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {formatDate(order.placed_at)}
+                                        </p>
                                     </div>
                                 ))
                             )}
@@ -157,33 +193,65 @@ export default function AdminDashboardPage({
                     <Card className="gap-4 xl:col-span-1">
                         <CardHeader>
                             <CardTitle>Recent payments</CardTitle>
-                            <CardDescription>Latest payment records across providers.</CardDescription>
+                            <CardDescription>
+                                Latest payment records across providers.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {recent_payments.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No payments found.</p>
+                                <p className="text-sm text-muted-foreground">
+                                    No payments found.
+                                </p>
                             ) : (
                                 recent_payments.map((payment) => (
-                                    <div key={payment.id} className="space-y-2 rounded-lg border p-4">
+                                    <div
+                                        key={payment.id}
+                                        className="space-y-2 rounded-lg border p-4"
+                                    >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
-                                                <p className="font-medium">{payment.reference}</p>
-                                                <p className="text-sm capitalize text-muted-foreground">{payment.provider}</p>
+                                                <p className="font-medium">
+                                                    {payment.reference}
+                                                </p>
+                                                <p className="text-sm text-muted-foreground capitalize">
+                                                    {payment.provider}
+                                                </p>
                                             </div>
                                             <p className="text-sm font-medium">
-                                                {formatMoney(payment.amount, payment.currency_code)}
+                                                {formatMoney(
+                                                    payment.amount,
+                                                    payment.currency_code,
+                                                )}
                                             </p>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <StatusBadge status={payment.status} />
+                                            <StatusBadge
+                                                status={payment.status}
+                                            />
                                             {payment.order ? (
-                                                <Button variant="ghost" size="sm" asChild>
-                                                    <Link href={OrderController.show.url(payment.order)}>{payment.order.order_number}</Link>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    asChild
+                                                >
+                                                    <Link
+                                                        href={OrderController.show.url(
+                                                            payment.order,
+                                                        )}
+                                                    >
+                                                        {
+                                                            payment.order
+                                                                .order_number
+                                                        }
+                                                    </Link>
                                                 </Button>
                                             ) : null}
                                         </div>
                                         <p className="text-xs text-muted-foreground">
-                                            {formatDate(payment.paid_at ?? payment.created_at)}
+                                            {formatDate(
+                                                payment.paid_at ??
+                                                    payment.created_at,
+                                            )}
                                         </p>
                                     </div>
                                 ))
@@ -194,30 +262,66 @@ export default function AdminDashboardPage({
                     <Card className="gap-4 xl:col-span-1">
                         <CardHeader>
                             <CardTitle>Recent shipments</CardTitle>
-                            <CardDescription>Latest fulfillment records moving through delivery.</CardDescription>
+                            <CardDescription>
+                                Latest fulfillment records moving through
+                                delivery.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {recent_shipments.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No shipments found.</p>
+                                <p className="text-sm text-muted-foreground">
+                                    No shipments found.
+                                </p>
                             ) : (
                                 recent_shipments.map((shipment) => (
-                                    <div key={shipment.id} className="space-y-2 rounded-lg border p-4">
+                                    <div
+                                        key={shipment.id}
+                                        className="space-y-2 rounded-lg border p-4"
+                                    >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
-                                                <Link href={ShipmentController.show.url(shipment)} className="font-medium hover:underline">
-                                                    {shipment.tracking_number ?? `Shipment #${shipment.id}`}
+                                                <Link
+                                                    href={ShipmentController.show.url(
+                                                        shipment,
+                                                    )}
+                                                    className="font-medium hover:underline"
+                                                >
+                                                    {shipment.tracking_number ??
+                                                        `Shipment #${shipment.id}`}
                                                 </Link>
-                                                <p className="text-sm text-muted-foreground">{shipment.carrier_name ?? 'No carrier assigned'}</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {shipment.carrier_name ??
+                                                        'No carrier assigned'}
+                                                </p>
                                             </div>
-                                            <StatusBadge status={shipment.status} />
+                                            <StatusBadge
+                                                status={shipment.status}
+                                            />
                                         </div>
                                         {shipment.order ? (
-                                            <Button variant="ghost" size="sm" className="h-auto px-0" asChild>
-                                                <Link href={OrderController.show.url(shipment.order)}>{shipment.order.order_number}</Link>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-auto px-0"
+                                                asChild
+                                            >
+                                                <Link
+                                                    href={OrderController.show.url(
+                                                        shipment.order,
+                                                    )}
+                                                >
+                                                    {
+                                                        shipment.order
+                                                            .order_number
+                                                    }
+                                                </Link>
                                             </Button>
                                         ) : null}
                                         <p className="text-xs text-muted-foreground">
-                                            {formatDate(shipment.shipped_at ?? shipment.created_at)}
+                                            {formatDate(
+                                                shipment.shipped_at ??
+                                                    shipment.created_at,
+                                            )}
                                         </p>
                                     </div>
                                 ))

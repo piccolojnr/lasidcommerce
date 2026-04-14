@@ -35,19 +35,19 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function show(User $user): InertiaResponse
+    public function show(User $customer): InertiaResponse
     {
-        $this->authorize('view', $user);
-        abort_if(! $this->segmentService->isCustomer($user), 404);
+        $this->authorize('view', $customer);
+        abort_if(! $this->segmentService->isCustomer($customer), 404);
 
-        $user->loadCount(['orders', 'payments', 'addresses']);
-        $user->load([
+        $customer->loadCount(['orders', 'payments', 'addresses']);
+        $customer->load([
             'orders' => fn ($query) => $query->latest('id')->limit(5),
             'payments' => fn ($query) => $query->latest('id')->limit(5),
         ]);
 
         return Inertia::render('admin/customers/show', [
-            'customer' => $this->formatCustomerDetail($user),
+            'customer' => $this->formatCustomerDetail($customer),
         ]);
     }
 

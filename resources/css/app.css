@@ -212,4 +212,28 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    
+      /* custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--sidebar-primary);
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--sidebar-primary);
+        border-radius: 3px;
+    }
+
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
+    }
 }

@@ -63,7 +63,7 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         urlToCheck: NonNullable<InertiaLinkProps['href']>,
         currentUrl?: string,
     ) => {
-        return isCurrentUrl(urlToCheck, currentUrl, true);
+        return isCurrentUrl(urlToCheck, currentUrl, true); // Check if current URL starts with the given URL
     };
 
     const whenCurrentUrl: WhenCurrentUrlFn = <TIfTrue, TIfFalse = null>(
