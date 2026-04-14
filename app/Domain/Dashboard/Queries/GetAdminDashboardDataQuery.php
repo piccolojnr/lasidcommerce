@@ -8,7 +8,7 @@ use App\Models\Payment;
 use App\Models\Shipment;
 use App\Models\StockItem;
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use DateTimeInterface;
 
 class GetAdminDashboardDataQuery
 {
@@ -31,7 +31,7 @@ class GetAdminDashboardDataQuery
         ];
     }
 
-    private function revenueLast30Days(Carbon $since): int
+    private function revenueLast30Days(DateTimeInterface $since): int
     {
         return (int) Payment::query()
             ->whereIn('status', ['paid', 'successful'])
@@ -39,7 +39,7 @@ class GetAdminDashboardDataQuery
             ->sum('amount');
     }
 
-    private function ordersLast30Days(Carbon $since): int
+    private function ordersLast30Days(DateTimeInterface $since): int
     {
         return Order::query()
             ->whereNotNull('placed_at')
@@ -84,7 +84,7 @@ class GetAdminDashboardDataQuery
             ->count();
     }
 
-    private function newCustomersLast30Days(Carbon $since): int
+    private function newCustomersLast30Days(DateTimeInterface $since): int
     {
         return User::query()
             ->where('created_at', '>=', $since)

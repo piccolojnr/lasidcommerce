@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
 import * as CouponController from '@/actions/App/Http/Controllers/Admin/Coupons/CouponController';
 import * as OrderController from '@/actions/App/Http/Controllers/Admin/Orders/OrderController';
 import * as ShipmentController from '@/actions/App/Http/Controllers/Admin/Shipments/ShipmentController';
@@ -70,7 +71,7 @@ export default function AdminDashboardPage({
             <div className="space-y-6">
                 <PageHeader
                     title="Dashboard"
-                    description="Track live operational signals instead of placeholder theater."
+                    description="Track live operational signals across orders, payments, inventory, and customers."
                 />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     <OverviewCard
@@ -98,8 +99,8 @@ export default function AdminDashboardPage({
                         title="Low stock items"
                         value={overview.low_stock_items.toLocaleString()}
                         description="Stock items at or below their reorder level."
-                        actionHref={OrderController.index.url({ query: { fulfillment_status: 'unfulfilled' } })}
-                        actionLabel="Inspect operations"
+                        actionHref={ProductController.index.url()}
+                        actionLabel="View products"
                     />
                     <OverviewCard
                         title="Active coupons"
