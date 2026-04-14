@@ -8,10 +8,10 @@ import { BrandForm } from '@/pages/admin/catalog/brands/_components/brand-form';
 export default function BrandCreatePage() {
     return (
         <AdminLayout title="Create Brand">
-            <div className="mx-auto w-full max-w-3xl space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-6">
                 <PageHeader
                     title="Create brand"
-                    description="Add a new brand to the catalog."
+                    description="Define a cleaner brand identity with stronger copy, image handling, and visibility controls."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={BrandController.index.url()}>Back to list</Link>

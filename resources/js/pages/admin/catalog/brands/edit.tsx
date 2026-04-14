@@ -13,10 +13,10 @@ interface Props {
 export default function BrandEditPage({ brand }: Props) {
     return (
         <AdminLayout title="Edit Brand">
-            <div className="mx-auto w-full max-w-3xl space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-6">
                 <PageHeader
                     title={`Edit ${brand.name}`}
-                    description="Update brand information."
+                    description="Refine the brand presentation without relying on a dead-simple utility form."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={BrandController.show.url(brand)}>Back to brand</Link>

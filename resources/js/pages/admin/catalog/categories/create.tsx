@@ -18,10 +18,10 @@ interface Props {
 export default function CategoryCreatePage({ categories }: Props) {
     return (
         <AdminLayout title="Create Category">
-            <div className="space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-6">
                 <PageHeader
                     title="Create category"
-                    description="Set up a new category for product organisation."
+                    description="Shape the catalog hierarchy with a category form that actually explains what you are doing."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={CategoryController.index.url()}>Back to categories</Link>

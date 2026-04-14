@@ -20,10 +20,10 @@ interface Props {
 export default function CategoryEditPage({ category, categories }: Props) {
     return (
         <AdminLayout title="Edit Category">
-            <div className="space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-6">
                 <PageHeader
                     title={`Edit: ${category.name}`}
-                    description="Adjust metadata, hierarchy, and visibility."
+                    description="Adjust the hierarchy, image, and storefront visibility without wrestling a cramped form."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={CategoryController.show.url(category)}>View category</Link>
