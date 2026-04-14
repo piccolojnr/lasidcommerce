@@ -8,8 +8,8 @@ class UpdateUserStatusAction
 {
     public function execute(User $user, string $status): User
     {
-        $user->status = $status;
+        $user->update(['status' => $status]);
 
-        return $user;
+        return $user->fresh();
     }
 }

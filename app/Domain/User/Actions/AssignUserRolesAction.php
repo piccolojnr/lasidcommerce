@@ -8,6 +8,8 @@ class AssignUserRolesAction
 {
     public function execute(User $user, array $roles): User
     {
-        return $user;
+        $user->syncRoles($roles);
+
+        return $user->fresh('roles');
     }
 }
