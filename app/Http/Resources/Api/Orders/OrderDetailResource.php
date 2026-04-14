@@ -10,6 +10,12 @@ class OrderDetailResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $shippingAddress = null;
+
+        if ($this->relationLoaded('orderAddresses')) {
+            $shippingAddress = $this->orderAddresses->firstWhere('type', 'shipping');
+        }
+
         return [
             'id'                   => $this->id,
             'order_number'         => $this->order_number,
@@ -29,8 +35,8 @@ class OrderDetailResource extends JsonResource
             'placed_at'            => $this->placed_at?->toISOString(),
             'items'                => OrderItemResource::collection($this->whenLoaded('orderItems')),
             'shipping_address'     => $this->when(
-                $this->relationLoaded('orderAddresses') && $this->orderAddresses->isNotEmpty(),
-                fn () => $this->orderAddresses->first(),
+                $shippingAddress !== null,
+                fn () => $shippingAddress,
             ),
             'shipments'            => ShipmentTrackingResource::collection($this->whenLoaded('shipments')),
         ];

@@ -38,6 +38,8 @@ class GetCustomerOrderTimelineQuery
         $statusMap = [
             'confirmed'  => ['order_confirmed',  'Order Confirmed', 'Your order has been confirmed.'],
             'processing' => ['order_processing', 'Being Prepared',  'Your order is being prepared for shipment.'],
+            'shipped'    => ['order_shipped',    'Order Shipped',   'Your order has been shipped.'],
+            'delivered'  => ['order_delivered',  'Order Delivered', 'Your order has been delivered.'],
             'completed'  => ['order_completed',  'Order Completed', 'Your order has been completed.'],
             'cancelled'  => ['order_cancelled',  'Order Cancelled', 'Your order was cancelled.'],
         ];

@@ -138,6 +138,46 @@ class OrderTimelineTest extends TestCase
         $this->assertContains('shipment_delivered', $types);
     }
 
+    public function test_timeline_includes_order_shipped_status_event(): void
+    {
+        $user  = $this->user();
+        $order = $this->orderFor($user);
+
+        OrderStatusHistory::create([
+            'order_id'    => $order->id,
+            'from_status' => 'processing',
+            'to_status'   => 'shipped',
+            'note'        => null,
+            'changed_by'  => null,
+        ]);
+
+        $response = $this->getTimeline($user, $order);
+
+        $response->assertOk();
+        $types = collect($response->json('data'))->pluck('type')->all();
+        $this->assertContains('order_shipped', $types);
+    }
+
+    public function test_timeline_includes_order_delivered_status_event(): void
+    {
+        $user  = $this->user();
+        $order = $this->orderFor($user);
+
+        OrderStatusHistory::create([
+            'order_id'    => $order->id,
+            'from_status' => 'shipped',
+            'to_status'   => 'delivered',
+            'note'        => null,
+            'changed_by'  => null,
+        ]);
+
+        $response = $this->getTimeline($user, $order);
+
+        $response->assertOk();
+        $types = collect($response->json('data'))->pluck('type')->all();
+        $this->assertContains('order_delivered', $types);
+    }
+
     public function test_timeline_omits_shipment_events_when_no_shipment(): void
     {
         $user  = $this->user();

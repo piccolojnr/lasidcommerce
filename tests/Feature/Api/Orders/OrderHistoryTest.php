@@ -172,6 +172,30 @@ class OrderHistoryTest extends TestCase
         $response->assertJsonFragment(['city' => 'Kumasi']);
     }
 
+    public function test_order_detail_returns_shipping_address_not_billing_address(): void
+    {
+        $user  = $this->user();
+        $order = $this->orderFor($user);
+
+        OrderAddress::factory()->create([
+            'order_id' => $order->id,
+            'type'     => 'billing',
+            'city'     => 'Accra',
+        ]);
+
+        OrderAddress::factory()->create([
+            'order_id' => $order->id,
+            'type'     => 'shipping',
+            'city'     => 'Kumasi',
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.shipping_address.type', 'shipping');
+        $response->assertJsonPath('data.shipping_address.city', 'Kumasi');
+    }
+
     public function test_order_detail_includes_shipment_tracking_when_present(): void
     {
         $user     = $this->user();
@@ -192,6 +216,27 @@ class OrderHistoryTest extends TestCase
             'status'          => 'shipped',
         ]);
         $this->assertNotNull($response->json('data.shipments.0.shipped_at'));
+    }
+
+    public function test_order_detail_includes_failed_and_returned_shipment_timestamps(): void
+    {
+        $user  = $this->user();
+        $order = $this->orderFor($user);
+
+        Shipment::factory()->create([
+            'order_id'     => $order->id,
+            'status'       => 'returned',
+            'packed_at'    => now()->subDay(),
+            'shipped_at'   => now()->subHours(12),
+            'failed_at'    => now()->subHours(6),
+            'returned_at'  => now(),
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+
+        $response->assertOk();
+        $this->assertNotNull($response->json('data.shipments.0.failed_at'));
+        $this->assertNotNull($response->json('data.shipments.0.returned_at'));
     }
 
     public function test_order_detail_has_empty_shipments_when_none_exist(): void
