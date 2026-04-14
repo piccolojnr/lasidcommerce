@@ -46,11 +46,8 @@ export default function UserShowPage({
     });
 
     return (
-        <AdminLayout
-            title="Platform User Details"
-            description="Inspect staff account profile and authorization state."
-        >
-            <div className="mx-auto w-full max-w-6xl space-y-6">
+        <AdminLayout title="Platform User Details" description="Inspect staff account profile and authorization state.">
+            <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title={user.name}
                     description={`Account created ${formatDate(user.created_at)}.`}
@@ -61,88 +58,85 @@ export default function UserShowPage({
                     }
                 />
 
-                <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
+                <div className="grid gap-4 lg:grid-cols-3">
+                    <Card className="border-border/70 bg-muted/30 lg:col-span-2">
+                        <CardHeader className="space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                                    Access profile
+                                </p>
+                                <StatusBadge status={user.status} />
+                            </div>
+                            <CardTitle className="text-2xl">{user.name}</CardTitle>
+                            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                                {user.email} {user.phone ? `• ${user.phone}` : '• no phone number on record'}.
+                            </p>
+                        </CardHeader>
+                        <CardContent className="grid gap-4 border-t border-border/70 pt-6 md:grid-cols-3">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Roles</p>
+                                <p className="mt-2 font-semibold">{user.roles.length > 0 ? user.roles.join(', ') : 'No roles'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Email verified</p>
+                                <p className="mt-2 font-semibold">{formatDate(user.email_verified_at)}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Two-factor</p>
+                                <p className="mt-2 font-semibold">
+                                    {user.two_factor_confirmed_at
+                                        ? `Enabled • ${formatDate(user.two_factor_confirmed_at)}`
+                                        : 'Disabled'}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-border/70 bg-primary/5">
+                        <CardHeader className="space-y-2">
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                                Activity footprint
+                            </p>
+                            <CardTitle className="text-xl">Commercial context</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm">
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Orders</span>
+                                <span className="font-medium">{user.orders_count}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Payments</span>
+                                <span className="font-medium">{user.payments_count}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Addresses</span>
+                                <span className="font-medium">{user.addresses_count}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                     <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Profile</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid gap-3 text-sm md:grid-cols-2">
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Email</span>
-                                    <span>{user.email}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Phone</span>
-                                    <span>{user.phone ?? 'N/A'}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Status</span>
-                                    <StatusBadge status={user.status} />
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Email verified</span>
-                                    <span>{formatDate(user.email_verified_at)}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Two-factor</span>
-                                    <span>
-                                        {user.two_factor_confirmed_at
-                                            ? `Enabled • ${formatDate(user.two_factor_confirmed_at)}`
-                                            : 'Disabled'}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">Roles</span>
-                                    <span>{user.roles.length > 0 ? user.roles.join(', ') : 'No roles'}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Activity snapshot</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid gap-4 md:grid-cols-3">
-                                <div className="rounded-lg border p-4">
-                                    <p className="text-sm text-muted-foreground">Orders</p>
-                                    <p className="text-2xl font-semibold">{user.orders_count}</p>
-                                </div>
-                                <div className="rounded-lg border p-4">
-                                    <p className="text-sm text-muted-foreground">Payments</p>
-                                    <p className="text-2xl font-semibold">{user.payments_count}</p>
-                                </div>
-                                <div className="rounded-lg border p-4">
-                                    <p className="text-sm text-muted-foreground">Addresses</p>
-                                    <p className="text-2xl font-semibold">{user.addresses_count}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Recent orders</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="space-y-3 p-6">
                                 {user.recent_orders.length === 0 ? (
-                                    <EmptyState
-                                        title="No orders yet"
-                                        description="This user has not placed any orders."
-                                    />
+                                    <EmptyState title="No orders yet" description="This user has not placed any orders." />
                                 ) : (
                                     user.recent_orders.map((order) => (
-                                        <div key={order.id} className="rounded-lg border p-4 text-sm">
+                                        <div key={order.id} className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
                                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                                                 <div className="space-y-1">
                                                     <Link
                                                         href={OrderController.show.url(order.id)}
-                                                        className="font-medium hover:underline"
+                                                        className="font-medium transition hover:text-primary"
                                                     >
                                                         {order.order_number}
                                                     </Link>
-                                                    <p className="text-muted-foreground">
-                                                        {formatDate(order.placed_at)}
-                                                    </p>
+                                                    <p className="text-muted-foreground">{formatDate(order.placed_at)}</p>
                                                 </div>
                                                 <div className="text-right">
                                                     <StatusBadge status={order.status} />
@@ -157,19 +151,16 @@ export default function UserShowPage({
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Recent payments</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="space-y-3 p-6">
                                 {user.recent_payments.length === 0 ? (
-                                    <EmptyState
-                                        title="No payments yet"
-                                        description="This user has no payment attempts on record."
-                                    />
+                                    <EmptyState title="No payments yet" description="This user has no payment attempts on record." />
                                 ) : (
                                     user.recent_payments.map((payment) => (
-                                        <div key={payment.id} className="rounded-lg border p-4 text-sm">
+                                        <div key={payment.id} className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
                                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                                                 <div className="space-y-1">
                                                     <p className="font-medium">{payment.reference}</p>
@@ -192,11 +183,11 @@ export default function UserShowPage({
                     </div>
 
                     <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Account status</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="p-6">
                                 <form
                                     className="space-y-4"
                                     onSubmit={(event) => {
@@ -210,9 +201,7 @@ export default function UserShowPage({
                                         <Label htmlFor="status">Status</Label>
                                         <Select
                                             value={statusForm.data.status}
-                                            onValueChange={(value) =>
-                                                statusForm.setData('status', value)
-                                            }
+                                            onValueChange={(value) => statusForm.setData('status', value)}
                                         >
                                             <SelectTrigger id="status" className="w-full">
                                                 <SelectValue placeholder="Select a status" />
@@ -220,33 +209,25 @@ export default function UserShowPage({
                                             <SelectContent>
                                                 {availableStatuses.map((status) => (
                                                     <SelectItem key={status} value={status}>
-                                                        {status.replace(/\b\w/g, (character) =>
-                                                            character.toUpperCase(),
-                                                        )}
+                                                        {status.replace(/\b\w/g, (character) => character.toUpperCase())}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                         <FieldError message={statusForm.errors.status} />
                                     </div>
-                                    <Button
-                                        type="submit"
-                                        disabled={statusForm.processing}
-                                        className="w-full"
-                                    >
-                                        {statusForm.processing
-                                            ? 'Updating…'
-                                            : 'Update status'}
+                                    <Button type="submit" disabled={statusForm.processing} className="w-full">
+                                        {statusForm.processing ? 'Updating…' : 'Update status'}
                                     </Button>
                                 </form>
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Roles</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="p-6">
                                 <form
                                     className="space-y-4"
                                     onSubmit={(event) => {
@@ -261,10 +242,7 @@ export default function UserShowPage({
                                             const checked = rolesForm.data.roles.includes(role.name);
 
                                             return (
-                                                <div
-                                                    key={role.name}
-                                                    className="flex items-center gap-3"
-                                                >
+                                                <div key={role.name} className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/80 p-3">
                                                     <Checkbox
                                                         id={role.name}
                                                         checked={checked}
@@ -274,10 +252,7 @@ export default function UserShowPage({
                                                                 'roles',
                                                                 shouldInclude
                                                                     ? [...rolesForm.data.roles, role.name]
-                                                                    : rolesForm.data.roles.filter(
-                                                                          (item) =>
-                                                                              item !== role.name,
-                                                                      ),
+                                                                    : rolesForm.data.roles.filter((item) => item !== role.name),
                                                             );
                                                         }}
                                                     />
@@ -289,11 +264,7 @@ export default function UserShowPage({
                                         })}
                                     </div>
                                     <FieldError message={rolesForm.errors.roles} />
-                                    <Button
-                                        type="submit"
-                                        disabled={rolesForm.processing}
-                                        className="w-full"
-                                    >
+                                    <Button type="submit" disabled={rolesForm.processing} className="w-full">
                                         {rolesForm.processing ? 'Updating…' : 'Update roles'}
                                     </Button>
                                 </form>

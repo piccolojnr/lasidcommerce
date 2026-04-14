@@ -34,11 +34,8 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
     });
 
     return (
-        <AdminLayout
-            title="Order Details"
-            description="Inspect order, payment, and fulfillment state."
-        >
-            <div className="mx-auto w-full max-w-6xl space-y-6">
+        <AdminLayout title="Order Details" description="Inspect order, payment, and fulfillment state.">
+            <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title={order.order_number}
                     description={`Placed ${formatDate(order.placed_at)} by ${order.email}.`}
@@ -49,153 +46,145 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                     }
                 />
 
-                <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
-                    <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Order summary</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid gap-3 text-sm md:grid-cols-2">
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Customer</span>
-                                    <span>{order.email}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Placed</span>
-                                    <span>{formatDate(order.placed_at)}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Status</span>
+                <div className="grid gap-4 lg:grid-cols-3">
+                    <Card className="border-border/70 bg-muted/30 lg:col-span-2">
+                        <CardHeader className="space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                                    Order profile
+                                </p>
+                                <div className="flex flex-wrap gap-2">
                                     <StatusBadge status={order.status} />
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Payment</span>
                                     <StatusBadge status={order.payment_status} />
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Fulfillment</span>
                                     <StatusBadge status={order.fulfillment_status} />
                                 </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Shipping method</span>
-                                    <span>{order.shipping_method_name ?? 'N/A'}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Shipping zone</span>
-                                    <span>{order.shipping_zone_name ?? 'N/A'}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Subtotal</span>
-                                    <span>{formatMoney(order.subtotal_amount, order.currency_code)}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Discount</span>
-                                    <span>{formatMoney(order.discount_amount, order.currency_code)}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Tax</span>
-                                    <span>{formatMoney(order.tax_amount, order.currency_code)}</span>
-                                </div>
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <span className="text-muted-foreground">Shipping</span>
-                                    <span>{formatMoney(order.shipping_amount, order.currency_code)}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">Total</span>
-                                    <span className="font-semibold">
-                                        {formatMoney(order.total_amount, order.currency_code)}
-                                    </span>
-                                </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                            <CardTitle className="text-2xl">
+                                {formatMoney(order.total_amount, order.currency_code)}
+                            </CardTitle>
+                            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                                Shipping via {order.shipping_method_name ?? 'no method selected'} in {order.shipping_zone_name ?? 'no shipping zone'}.
+                            </p>
+                        </CardHeader>
+                        <CardContent className="grid gap-4 border-t border-border/70 pt-6 md:grid-cols-3">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Customer</p>
+                                <p className="mt-2 font-semibold">{order.email}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Placed</p>
+                                <p className="mt-2 font-semibold">{formatDate(order.placed_at)}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Shipment count</p>
+                                <p className="mt-2 font-semibold">{order.shipments.length}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <Card>
-                            <CardHeader>
+                    <Card className="border-border/70 bg-primary/5">
+                        <CardHeader className="space-y-2">
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                                Commercial stack
+                            </p>
+                            <CardTitle className="text-xl">Totals and adjustments</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm">
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Subtotal</span>
+                                <span className="font-medium">{formatMoney(order.subtotal_amount, order.currency_code)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Discount</span>
+                                <span className="font-medium">{formatMoney(order.discount_amount, order.currency_code)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Tax</span>
+                                <span className="font-medium">{formatMoney(order.tax_amount, order.currency_code)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Shipping</span>
+                                <span className="font-medium">{formatMoney(order.shipping_amount, order.currency_code)}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+                    <div className="space-y-6">
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Line items</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardContent className="space-y-3 p-6">
                                 {order.items.length === 0 ? (
                                     <EmptyState
                                         title="No order items"
                                         description="This order has no line items attached, which would be a problem."
                                     />
                                 ) : (
-                                    <div className="space-y-3">
-                                        {order.items.map((item) => (
-                                            <div key={item.id} className="rounded-lg border p-4">
-                                                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                                                    <div>
-                                                        <p className="font-medium">{item.product_name}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {item.variant_name ?? 'Base product'}
-                                                            {item.sku ? ` • ${item.sku}` : ''}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-right text-sm">
-                                                        <p>
-                                                            {item.quantity} ×{' '}
-                                                            {formatMoney(item.unit_price, order.currency_code)}
-                                                        </p>
-                                                        <p className="font-medium">
-                                                            {formatMoney(item.line_total, order.currency_code)}
-                                                        </p>
-                                                    </div>
+                                    order.items.map((item) => (
+                                        <div key={item.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                                            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                                                <div>
+                                                    <p className="font-medium">{item.product_name}</p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {item.variant_name ?? 'Base product'}
+                                                        {item.sku ? ` • ${item.sku}` : ''}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right text-sm">
+                                                    <p>{item.quantity} × {formatMoney(item.unit_price, order.currency_code)}</p>
+                                                    <p className="font-medium">{formatMoney(item.line_total, order.currency_code)}</p>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    ))
                                 )}
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Status history</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardContent className="space-y-3 p-6">
                                 {order.history.length === 0 ? (
                                     <EmptyState
                                         title="No history yet"
                                         description="No status transitions have been recorded for this order."
                                     />
                                 ) : (
-                                    <div className="space-y-4">
-                                        {order.history.map((entry) => (
-                                            <div key={entry.id} className="rounded-lg border p-4">
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center gap-2">
-                                                        {entry.from_status ? (
-                                                            <StatusBadge status={entry.from_status} />
-                                                        ) : (
-                                                            <span className="text-sm text-muted-foreground">
-                                                                Start
-                                                            </span>
-                                                        )}
-                                                        <span className="text-muted-foreground">→</span>
-                                                        <StatusBadge status={entry.to_status} />
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {entry.changed_by_name ?? 'System'} •{' '}
-                                                        {formatDate(entry.created_at)}
-                                                    </p>
-                                                    {entry.note ? (
-                                                        <p className="text-sm">{entry.note}</p>
-                                                    ) : null}
+                                    order.history.map((entry) => (
+                                        <div key={entry.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    {entry.from_status ? (
+                                                        <StatusBadge status={entry.from_status} />
+                                                    ) : (
+                                                        <span className="text-sm text-muted-foreground">Start</span>
+                                                    )}
+                                                    <span className="text-muted-foreground">→</span>
+                                                    <StatusBadge status={entry.to_status} />
                                                 </div>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {entry.changed_by_name ?? 'System'} • {formatDate(entry.created_at)}
+                                                </p>
+                                                {entry.note ? <p className="text-sm">{entry.note}</p> : null}
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    ))
                                 )}
                             </CardContent>
                         </Card>
                     </div>
 
                     <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Update status</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="p-6">
                                 {allowedStatuses.length === 0 ? (
                                     <p className="text-sm text-muted-foreground">
                                         No further status transitions are allowed for this order.
@@ -205,37 +194,24 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                                         className="space-y-4"
                                         onSubmit={(event) => {
                                             event.preventDefault();
-                                            statusForm.patch(
-                                                OrderStatusController.update.url(order),
-                                                { preserveScroll: true },
-                                            );
+                                            statusForm.patch(OrderStatusController.update.url(order), {
+                                                preserveScroll: true,
+                                            });
                                         }}
                                     >
                                         <div className="space-y-2">
                                             <Label htmlFor="status">Next status</Label>
                                             <Select
                                                 value={statusForm.data.status}
-                                                onValueChange={(value) =>
-                                                    statusForm.setData('status', value)
-                                                }
+                                                onValueChange={(value) => statusForm.setData('status', value)}
                                             >
-                                                <SelectTrigger
-                                                    id="status"
-                                                    className="w-full"
-                                                >
+                                                <SelectTrigger id="status" className="w-full">
                                                     <SelectValue placeholder="Select a status" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {allowedStatuses.map((status) => (
-                                                        <SelectItem
-                                                            key={status}
-                                                            value={status}
-                                                        >
-                                                            {status.replace(
-                                                                /\b\w/g,
-                                                                (character) =>
-                                                                    character.toUpperCase(),
-                                                            )}
+                                                        <SelectItem key={status} value={status}>
+                                                            {status.replace(/\b\w/g, (character) => character.toUpperCase())}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -248,38 +224,28 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                                                 id="note"
                                                 name="note"
                                                 value={statusForm.data.note}
-                                                onChange={(event) =>
-                                                    statusForm.setData(
-                                                        'note',
-                                                        event.target.value,
-                                                    )
-                                                }
+                                                onChange={(event) => statusForm.setData('note', event.target.value)}
                                                 placeholder="Optional audit note"
                                             />
                                             <FieldError message={statusForm.errors.note} />
                                         </div>
                                         <Button
                                             type="submit"
-                                            disabled={
-                                                statusForm.processing ||
-                                                !statusForm.data.status
-                                            }
+                                            disabled={statusForm.processing || !statusForm.data.status}
                                             className="w-full"
                                         >
-                                            {statusForm.processing
-                                                ? 'Updating…'
-                                                : 'Update status'}
+                                            {statusForm.processing ? 'Updating…' : 'Update status'}
                                         </Button>
                                     </form>
                                 )}
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Shipping address</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
+                            <CardContent className="space-y-2 p-6 text-sm">
                                 {order.shipping_address ? (
                                     <>
                                         <p className="font-medium">{order.shipping_address.name}</p>
@@ -298,9 +264,7 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                                                 .join(', ')}
                                         </p>
                                         {order.shipping_address.phone ? (
-                                            <p className="text-muted-foreground">
-                                                {order.shipping_address.phone}
-                                            </p>
+                                            <p className="text-muted-foreground">{order.shipping_address.phone}</p>
                                         ) : null}
                                     </>
                                 ) : (
@@ -311,36 +275,23 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Payments</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="space-y-3 p-6">
                                 {order.payments.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">
-                                        No payment attempts recorded.
-                                    </p>
+                                    <p className="text-sm text-muted-foreground">No payment attempts recorded.</p>
                                 ) : (
                                     order.payments.map((payment) => (
-                                        <div
-                                            key={payment.id}
-                                            className="rounded-lg border p-3 text-sm"
-                                        >
+                                        <div key={payment.id} className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
                                             <div className="mb-2 flex items-center justify-between">
-                                                <span className="font-medium">
-                                                    {payment.provider}
-                                                </span>
+                                                <span className="font-medium">{payment.provider}</span>
                                                 <StatusBadge status={payment.status} />
                                             </div>
                                             <div className="space-y-1 text-muted-foreground">
                                                 <p>Reference: {payment.reference}</p>
-                                                <p>
-                                                    Amount:{' '}
-                                                    {formatMoney(
-                                                        payment.amount,
-                                                        payment.currency_code,
-                                                    )}
-                                                </p>
+                                                <p>Amount: {formatMoney(payment.amount, payment.currency_code)}</p>
                                                 <p>Paid at: {formatDate(payment.paid_at)}</p>
                                             </div>
                                         </div>
@@ -349,42 +300,31 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                 <CardTitle>Shipments</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="space-y-3 p-6">
                                 {order.shipments.length === 0 ? (
                                     <p className="text-sm text-muted-foreground">
                                         No shipments have been created for this order yet.
                                     </p>
                                 ) : (
                                     order.shipments.map((shipment) => (
-                                        <div
-                                            key={shipment.id}
-                                            className="rounded-lg border p-3 text-sm"
-                                        >
+                                        <div key={shipment.id} className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
                                             <div className="mb-2 flex items-center justify-between">
                                                 <Link
                                                     href={ShipmentController.show.url(shipment.id)}
-                                                    className="font-medium hover:underline"
+                                                    className="font-medium transition hover:text-primary"
                                                 >
                                                     Shipment #{shipment.id}
                                                 </Link>
                                                 <StatusBadge status={shipment.status} />
                                             </div>
                                             <div className="space-y-1 text-muted-foreground">
-                                                <p>
-                                                    Tracking:{' '}
-                                                    {shipment.tracking_number ?? 'N/A'}
-                                                </p>
-                                                <p>
-                                                    Carrier: {shipment.carrier_name ?? 'N/A'}
-                                                </p>
-                                                <p>
-                                                    Shipped at:{' '}
-                                                    {formatDate(shipment.shipped_at)}
-                                                </p>
+                                                <p>Tracking: {shipment.tracking_number ?? 'N/A'}</p>
+                                                <p>Carrier: {shipment.carrier_name ?? 'N/A'}</p>
+                                                <p>Shipped at: {formatDate(shipment.shipped_at)}</p>
                                             </div>
                                         </div>
                                     ))
@@ -393,27 +333,21 @@ export default function OrderShowPage({ order, allowedStatuses }: Props) {
                         </Card>
 
                         {order.notes || order.delivery_notes ? (
-                            <Card>
-                                <CardHeader>
+                            <Card className="overflow-hidden border-border/70 pt-0">
+                                <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                                     <CardTitle>Notes</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-3 text-sm">
+                                <CardContent className="space-y-3 p-6 text-sm">
                                     {order.notes ? (
                                         <div>
                                             <p className="font-medium">Internal notes</p>
-                                            <p className="text-muted-foreground whitespace-pre-wrap">
-                                                {order.notes}
-                                            </p>
+                                            <p className="whitespace-pre-wrap text-muted-foreground">{order.notes}</p>
                                         </div>
                                     ) : null}
                                     {order.delivery_notes ? (
                                         <div>
-                                            <p className="font-medium">
-                                                Delivery notes
-                                            </p>
-                                            <p className="text-muted-foreground whitespace-pre-wrap">
-                                                {order.delivery_notes}
-                                            </p>
+                                            <p className="font-medium">Delivery notes</p>
+                                            <p className="whitespace-pre-wrap text-muted-foreground">{order.delivery_notes}</p>
                                         </div>
                                     ) : null}
                                 </CardContent>
