@@ -13,10 +13,10 @@ interface Props {
 export default function CouponEditPage({ coupon }: Props) {
     return (
         <AdminLayout title="Edit Coupon">
-            <div className="mx-auto w-full max-w-3xl space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title={`Edit ${coupon.code}`}
-                    description="Adjust discount value, validity windows, and usage limits."
+                    description="Adjust the discount model, redemption windows, and operational guardrails without losing track of current usage."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={CouponController.show.url(coupon)}>Back to coupon</Link>

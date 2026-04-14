@@ -8,10 +8,10 @@ import { CouponForm } from '@/pages/admin/coupons/_components/coupon-form';
 export default function CouponCreatePage() {
     return (
         <AdminLayout title="Create Coupon">
-            <div className="mx-auto w-full max-w-3xl space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title="Create coupon"
-                    description="Define discount structure, validity windows, and usage controls."
+                    description="Build a promotion with clear economics, redemption rules, and enough context that operations can trust it."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={CouponController.index.url()}>Back to list</Link>
