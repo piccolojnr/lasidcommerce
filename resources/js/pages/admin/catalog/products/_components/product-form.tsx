@@ -1,16 +1,22 @@
 import { Form } from '@inertiajs/react';
+import { DollarSign, Package2, Sparkles, Tag } from 'lucide-react';
 import { useState } from 'react';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
 import { FieldError } from '@/components/shared/forms/field-error';
 import { FormActions } from '@/components/shared/forms/form-actions';
 import { FormSection } from '@/components/shared/forms/form-section';
+import { ImageUploadField } from '@/components/shared/forms/image-upload-field';
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import type { AdminProduct } from '@/types/admin/catalog';
 
 const EMPTY_SENTINEL = '__empty__';
+const textareaClassName =
+    'flex min-h-[120px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50';
 
 interface SelectOption {
     id: number;
@@ -24,73 +30,101 @@ interface ProductFormProps {
 }
 
 function slugify(value: string): string {
-    return value
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
+    return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
 function centsToDisplay(cents: number | null | undefined): string {
-    if (cents == null) {
-        return '';
-    }
-
-    return (cents / 100).toFixed(2);
+    return cents == null ? '' : (cents / 100).toFixed(2);
 }
 
 function displayToCents(display: string): string {
-    if (display === '' || display == null) {
+    if (!display) {
         return '';
     }
 
-    const num = parseFloat(display);
+    const value = Number.parseFloat(display);
 
-    if (isNaN(num)) {
-        return '0';
+    return Number.isNaN(value) ? '0' : String(Math.round(value * 100));
+}
+
+function pricePreview(display: string): string {
+    if (!display) {
+        return 'Not set';
     }
 
-    return String(Math.round(num * 100));
+    const value = Number.parseFloat(display);
+
+    return Number.isNaN(value)
+        ? 'Not set'
+        : new Intl.NumberFormat('en-GH', {
+              style: 'currency',
+              currency: 'GHS',
+              minimumFractionDigits: 2,
+          }).format(value);
+}
+
+function SummaryItem({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex items-center justify-between rounded-xl border border-border/60 bg-background/80 px-4 py-3">
+            <span className="text-sm text-muted-foreground">{label}</span>
+            <span className="text-sm font-medium">{value}</span>
+        </div>
+    );
+}
+
+function ToggleTile({
+    id,
+    checked,
+    label,
+    description,
+    onChange,
+}: {
+    id: string;
+    checked: boolean;
+    label: string;
+    description: string;
+    onChange: (checked: boolean) => void;
+}) {
+    return (
+        <label
+            htmlFor={id}
+            className={cn(
+                'flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition',
+                checked ? 'border-primary/40 bg-primary/5' : 'border-border/70 bg-background hover:bg-muted/30',
+            )}
+        >
+            <Checkbox id={id} checked={checked} onCheckedChange={(value) => onChange(Boolean(value))} />
+            <div className="space-y-1">
+                <div className="font-medium">{label}</div>
+                <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+        </label>
+    );
 }
 
 export function ProductForm({ product, categories, brands }: ProductFormProps) {
     const isEdit = product !== undefined;
-
-    // Slug
     const [slugManual, setSlugManual] = useState(isEdit);
     const [slugValue, setSlugValue] = useState(product?.slug ?? '');
-
-    // Selects
     const [status, setStatus] = useState(product?.status ?? 'draft');
     const [productType, setProductType] = useState(product?.product_type ?? 'physical');
     const [categoryId, setCategoryId] = useState(product?.category_id?.toString() ?? EMPTY_SENTINEL);
     const [brandId, setBrandId] = useState(product?.brand_id?.toString() ?? EMPTY_SENTINEL);
-
-    // Booleans
     const [isFeatured, setIsFeatured] = useState(product?.is_featured ?? false);
     const [trackInventory, setTrackInventory] = useState(product?.track_inventory ?? true);
     const [allowBackorders, setAllowBackorders] = useState(product?.allow_backorders ?? false);
-
-    // Prices (display in dollars, submit in cents)
     const [basePrice, setBasePrice] = useState(isEdit ? centsToDisplay(product.base_price) : '0.00');
     const [compareAtPrice, setCompareAtPrice] = useState(centsToDisplay(product?.compare_at_price));
     const [costPrice, setCostPrice] = useState(centsToDisplay(product?.cost_price));
 
-    const formProps = isEdit
-        ? ProductController.update.form.patch(product)
-        : ProductController.store.form.post();
+    const formProps = isEdit ? ProductController.update.form.patch(product) : ProductController.store.form.post();
+    const selectedCategory = categories.find((item) => String(item.id) === categoryId)?.name ?? 'Unassigned';
+    const selectedBrand = brands.find((item) => String(item.id) === brandId)?.name ?? 'Unassigned';
 
     return (
-        <Form
-            {...formProps}
-            encType="multipart/form-data"
-            options={{ preserveScroll: true }}
-            className="space-y-6"
-        >
+        <Form {...formProps} encType="multipart/form-data" options={{ preserveScroll: true }} className="space-y-8">
             {({ errors }) => (
                 <>
-                    {/* Hidden controlled fields */}
                     <input type="hidden" name="slug" value={slugValue} />
                     <input type="hidden" name="status" value={status} />
                     <input type="hidden" name="product_type" value={productType} />
@@ -103,310 +137,263 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                     <input type="hidden" name="compare_at_price" value={displayToCents(compareAtPrice)} />
                     <input type="hidden" name="cost_price" value={displayToCents(costPrice)} />
 
-                    {/* Core Details */}
-                    <FormSection title="Core details" description="Essential identifiers for this product.">
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input
-                                    id="name"
-                                    name="name"
-                                    defaultValue={product?.name ?? ''}
-                                    placeholder="Classic Sneaker"
-                                    onChange={(e) => {
-                                        if (!slugManual) {
-                                            setSlugValue(slugify(e.target.value));
-                                        }
-                                    }}
-                                />
-                                <FieldError message={errors.name} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <Label htmlFor="slug-display">Slug</Label>
-                                    <button
-                                        type="button"
-                                        className="text-xs text-muted-foreground hover:text-foreground"
-                                        onClick={() => setSlugManual((v) => !v)}
-                                    >
-                                        {slugManual ? '🔒 Manual' : '🔓 Auto'}
-                                    </button>
-                                </div>
-                                <Input
-                                    id="slug-display"
-                                    value={slugValue}
-                                    placeholder="classic-sneaker"
-                                    readOnly={!slugManual}
-                                    className={!slugManual ? 'bg-muted text-muted-foreground' : ''}
-                                    onChange={(e) => {
-                                        if (slugManual) {
-                                            setSlugValue(e.target.value);
-                                        }
-                                    }}
-                                />
-                                <FieldError message={errors.slug} />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="sku">SKU</Label>
-                            <Input
-                                id="sku"
-                                name="sku"
-                                defaultValue={product?.sku ?? ''}
-                                placeholder="SNK-001"
-                            />
-                            <FieldError message={errors.sku} />
-                        </div>
-                    </FormSection>
-
-                    {/* Catalog */}
-                    <FormSection title="Catalog" description="Status, type, category, and brand.">
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label>Status</Label>
-                                <Select value={status} onValueChange={setStatus}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="draft">Draft</SelectItem>
-                                        <SelectItem value="active">Active</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FieldError message={errors.status} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Product type</Label>
-                                <Select value={productType} onValueChange={setProductType}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="physical">Physical</SelectItem>
-                                        <SelectItem value="digital">Digital</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FieldError message={errors.product_type} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Category</Label>
-                                <Select value={categoryId} onValueChange={setCategoryId}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="None" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={EMPTY_SENTINEL}>None</SelectItem>
-                                        {categories.map((c) => (
-                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FieldError message={errors.category_id} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Brand</Label>
-                                <Select value={brandId} onValueChange={setBrandId}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="None" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={EMPTY_SENTINEL}>None</SelectItem>
-                                        {brands.map((b) => (
-                                            <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FieldError message={errors.brand_id} />
-                            </div>
-                        </div>
-                    </FormSection>
-
-                    {/* Pricing */}
-                    <FormSection title="Pricing" description="All prices in your store's currency. Enter as decimals (e.g. 29.99).">
-                        <div className="grid gap-4 md:grid-cols-3">
-                            <div className="space-y-2">
-                                <Label htmlFor="base-price-display">Base price</Label>
-                                <Input
-                                    id="base-price-display"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={basePrice}
-                                    placeholder="0.00"
-                                    onChange={(e) => setBasePrice(e.target.value)}
-                                />
-                                <FieldError message={errors.base_price} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="compare-price-display">Compare-at price</Label>
-                                <Input
-                                    id="compare-price-display"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={compareAtPrice}
-                                    placeholder="—"
-                                    onChange={(e) => setCompareAtPrice(e.target.value)}
-                                />
-                                <FieldError message={errors.compare_at_price} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="cost-price-display">Cost price</Label>
-                                <Input
-                                    id="cost-price-display"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={costPrice}
-                                    placeholder="—"
-                                    onChange={(e) => setCostPrice(e.target.value)}
-                                />
-                                <FieldError message={errors.cost_price} />
-                            </div>
-                        </div>
-                    </FormSection>
-
-                    {/* Description */}
-                    <FormSection title="Description" description="Short description shown in listings; long description shown on product page.">
-                        <div className="space-y-2">
-                            <Label htmlFor="short_description">Short description</Label>
-                            <Input
-                                id="short_description"
-                                name="short_description"
-                                defaultValue={product?.short_description ?? ''}
-                                placeholder="One-line summary..."
-                            />
-                            <FieldError message={errors.short_description} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                defaultValue={product?.description ?? ''}
-                                placeholder="Full product description..."
-                                rows={5}
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                            />
-                            <FieldError message={errors.description} />
-                        </div>
-                    </FormSection>
-
-                    {/* Images */}
-                    <FormSection title="Images" description="First image is the primary display image. Accepted: JPG, PNG, WebP, max 4 MB each.">
-                        {isEdit && product.images.length > 0 && (
-                            <div className="space-y-2">
-                                <p className="text-sm font-medium">Current images</p>
-                                <div className="flex flex-wrap gap-3">
-                                    {product.images.map((image) => (
-                                        <div key={image.id} className="relative space-y-1">
-                                            <img
-                                                src={image.url}
-                                                alt=""
-                                                className="h-20 w-20 rounded-md border object-cover"
-                                            />
-                                            {image.is_primary && (
-                                                <span className="block text-center text-xs text-muted-foreground">Primary</span>
-                                            )}
-                                            <label className="flex cursor-pointer items-center gap-1 text-xs text-destructive">
-                                                <input
-                                                    type="checkbox"
-                                                    name="remove_image_ids[]"
-                                                    value={image.id}
-                                                    className="h-3 w-3"
-                                                />
-                                                Remove
-                                            </label>
+                    <div className="grid gap-8 xl:grid-cols-[minmax(0,1.65fr)_340px]">
+                        <div className="space-y-8">
+                            <section className="overflow-hidden rounded-[28px] border border-border/70 bg-linear-to-br from-primary/10 via-background to-background shadow-sm">
+                                <div className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
+                                    <div className="space-y-4">
+                                        <Badge variant="secondary" className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
+                                            Product editor
+                                        </Badge>
+                                        <div className="space-y-3">
+                                            <h2 className="text-3xl font-semibold tracking-tight">
+                                                {isEdit ? 'Refine the product story' : 'Launch a product that looks deliberate'}
+                                            </h2>
+                                            <p className="max-w-xl text-sm leading-6 text-muted-foreground">
+                                                Better copy, sharper pricing context, and a real gallery go a lot further than a default admin form.
+                                            </p>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <SummaryItem label="Status" value={status === 'active' ? 'Active' : 'Draft'} />
+                                        <SummaryItem label="Type" value={productType === 'physical' ? 'Physical' : 'Digital'} />
+                                        <SummaryItem label="Category" value={selectedCategory} />
+                                        <SummaryItem label="Brand" value={selectedBrand} />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <FormSection title="Identity and positioning" description="Get the naming, slug, and product pitch right first." badge="Foundation" contentClassName="space-y-6">
+                                <div className="grid gap-5 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name">Product name</Label>
+                                        <Input
+                                            id="name"
+                                            name="name"
+                                            defaultValue={product?.name ?? ''}
+                                            placeholder="Classic Runner Sneaker"
+                                            className="h-12 rounded-xl"
+                                            onChange={(event) => {
+                                                if (!slugManual) {
+                                                    setSlugValue(slugify(event.target.value));
+                                                }
+                                            }}
+                                        />
+                                        <FieldError message={errors.name} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <Label htmlFor="slug-display">Slug</Label>
+                                            <button type="button" className="text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setSlugManual((value) => !value)}>
+                                                {slugManual ? 'Manual mode' : 'Auto-generate'}
+                                            </button>
+                                        </div>
+                                        <Input
+                                            id="slug-display"
+                                            value={slugValue}
+                                            placeholder="classic-runner-sneaker"
+                                            readOnly={!slugManual}
+                                            className={cn('h-12 rounded-xl font-mono text-sm', !slugManual && 'bg-muted text-muted-foreground')}
+                                            onChange={(event) => {
+                                                if (slugManual) {
+                                                    setSlugValue(event.target.value);
+                                                }
+                                            }}
+                                        />
+                                        <FieldError message={errors.slug} />
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="sku">SKU</Label>
+                                        <Input id="sku" name="sku" defaultValue={product?.sku ?? ''} placeholder="SNK-001" className="h-12 rounded-xl" />
+                                        <FieldError message={errors.sku} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="short_description">Short description</Label>
+                                        <Input
+                                            id="short_description"
+                                            name="short_description"
+                                            defaultValue={product?.short_description ?? ''}
+                                            placeholder="A comfortable everyday sneaker with a clean retro profile."
+                                            className="h-12 rounded-xl"
+                                        />
+                                        <FieldError message={errors.short_description} />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="description">Full description</Label>
+                                    <textarea
+                                        id="description"
+                                        name="description"
+                                        defaultValue={product?.description ?? ''}
+                                        placeholder="Write the richer product story, materials, fit notes, and standout details here."
+                                        rows={6}
+                                        className={textareaClassName}
+                                    />
+                                    <FieldError message={errors.description} />
+                                </div>
+                            </FormSection>
+
+                            <FormSection title="Merchandising controls" description="Set status, type, and taxonomy without hunting around the page." badge="Catalog" contentClassName="space-y-6">
+                                <div className="grid gap-5 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label>Status</Label>
+                                        <Select value={status} onValueChange={setStatus}>
+                                            <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="draft">Draft</SelectItem>
+                                                <SelectItem value="active">Active</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError message={errors.status} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Product type</Label>
+                                        <Select value={productType} onValueChange={setProductType}>
+                                            <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="physical">Physical</SelectItem>
+                                                <SelectItem value="digital">Digital</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError message={errors.product_type} />
+                                    </div>
+                                </div>
+                                <div className="grid gap-5 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label>Category</Label>
+                                        <Select value={categoryId} onValueChange={setCategoryId}>
+                                            <SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Choose a category" /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={EMPTY_SENTINEL}>No category</SelectItem>
+                                                {categories.map((category) => (
+                                                    <SelectItem key={category.id} value={String(category.id)}>{category.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError message={errors.category_id} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Brand</Label>
+                                        <Select value={brandId} onValueChange={setBrandId}>
+                                            <SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Choose a brand" /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={EMPTY_SENTINEL}>No brand</SelectItem>
+                                                {brands.map((brand) => (
+                                                    <SelectItem key={brand.id} value={String(brand.id)}>{brand.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError message={errors.brand_id} />
+                                    </div>
+                                </div>
+                            </FormSection>
+
+                            <FormSection title="Pricing architecture" description="Enter decimal values here. The form still submits minor units behind the scenes." badge="Commerce" contentClassName="space-y-6">
+                                <div className="grid gap-4 md:grid-cols-3">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="base-price-display">Base price</Label>
+                                        <Input id="base-price-display" type="number" min="0" step="0.01" value={basePrice} className="h-12 rounded-xl" onChange={(event) => setBasePrice(event.target.value)} />
+                                        <FieldError message={errors.base_price} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="compare-price-display">Compare-at price</Label>
+                                        <Input id="compare-price-display" type="number" min="0" step="0.01" value={compareAtPrice} className="h-12 rounded-xl" onChange={(event) => setCompareAtPrice(event.target.value)} />
+                                        <FieldError message={errors.compare_at_price} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="cost-price-display">Cost price</Label>
+                                        <Input id="cost-price-display" type="number" min="0" step="0.01" value={costPrice} className="h-12 rounded-xl" onChange={(event) => setCostPrice(event.target.value)} />
+                                        <FieldError message={errors.cost_price} />
+                                    </div>
+                                </div>
+                                <div className="grid gap-3 md:grid-cols-3">
+                                    <SummaryItem label="Base" value={pricePreview(basePrice)} />
+                                    <SummaryItem label="Compare-at" value={pricePreview(compareAtPrice)} />
+                                    <SummaryItem label="Cost" value={pricePreview(costPrice)} />
+                                </div>
+                            </FormSection>
+
+                            <FormSection title="Visual gallery" description="Replace the dead file input with something people can actually work with." badge="Imagery">
+                                <ImageUploadField
+                                    id="images"
+                                    name="images[]"
+                                    label={isEdit ? 'Refresh or extend the gallery' : 'Upload product images'}
+                                    existingImages={product?.images ?? []}
+                                    helperText="Accepted: JPG, PNG, or WebP. Keep the first retained image strong enough to carry the listing."
+                                    error={errors['images.0'] ?? errors.images}
+                                />
+                            </FormSection>
+
+                            <FormSection title="Operational flags" description="These switches deserve more than tiny inline checkboxes." badge="Controls">
+                                <div className="grid gap-4">
+                                    <ToggleTile id="is_featured" checked={isFeatured} onChange={setIsFeatured} label="Featured placement" description="Push this product into featured collections and campaign-heavy storefront zones." />
+                                    <ToggleTile id="track_inventory" checked={trackInventory} onChange={setTrackInventory} label="Track inventory" description="Tie the product to stock levels and movement tracking." />
+                                    <ToggleTile id="allow_backorders" checked={allowBackorders} onChange={setAllowBackorders} label="Allow backorders" description="Keep selling even when stock is exhausted, with the operational risk that implies." />
+                                </div>
+                            </FormSection>
+
+                            <FormSection title="Publishing window" description="Choose when the product should actually become visible." badge="Launch">
+                                <div className="space-y-2">
+                                    <Label htmlFor="published_at">Publish at</Label>
+                                    <Input
+                                        id="published_at"
+                                        name="published_at"
+                                        type="datetime-local"
+                                        className="h-12 rounded-xl"
+                                        defaultValue={product?.published_at ? new Date(product.published_at).toISOString().slice(0, 16) : ''}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Leave blank if the product should remain unpublished after save.</p>
+                                    <FieldError message={errors.published_at} />
+                                </div>
+                            </FormSection>
+                        </div>
+
+                        <aside className="space-y-6 xl:sticky xl:top-6 xl:self-start">
+                            <div className="rounded-[28px] border border-border/70 bg-linear-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-sm">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 text-sm text-white/70">
+                                        <Sparkles className="size-4" />
+                                        <span>Editor snapshot</span>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="text-2xl font-semibold">{product?.name ?? 'New product draft'}</h3>
+                                        <p className="text-sm leading-6 text-white/70">Use this panel to sanity-check the merchandising signals before you save.</p>
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <div className="rounded-2xl bg-white/10 p-4">
+                                            <div className="flex items-center gap-2 text-white/70"><DollarSign className="size-4" /><span className="text-sm">Base price</span></div>
+                                            <p className="mt-2 text-xl font-semibold">{pricePreview(basePrice)}</p>
+                                        </div>
+                                        <div className="rounded-2xl bg-white/10 p-4">
+                                            <div className="flex items-center gap-2 text-white/70"><Tag className="size-4" /><span className="text-sm">Taxonomy</span></div>
+                                            <p className="mt-2 text-sm font-medium">{selectedCategory}</p>
+                                            <p className="text-sm text-white/70">{selectedBrand}</p>
+                                        </div>
+                                        <div className="rounded-2xl bg-white/10 p-4">
+                                            <div className="flex items-center gap-2 text-white/70"><Package2 className="size-4" /><span className="text-sm">Availability</span></div>
+                                            <p className="mt-2 text-sm font-medium">{trackInventory ? 'Inventory tracked' : 'Inventory not tracked'}</p>
+                                            <p className="text-sm text-white/70">{allowBackorders ? 'Backorders enabled' : 'Backorders disabled'}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-                        <div className="space-y-2">
-                            <Label htmlFor="images">
-                                {isEdit && product.images.length > 0 ? 'Add more images' : 'Upload images'}
-                            </Label>
-                            <Input
-                                id="images"
-                                name="images[]"
-                                type="file"
-                                multiple
-                                accept="image/jpeg,image/png,image/webp"
-                                className="cursor-pointer"
-                            />
-                            <FieldError message={errors['images.0'] ?? errors.images} />
-                        </div>
-                    </FormSection>
 
-                    {/* Flags */}
-                    <FormSection title="Flags" description="Inventory and feature settings.">
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3">
-                                <Checkbox
-                                    id="is_featured"
-                                    checked={isFeatured}
-                                    onCheckedChange={(checked) => setIsFeatured(Boolean(checked))}
-                                />
-                                <Label htmlFor="is_featured" className="cursor-pointer font-normal">
-                                    Featured — show in featured sections on the storefront
-                                </Label>
-                            </div>
+                            <FormSection title="Save checklist" description="Basic hygiene so the catalog doesn’t turn into sludge." badge="Checklist">
+                                <div className="grid gap-3">
+                                    <SummaryItem label="Slug mode" value={slugManual ? 'Manual' : 'Auto'} />
+                                    <SummaryItem label="Featured" value={isFeatured ? 'Yes' : 'No'} />
+                                    <SummaryItem label="Gallery images" value={String(product?.images.length ?? 0)} />
+                                    <SummaryItem label="Current status" value={status === 'active' ? 'Active' : 'Draft'} />
+                                </div>
+                            </FormSection>
+                        </aside>
+                    </div>
 
-                            <div className="flex items-center gap-3">
-                                <Checkbox
-                                    id="track_inventory"
-                                    checked={trackInventory}
-                                    onCheckedChange={(checked) => setTrackInventory(Boolean(checked))}
-                                />
-                                <Label htmlFor="track_inventory" className="cursor-pointer font-normal">
-                                    Track inventory — manage stock levels for this product
-                                </Label>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <Checkbox
-                                    id="allow_backorders"
-                                    checked={allowBackorders}
-                                    onCheckedChange={(checked) => setAllowBackorders(Boolean(checked))}
-                                />
-                                <Label htmlFor="allow_backorders" className="cursor-pointer font-normal">
-                                    Allow backorders — customers can order when out of stock
-                                </Label>
-                            </div>
-                        </div>
-                    </FormSection>
-
-                    {/* Publishing */}
-                    <FormSection title="Publishing" description="Schedule when this product becomes visible on the storefront.">
-                        <div className="space-y-2">
-                            <Label htmlFor="published_at">Publish date</Label>
-                            <Input
-                                id="published_at"
-                                name="published_at"
-                                type="datetime-local"
-                                defaultValue={
-                                    product?.published_at
-                                        ? new Date(product.published_at).toISOString().slice(0, 16)
-                                        : ''
-                                }
-                            />
-                            <p className="text-xs text-muted-foreground">Leave blank to keep unpublished.</p>
-                            <FieldError message={errors.published_at} />
-                        </div>
-                    </FormSection>
-
-                    <FormActions
-                        submitLabel={isEdit ? 'Update product' : 'Create product'}
-                        onCancel={() => window.history.back()}
-                    />
+                    <FormActions submitLabel={isEdit ? 'Update product' : 'Create product'} onCancel={() => window.history.back()} />
                 </>
             )}
         </Form>

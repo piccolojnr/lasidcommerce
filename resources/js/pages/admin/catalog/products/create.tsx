@@ -18,10 +18,10 @@ interface Props {
 export default function ProductCreatePage({ categories, brands }: Props) {
     return (
         <AdminLayout title="Create Product">
-            <div className="mx-auto w-full max-w-3xl space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-6">
                 <PageHeader
                     title="Create product"
-                    description="Add a new product to the catalog."
+                    description="Build a stronger catalog entry with better copy, imagery, and merchandising controls."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={ProductController.index.url()}>Back to list</Link>

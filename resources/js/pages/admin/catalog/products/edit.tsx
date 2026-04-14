@@ -20,10 +20,10 @@ interface Props {
 export default function ProductEditPage({ product, categories, brands }: Props) {
     return (
         <AdminLayout title="Edit Product">
-            <div className="mx-auto w-full max-w-3xl space-y-6">
+            <div className="mx-auto w-full max-w-7xl space-y-6">
                 <PageHeader
                     title={`Edit ${product.name}`}
-                    description="Update product information."
+                    description="Refine the merchandising, media, and operational setup without digging through a dull form."
                     actions={
                         <Button variant="outline" asChild>
                             <Link href={ProductController.show.url(product)}>Back to product</Link>
