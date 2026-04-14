@@ -1,11 +1,30 @@
-import { DataTable  } from '@/components/shared/data-table/data-table';
-import type {DataTableColumn} from '@/components/shared/data-table/data-table';
+import { Link } from '@inertiajs/react';
+import * as ShipmentController from '@/actions/App/Http/Controllers/Admin/Shipments/ShipmentController';
+import { DataTable } from '@/components/shared/data-table/data-table';
+import type { DataTableColumn } from '@/components/shared/data-table/data-table';
+import { EmptyState } from '@/components/shared/empty-state/empty-state';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { formatDate } from '@/lib/formatters/date';
 import type { AdminShipment } from '@/types/admin/shipment';
 
 const columns: DataTableColumn<AdminShipment>[] = [
-    { key: 'id', title: 'Shipment' },
+    {
+        key: 'id',
+        title: 'Shipment',
+        render: (row) => (
+            <Link
+                href={ShipmentController.show.url(row)}
+                className="font-medium hover:underline"
+            >
+                #{row.id}
+            </Link>
+        ),
+    },
+    {
+        key: 'order',
+        title: 'Order',
+        render: (row) => row.order?.order_number ?? 'N/A',
+    },
     {
         key: 'status',
         title: 'Status',
@@ -21,9 +40,20 @@ const columns: DataTableColumn<AdminShipment>[] = [
 ];
 
 interface ShipmentTableProps {
-    data?: AdminShipment[];
+    shipments: AdminShipment[];
 }
 
-export function ShipmentTable({ data = [] }: ShipmentTableProps) {
-    return <DataTable columns={columns} data={data} />;
+export function ShipmentTable({ shipments }: ShipmentTableProps) {
+    return (
+        <DataTable
+            columns={columns}
+            data={shipments}
+            emptyState={
+                <EmptyState
+                    title="No shipments found"
+                    description="Try a different search or status filter. Right now this list is empty."
+                />
+            }
+        />
+    );
 }
