@@ -14,7 +14,7 @@ class UpdateWarehouseLocationRequest extends FormRequest
 
     public function rules(): array
     {
-        $warehouseLocationId = $this->route('warehouseLocation')?->getKey();
+        $warehouseLocationId = $this->route('warehouse_location')?->getKey();
 
         return [
             'name' => ['sometimes', 'string', 'max:255'],

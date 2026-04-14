@@ -1,13 +1,29 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { FieldError } from '@/components/shared/forms/field-error';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatMoney } from '@/lib/formatters/money';
 import type { AdminShippingZoneDetail } from '@/types/admin/shipping';
 
 export default function ShippingZoneShowPage({ zone }: { zone: AdminShippingZoneDetail }) {
+    const areaForm = useForm({
+        area_type: '',
+        area_name: '',
+    });
+
     return (
         <AdminLayout title="Shipping Zone">
             <div className="mx-auto w-full max-w-7xl space-y-8">
@@ -63,7 +79,57 @@ export default function ShippingZoneShowPage({ zone }: { zone: AdminShippingZone
                         <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                             <div className="flex items-center justify-between gap-3">
                                 <CardTitle>Zone areas</CardTitle>
-                                <Button size="sm" asChild><Link href={`/admin/shipping/zones/${zone.id}/areas/create`}>Add area</Link></Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button size="sm">Add area</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Create zone area</DialogTitle>
+                                            <DialogDescription>
+                                                Add a new matching rule under {zone.name} without leaving this page.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <form
+                                            className="space-y-4"
+                                            onSubmit={(event) => {
+                                                event.preventDefault();
+                                                areaForm.post(`/admin/shipping/zones/${zone.id}/areas`, {
+                                                    preserveScroll: true,
+                                                    onSuccess: () => areaForm.reset(),
+                                                });
+                                            }}
+                                        >
+                                            <div className="space-y-2">
+                                                <Label htmlFor="area_type">Area type</Label>
+                                                <Input
+                                                    id="area_type"
+                                                    value={areaForm.data.area_type}
+                                                    onChange={(event) =>
+                                                        areaForm.setData('area_type', event.target.value)
+                                                    }
+                                                    placeholder="city"
+                                                />
+                                                <FieldError message={areaForm.errors.area_type} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="area_name">Area name</Label>
+                                                <Input
+                                                    id="area_name"
+                                                    value={areaForm.data.area_name}
+                                                    onChange={(event) =>
+                                                        areaForm.setData('area_name', event.target.value)
+                                                    }
+                                                    placeholder="Lagos Island"
+                                                />
+                                                <FieldError message={areaForm.errors.area_name} />
+                                            </div>
+                                            <Button type="submit" disabled={areaForm.processing} className="w-full">
+                                                {areaForm.processing ? 'Creating…' : 'Create area'}
+                                            </Button>
+                                        </form>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3 p-6">

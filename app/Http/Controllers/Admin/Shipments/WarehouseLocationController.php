@@ -23,7 +23,7 @@ class WarehouseLocationController extends Controller
         private UpdateWarehouseLocationAction $updateAction,
         private DeleteWarehouseLocationAction $deleteAction,
     ) {
-        $this->authorizeResource(WarehouseLocation::class, 'warehouseLocation');
+        $this->authorizeResource(WarehouseLocation::class, 'warehouse_location');
     }
 
     public function index(Request $request): InertiaResponse
