@@ -6,22 +6,20 @@ use App\Domain\User\Services\UserSegmentService;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class ListAdminUsersQuery
+class ListAdminCustomersQuery
 {
+    private ?string $search = null;
+    private ?string $status = null;
+
     public function __construct(
         private UserSegmentService $segmentService,
     ) {}
-
-    private ?string $search = null;
-    private ?string $status = null;
-    private ?string $role = null;
 
     public function withFilters(array $filters): static
     {
         $clone = clone $this;
         $clone->search = $filters['search'] ?? null;
         $clone->status = $filters['status'] ?? null;
-        $clone->role = $filters['role'] ?? null;
 
         return $clone;
     }
@@ -29,7 +27,6 @@ class ListAdminUsersQuery
     public function paginate(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with('roles:name')
             ->withCount(['orders', 'payments'])
             ->when($this->search, function ($query, $search) {
                 $query->where(function ($nestedQuery) use ($search) {
@@ -39,12 +36,9 @@ class ListAdminUsersQuery
                 });
             })
             ->when($this->status, fn ($query, $status) => $query->where('status', $status))
-            ->when($this->role, function ($query, $role) {
-                $query->whereHas('roles', fn ($roleQuery) => $roleQuery->where('name', $role));
-            })
             ->latest('id');
 
-        $this->segmentService->applyPlatformUserScope($query);
+        $this->segmentService->applyCustomerScope($query);
 
         return $query
             ->paginate(20)

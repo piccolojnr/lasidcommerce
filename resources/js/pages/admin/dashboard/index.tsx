@@ -17,6 +17,7 @@ import {
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatDate } from '@/lib/formatters/date';
 import { formatMoney } from '@/lib/formatters/money';
+import { adminRoutes } from '@/lib/routes';
 import type {
     AdminDashboardOverview,
     AdminDashboardRecentOrder,
@@ -113,8 +114,8 @@ export default function AdminDashboardPage({
                         title="New customers, last 30 days"
                         value={overview.new_customers_last_30_days.toLocaleString()}
                         description="Recently created customer accounts."
-                        actionHref={UserController.index.url()}
-                        actionLabel="View users"
+                        actionHref={adminRoutes.customers}
+                        actionLabel="View customers"
                     />
                 </div>
 

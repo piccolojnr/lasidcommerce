@@ -1,6 +1,7 @@
 import {
     BadgePercent,
     Boxes,
+    ContactRound,
     LayoutGrid,
     Settings,
     ShieldCheck,
@@ -41,9 +42,14 @@ export const adminHeaderNavItems: NavItem[] = [
         icon: Truck,
     },
     {
-        title: 'Users',
+        title: 'Platform Users',
         href: '/admin/users',
         icon: Users,
+    },
+    {
+        title: 'Customers',
+        href: '/admin/customers',
+        icon: ContactRound,
     },
     {
         title: 'Settings',
@@ -111,9 +117,14 @@ export const adminSidebarGroups: SidebarNavGroup[] = [
         label: 'Administration',
         items: [
             {
-                title: 'Users',
+                title: 'Platform Users',
                 href: '/admin/users',
                 icon: Users,
+            },
+            {
+                title: 'Customers',
+                href: '/admin/customers',
+                icon: ContactRound,
             },
             {
                 title: 'Settings',

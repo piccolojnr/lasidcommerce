@@ -9,5 +9,6 @@ export const adminRoutes = {
     shipments: '/admin/shipments',
     coupons: '/admin/coupons',
     users: '/admin/users',
+    customers: '/admin/customers',
     settings: '/admin/settings',
 } as const;

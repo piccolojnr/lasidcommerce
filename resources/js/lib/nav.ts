@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
     Boxes,
+    ContactRound,
     LayoutDashboard,
     PackageCheck,
     ReceiptText,
@@ -67,9 +68,15 @@ export const adminNavigation: AdminNavItem[] = [
         permission: ADMIN_PERMISSIONS.MANAGE_COUPONS,
     },
     {
-        title: 'Users',
+        title: 'Platform Users',
         href: adminRoutes.users,
         icon: Users,
+        permission: ADMIN_PERMISSIONS.MANAGE_USERS,
+    },
+    {
+        title: 'Customers',
+        href: adminRoutes.customers,
+        icon: ContactRound,
         permission: ADMIN_PERMISSIONS.MANAGE_USERS,
     },
     {

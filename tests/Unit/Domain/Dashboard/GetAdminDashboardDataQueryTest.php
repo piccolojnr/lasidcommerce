@@ -11,6 +11,7 @@ use App\Models\Shipment;
 use App\Models\StockItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class GetAdminDashboardDataQueryTest extends TestCase
@@ -19,11 +20,14 @@ class GetAdminDashboardDataQueryTest extends TestCase
 
     public function test_it_returns_real_dashboard_overview_metrics(): void
     {
+        $staffRole = Role::findOrCreate('support_agent', 'web');
         $recentOrderUser = User::factory()->create(['created_at' => now()->subDays(3)]);
         $oldOrderUser = User::factory()->create(['created_at' => now()->subDays(40)]);
         $completedOrderUser = User::factory()->create(['created_at' => now()->subDays(2)]);
         $successfulPaymentUser = User::factory()->create(['created_at' => now()->subDays(8)]);
         $oldPaymentUser = User::factory()->create(['created_at' => now()->subDays(60)]);
+        $recentStaffUser = User::factory()->create(['created_at' => now()->subDays(4)]);
+        $recentStaffUser->assignRole($staffRole);
 
         $recentOrder = Order::factory()->create([
             'user_id' => $recentOrderUser->id,

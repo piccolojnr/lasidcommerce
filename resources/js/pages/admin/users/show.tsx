@@ -47,8 +47,8 @@ export default function UserShowPage({
 
     return (
         <AdminLayout
-            title="User Details"
-            description="Inspect account profile and authorization state."
+            title="Platform User Details"
+            description="Inspect staff account profile and authorization state."
         >
             <div className="mx-auto w-full max-w-6xl space-y-6">
                 <PageHeader
@@ -56,7 +56,7 @@ export default function UserShowPage({
                     description={`Account created ${formatDate(user.created_at)}.`}
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={UserController.index.url()}>Back to users</Link>
+                            <Link href={UserController.index.url()}>Back to platform users</Link>
                         </Button>
                     }
                 />

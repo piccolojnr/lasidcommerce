@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\Shipments\ShippingZoneController;
 use App\Http\Controllers\Admin\Shipments\ShipmentStatusController;
 use App\Http\Controllers\Admin\Shipments\WarehouseLocationController;
 use App\Http\Controllers\Admin\Users\UserController;
+use App\Http\Controllers\Admin\Users\CustomerController;
 use App\Http\Controllers\Admin\Users\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('users', UserController::class)->only(['index', 'show', 'update']);
         Route::patch('users/{user}/roles', [UserRoleController::class, 'update'])->name('users.roles.update');
+        Route::resource('customers', CustomerController::class)->only(['index', 'show']);
 
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
         Route::match(['put', 'patch'], 'settings', [SettingController::class, 'update'])->name('settings.update');

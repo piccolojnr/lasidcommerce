@@ -2,6 +2,7 @@
 
 namespace App\Domain\Dashboard\Queries;
 
+use App\Domain\User\Services\UserSegmentService;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Payment;
@@ -12,6 +13,10 @@ use DateTimeInterface;
 
 class GetAdminDashboardDataQuery
 {
+    public function __construct(
+        private UserSegmentService $segmentService,
+    ) {}
+
     public function execute(): array
     {
         $since = now()->subDays(30);
@@ -86,9 +91,12 @@ class GetAdminDashboardDataQuery
 
     private function newCustomersLast30Days(DateTimeInterface $since): int
     {
-        return User::query()
-            ->where('created_at', '>=', $since)
-            ->count();
+        $query = User::query()
+            ->where('created_at', '>=', $since);
+
+        $this->segmentService->applyCustomerScope($query);
+
+        return $query->count();
     }
 
     private function recentOrders(): array

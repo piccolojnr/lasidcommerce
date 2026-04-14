@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import * as UserController from '@/actions/App/Http/Controllers/Admin/Users/UserController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,41 +11,33 @@ import {
 } from '@/components/ui/select';
 import { useFilters } from '@/hooks/use-filters';
 import { AdminLayout } from '@/layouts/app/admin-layout';
-import { UserTable } from '@/pages/admin/users/_components/user-table';
-import type { AdminUserListPage } from '@/types/admin/user';
+import { adminRoutes } from '@/lib/routes';
+import { CustomerTable } from '@/pages/admin/customers/_components/customer-table';
+import type { AdminCustomerListPage } from '@/types/admin/user';
 import type { PaginationLink } from '@/types/shared/pagination';
 
-interface RoleOption {
-    name: string;
-}
-
-interface UserFilters {
+interface CustomerFilters {
     [key: string]: string | null;
     search: string | null;
     status: string | null;
-    role: string | null;
 }
 
 interface Props {
-    users: AdminUserListPage;
-    filters: UserFilters;
-    roles: RoleOption[];
+    customers: AdminCustomerListPage;
+    filters: CustomerFilters;
 }
 
-export default function UserIndexPage({ users, filters, roles }: Props) {
-    const { search, setSearch, setFilter } = useFilters(UserController.index.url(), filters);
+export default function CustomerIndexPage({ customers, filters }: Props) {
+    const { search, setSearch, setFilter } = useFilters(adminRoutes.customers, filters);
 
     return (
-        <AdminLayout title="Platform Users" description="Manage internal staff accounts and access.">
+        <AdminLayout title="Customers" description="Review customer accounts and buying activity.">
             <div className="mx-auto w-full max-w-6xl space-y-6">
                 <PageHeader
-                    title="Platform users"
-                    description="Manage internal staff accounts, role assignment, and account status."
+                    title="Customers"
+                    description="Review customer accounts, order volume, and payment activity."
                     actions={
-                        <Link
-                            href={UserController.index.url()}
-                            className="text-sm text-muted-foreground hover:text-foreground"
-                        >
+                        <Link href={adminRoutes.customers} className="text-sm text-muted-foreground hover:text-foreground">
                             Reset filters
                         </Link>
                     }
@@ -60,9 +51,7 @@ export default function UserIndexPage({ users, filters, roles }: Props) {
                     />
                     <Select
                         value={filters.status ?? EMPTY_SENTINEL}
-                        onValueChange={(value) =>
-                            setFilter('status', value === EMPTY_SENTINEL ? null : value)
-                        }
+                        onValueChange={(value) => setFilter('status', value === EMPTY_SENTINEL ? null : value)}
                     >
                         <SelectTrigger className="w-44">
                             <SelectValue placeholder="All statuses" />
@@ -73,37 +62,17 @@ export default function UserIndexPage({ users, filters, roles }: Props) {
                             <SelectItem value="inactive">Inactive</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Select
-                        value={filters.role ?? EMPTY_SENTINEL}
-                        onValueChange={(value) =>
-                            setFilter('role', value === EMPTY_SENTINEL ? null : value)
-                        }
-                    >
-                        <SelectTrigger className="w-52">
-                            <SelectValue placeholder="All roles" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All roles</SelectItem>
-                            {roles.map((role) => (
-                                <SelectItem key={role.name} value={role.name}>
-                                    {role.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
                 </div>
-                <UserTable users={users.data} />
-                {users.last_page > 1 && users.links && (
+                <CustomerTable customers={customers.data} />
+                {customers.last_page > 1 && customers.links && (
                     <div className="flex items-center justify-center gap-1">
-                        {users.links.map((link: PaginationLink, index: number) =>
+                        {customers.links.map((link: PaginationLink, index: number) =>
                             link.url ? (
                                 <Link
                                     key={index}
                                     href={link.url}
                                     className={`rounded border px-3 py-1 text-sm ${
-                                        link.active
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'hover:bg-muted'
+                                        link.active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

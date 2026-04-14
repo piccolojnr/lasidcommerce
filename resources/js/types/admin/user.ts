@@ -50,3 +50,34 @@ export interface AdminUserListPage {
     total: number;
     links: PaginationMeta['links'];
 }
+
+export interface AdminCustomer {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    status: string;
+    orders_count: number;
+    payments_count: number;
+    created_at: string | null;
+}
+
+export interface AdminCustomerDetail extends AdminCustomer {
+    email_verified_at: string | null;
+    two_factor_confirmed_at: string | null;
+    addresses_count: number;
+    recent_orders: AdminUserOrderSummary[];
+    recent_payments: AdminUserPaymentSummary[];
+}
+
+export interface AdminCustomerListPage {
+    data: AdminCustomer[];
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    path: string;
+    per_page: number;
+    to: number | null;
+    total: number;
+    links: PaginationMeta['links'];
+}
