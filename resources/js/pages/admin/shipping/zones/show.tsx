@@ -14,14 +14,24 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { EMPTY_SENTINEL, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatMoney } from '@/lib/formatters/money';
-import type { AdminShippingZoneDetail } from '@/types/admin/shipping';
+import type { AdminShippingMethodSummary, AdminShippingZoneDetail } from '@/types/admin/shipping';
 
-export default function ShippingZoneShowPage({ zone }: { zone: AdminShippingZoneDetail }) {
+export default function ShippingZoneShowPage({
+    zone,
+    available_methods,
+}: {
+    zone: AdminShippingZoneDetail;
+    available_methods: AdminShippingMethodSummary[];
+}) {
     const areaForm = useForm({
         area_type: '',
         area_name: '',
+    });
+    const attachForm = useForm({
+        shipping_method_id: '',
     });
 
     return (
@@ -148,7 +158,68 @@ export default function ShippingZoneShowPage({ zone }: { zone: AdminShippingZone
                         <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
                             <div className="flex items-center justify-between gap-3">
                                 <CardTitle>Shipping methods</CardTitle>
-                                <Button size="sm" asChild><Link href={`/admin/shipping/zones/${zone.id}/methods/create`}>Add method</Link></Button>
+                                <div className="flex items-center gap-2">
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button size="sm" disabled={available_methods.length === 0}>Attach method</Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Attach shipping method</DialogTitle>
+                                                <DialogDescription>
+                                                    Choose an existing reusable method for {zone.name}. Create a new one only if the method library does not already have what you need.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <form
+                                                className="space-y-4"
+                                                onSubmit={(event) => {
+                                                    event.preventDefault();
+                                                    attachForm.post(`/admin/shipping/zones/${zone.id}/methods/attach`, {
+                                                        preserveScroll: true,
+                                                        onSuccess: () => attachForm.reset(),
+                                                    });
+                                                }}
+                                            >
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="shipping_method_id">Shipping method</Label>
+                                                    <Select
+                                                        value={attachForm.data.shipping_method_id || EMPTY_SENTINEL}
+                                                        onValueChange={(value) => attachForm.setData('shipping_method_id', value === EMPTY_SENTINEL ? '' : value)}
+                                                    >
+                                                        <SelectTrigger id="shipping_method_id">
+                                                            <SelectValue placeholder="Select a shipping method" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value={EMPTY_SENTINEL}>Select a shipping method</SelectItem>
+                                                            {available_methods.map((method) => (
+                                                                <SelectItem key={method.id} value={method.id.toString()}>
+                                                                    {method.name} ({method.code})
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FieldError message={attachForm.errors.shipping_method_id} />
+                                                </div>
+                                                <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 text-sm text-muted-foreground">
+                                                    {available_methods.length > 0
+                                                        ? `${available_methods.length} reusable methods are available for this zone.`
+                                                        : 'Every existing method is already attached to this zone.'}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Button type="submit" disabled={attachForm.processing || !attachForm.data.shipping_method_id} className="flex-1">
+                                                        {attachForm.processing ? 'Attaching…' : 'Attach method'}
+                                                    </Button>
+                                                    <Button type="button" variant="outline" asChild>
+                                                        <Link href="/admin/shipping/methods/create">Create new method</Link>
+                                                    </Button>
+                                                </div>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
+                                    <Button size="sm" variant="outline" asChild>
+                                        <Link href="/admin/shipping/methods">Method library</Link>
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3 p-6">
@@ -162,8 +233,23 @@ export default function ShippingZoneShowPage({ zone }: { zone: AdminShippingZone
                                         <StatusBadge status={method.is_active ? 'active' : 'inactive'} />
                                     </div>
                                     <p className="mt-2 text-muted-foreground">Price: {method.flat_rate_amount !== null ? formatMoney(method.flat_rate_amount) : 'N/A'}</p>
-                                    <div className="mt-3">
+                                    <div className="mt-3 flex items-center gap-2">
+                                        <Button variant="outline" size="sm" asChild><Link href={`/admin/shipping/methods/${method.id}`}>View</Link></Button>
                                         <Button variant="outline" size="sm" asChild><Link href={`/admin/shipping/methods/${method.id}/edit`}>Edit</Link></Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-destructive hover:text-destructive"
+                                            onClick={() => {
+                                                if (window.confirm(`Remove "${method.name}" from ${zone.name}?`)) {
+                                                    router.delete(`/admin/shipping/zones/${zone.id}/methods/${method.id}`, {
+                                                        preserveScroll: true,
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            Detach
+                                        </Button>
                                     </div>
                                 </div>
                             )) : <p className="text-sm text-muted-foreground">No shipping methods linked yet.</p>}

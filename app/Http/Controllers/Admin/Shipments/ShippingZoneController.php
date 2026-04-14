@@ -9,6 +9,7 @@ use App\Domain\Shipping\Queries\ListAdminShippingZonesQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShippingZoneRequest;
 use App\Http\Requests\Admin\UpdateShippingZoneRequest;
+use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,6 +65,25 @@ class ShippingZoneController extends Controller
 
         return Inertia::render('admin/shipping/zones/show', [
             'zone' => $this->formatZone($zone, true),
+            'available_methods' => ShippingMethod::query()
+                ->where('is_active', true)
+                ->whereDoesntHave('shippingZones', fn ($query) => $query->whereKey($zone->getKey()))
+                ->orderBy('name')
+                ->get()
+                ->map(fn (ShippingMethod $method): array => [
+                    'id' => $method->id,
+                    'name' => $method->name,
+                    'code' => $method->code,
+                    'method_type' => $method->method_type,
+                    'price_type' => $method->price_type,
+                    'flat_rate_amount' => $method->flat_rate_amount,
+                    'min_delivery_days' => $method->min_delivery_days,
+                    'max_delivery_days' => $method->max_delivery_days,
+                    'description' => $method->description,
+                    'is_active' => $method->is_active,
+                ])
+                ->values()
+                ->all(),
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ShippingZone extends Model
@@ -31,9 +32,10 @@ class ShippingZone extends Model
         return $this->hasMany(ShippingZoneArea::class);
     }
 
-    public function shippingMethods(): HasMany
+    public function shippingMethods(): BelongsToMany
     {
-        return $this->hasMany(ShippingMethod::class);
+        return $this->belongsToMany(ShippingMethod::class)
+            ->withTimestamps();
     }
 
     public function orders(): HasMany

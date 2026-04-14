@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatDate } from '@/lib/formatters/date';
 import { formatMoney } from '@/lib/formatters/money';
+import { adminRoutes } from '@/lib/routes';
 import type { AdminShippingMethodDetail } from '@/types/admin/shipping';
 
 export default function ShippingMethodShowPage({ method }: { method: AdminShippingMethodDetail }) {
@@ -14,10 +15,10 @@ export default function ShippingMethodShowPage({ method }: { method: AdminShippi
             <div className="mx-auto w-full max-w-6xl space-y-8">
                 <PageHeader
                     title={method.name}
-                    description={`Shipping method for ${method.zone.name}.`}
+                    description="Review this reusable shipping method and the zones currently offering it."
                     actions={
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" asChild><Link href={`/admin/shipping/zones/${method.zone.id}`}>Back to zone</Link></Button>
+                            <Button variant="outline" asChild><Link href={adminRoutes.shipping.methods}>Back to methods</Link></Button>
                             <Button variant="outline" asChild><Link href={`/admin/shipping/methods/${method.id}/edit`}>Edit method</Link></Button>
                             <Button
                                 variant="outline"
@@ -47,7 +48,7 @@ export default function ShippingMethodShowPage({ method }: { method: AdminShippi
                             <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Code</p><p className="mt-2 font-mono font-semibold">{method.code}</p></div>
                             <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Method type</p><p className="mt-2 font-semibold">{method.method_type}</p></div>
                             <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Price type</p><p className="mt-2 font-semibold">{method.price_type}</p></div>
-                            <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Zone</p><p className="mt-2 font-semibold">{method.zone.name}</p></div>
+                            <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Attached zones</p><p className="mt-2 font-semibold">{method.shipping_zones.length}</p></div>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70 bg-primary/5">
@@ -59,21 +60,30 @@ export default function ShippingMethodShowPage({ method }: { method: AdminShippi
                         </CardContent>
                     </Card>
                 </div>
-                <Card className="overflow-hidden border-border/70 pt-0">
-                    <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
-                        <CardTitle>Timeline</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-4 p-6 md:grid-cols-2">
-                        <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Created</p>
-                            <p className="mt-2 font-medium">{formatDate(method.created_at)}</p>
-                        </div>
-                        <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Updated</p>
-                            <p className="mt-2 font-medium">{formatDate(method.updated_at)}</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+                    <Card className="overflow-hidden border-border/70 pt-0">
+                        <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
+                            <CardTitle>Timeline</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid gap-4 p-6">
+                            <div className="rounded-2xl border border-border/70 bg-background/80 p-4"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Created</p><p className="mt-2 font-medium">{formatDate(method.created_at)}</p></div>
+                            <div className="rounded-2xl border border-border/70 bg-background/80 p-4"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Updated</p><p className="mt-2 font-medium">{formatDate(method.updated_at)}</p></div>
+                        </CardContent>
+                    </Card>
+                    <Card className="overflow-hidden border-border/70 pt-0">
+                        <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
+                            <CardTitle>Attached zones</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 p-6">
+                            {method.shipping_zones.length > 0 ? method.shipping_zones.map((zone) => (
+                                <div key={zone.id} className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
+                                    <Link href={`/admin/shipping/zones/${zone.id}`} className="font-medium transition hover:text-primary">{zone.name}</Link>
+                                    <p className="font-mono text-xs text-muted-foreground">{zone.code}</p>
+                                </div>
+                            )) : <p className="text-sm text-muted-foreground">This method is not attached to any zone yet.</p>}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AdminLayout>
     );

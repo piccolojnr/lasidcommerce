@@ -10,6 +10,7 @@ export const adminRoutes = {
     shipping: {
         zones: '/admin/shipping/zones',
         warehouses: '/admin/shipping/warehouse-locations',
+        methods: '/admin/shipping/methods',
     },
     coupons: '/admin/coupons',
     users: '/admin/users',

@@ -6,17 +6,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { adminRoutes } from '@/lib/routes';
 import type { AdminShippingMethodDetail } from '@/types/admin/shipping';
 
-type ZoneRef = { id: number; name: string; code: string };
-
-export function MethodForm({
-    zone,
-    method,
-}: {
-    zone: ZoneRef;
-    method?: AdminShippingMethodDetail;
-}) {
+export function MethodForm({ method }: { method?: AdminShippingMethodDetail }) {
     const isEdit = Boolean(method);
     const form = useForm({
         name: method?.name ?? '',
@@ -32,12 +25,12 @@ export function MethodForm({
 
     const submit = () => {
         if (isEdit && method) {
-            form.put(`/admin/shipping/methods/${method.id}`, { preserveScroll: true });
+            form.put(`${adminRoutes.shipping.methods}/${method.id}`, { preserveScroll: true });
 
             return;
         }
 
-        form.post(`/admin/shipping/zones/${zone.id}/methods`, { preserveScroll: true });
+        form.post(adminRoutes.shipping.methods, { preserveScroll: true });
     };
 
     return (
@@ -52,7 +45,7 @@ export function MethodForm({
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Method setup</p>
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight">{method?.name ?? 'New shipping method'}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    This method belongs to {zone.name} ({zone.code}) and defines how checkout prices and delivery expectations should be presented.
+                    Define a reusable shipping method once, then attach it to any zone that should offer it.
                 </p>
             </div>
 
@@ -90,7 +83,7 @@ export function MethodForm({
                         </div>
                     </FormSection>
 
-                    <FormSection title="Pricing and delivery window" description="Set the flat rate and the expected delivery range." badge="Commercial" contentClassName="p-6">
+                    <FormSection title="Pricing and delivery window" description="Set the commercial and timeline expectations for this method." badge="Commercial" contentClassName="p-6">
                         <div className="grid gap-4 md:grid-cols-3">
                             <div className="space-y-2"><Label htmlFor="flat_rate_amount">Flat rate amount</Label><Input id="flat_rate_amount" type="number" min="0" value={form.data.flat_rate_amount} onChange={(e) => form.setData('flat_rate_amount', e.target.value)} placeholder="2500" /><FieldError message={form.errors.flat_rate_amount} /></div>
                             <div className="space-y-2"><Label htmlFor="min_delivery_days">Min days</Label><Input id="min_delivery_days" type="number" min="0" value={form.data.min_delivery_days} onChange={(e) => form.setData('min_delivery_days', e.target.value)} placeholder="1" /><FieldError message={form.errors.min_delivery_days} /></div>
@@ -98,24 +91,19 @@ export function MethodForm({
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="description">Description</Label>
-                            <textarea
-                                id="description"
-                                value={form.data.description}
-                                onChange={(e) => form.setData('description', e.target.value)}
-                                className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            />
+                            <textarea id="description" value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
                             <FieldError message={form.errors.description} />
                         </div>
                     </FormSection>
                 </div>
 
                 <div className="space-y-6">
-                    <FormSection title="Method behavior" description="Control whether this method is available to customers." badge="Status" contentClassName="p-6">
+                    <FormSection title="Method behavior" description="Control whether this reusable method is available for zone assignment and checkout." badge="Status" contentClassName="p-6">
                         <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-muted/30 p-4">
                             <Checkbox id="is_active" checked={form.data.is_active} onCheckedChange={(value) => form.setData('is_active', Boolean(value))} className="mt-0.5" />
                             <div>
                                 <Label htmlFor="is_active" className="cursor-pointer">Method is active</Label>
-                                <p className="text-sm text-muted-foreground">Inactive methods remain in admin records but should not be offered at checkout.</p>
+                                <p className="text-sm text-muted-foreground">Inactive methods stay in the library but should not be used for new zone assignments or checkout.</p>
                             </div>
                         </div>
                         <FieldError message={form.errors.is_active} />

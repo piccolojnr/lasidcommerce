@@ -64,7 +64,11 @@ Route::middleware(['auth', 'verified'])
             Route::resource('warehouse-locations', WarehouseLocationController::class);
             Route::resource('zones', ShippingZoneController::class);
             Route::resource('zones.areas', ShippingZoneAreaController::class)->shallow();
-            Route::resource('zones.methods', ShippingMethodController::class)->shallow();
+            Route::post('zones/{zone}/methods/attach', [ShippingMethodController::class, 'attach'])
+                ->name('zones.methods.attach');
+            Route::delete('zones/{zone}/methods/{method}', [ShippingMethodController::class, 'detach'])
+                ->name('zones.methods.detach');
+            Route::resource('methods', ShippingMethodController::class);
         });
 
         Route::prefix('inventory')->name('inventory.')->group(function () {

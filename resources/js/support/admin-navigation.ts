@@ -117,6 +117,10 @@ export const adminSidebarGroups: SidebarNavGroup[] = [
                         href: '/admin/shipping/zones',
                     },
                     {
+                        title: 'Shipping Methods',
+                        href: '/admin/shipping/methods',
+                    },
+                    {
                         title: 'Warehouses',
                         href: '/admin/shipping/warehouse-locations',
                     },

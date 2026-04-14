@@ -31,12 +31,16 @@ export interface AdminShippingMethodSummary {
     max_delivery_days: number | null;
     description?: string | null;
     is_active: boolean;
+    shipping_zones_count?: number;
+    orders_count?: number;
+    shipments_count?: number;
+    created_at?: string | null;
 }
 
 export interface AdminShippingMethodDetail extends AdminShippingMethodSummary {
     created_at: string | null;
     updated_at: string | null;
-    zone: Pick<AdminShippingZone, 'id' | 'name' | 'code'>;
+    shipping_zones: Array<Pick<AdminShippingZone, 'id' | 'name' | 'code'>>;
 }
 
 export interface AdminShippingZoneDetail extends AdminShippingZone {

@@ -50,10 +50,9 @@ class ShippingSetupSeeder extends Seeder
             []
         );
 
-        ShippingMethod::query()->updateOrCreate(
+        $sameDayAccra = ShippingMethod::query()->updateOrCreate(
             ['code' => 'same-day-accra'],
             [
-                'shipping_zone_id' => $greaterAccraZone->getKey(),
                 'name' => 'Same Day Accra',
                 'method_type' => 'courier',
                 'price_type' => 'flat_rate',
@@ -65,10 +64,9 @@ class ShippingSetupSeeder extends Seeder
             ]
         );
 
-        ShippingMethod::query()->updateOrCreate(
+        $standardGhana = ShippingMethod::query()->updateOrCreate(
             ['code' => 'standard-ghana'],
             [
-                'shipping_zone_id' => $nationwideZone->getKey(),
                 'name' => 'Standard Ghana',
                 'method_type' => 'courier',
                 'price_type' => 'flat_rate',
@@ -79,6 +77,9 @@ class ShippingSetupSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        $greaterAccraZone->shippingMethods()->syncWithoutDetaching([$sameDayAccra->getKey()]);
+        $nationwideZone->shippingMethods()->syncWithoutDetaching([$standardGhana->getKey()]);
 
         WarehouseLocation::query()->updateOrCreate(
             ['code' => 'ACCRA-HQ'],

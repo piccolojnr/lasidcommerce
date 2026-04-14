@@ -11,10 +11,10 @@ export default function ShippingMethodEditPage({ method }: { method: AdminShippi
             <div className="mx-auto w-full max-w-6xl space-y-8">
                 <PageHeader
                     title={`Edit ${method.name}`}
-                    description="Adjust the pricing and delivery expectations for this method."
+                    description="Adjust the pricing and delivery expectations for this reusable method."
                     actions={<Button variant="outline" asChild><Link href={`/admin/shipping/methods/${method.id}`}>Back to method</Link></Button>}
                 />
-                <MethodForm zone={method.zone} method={method} />
+                <MethodForm method={method} />
             </div>
         </AdminLayout>
     );

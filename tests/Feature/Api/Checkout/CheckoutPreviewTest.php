@@ -68,11 +68,14 @@ class CheckoutPreviewTest extends TestCase
 
     private function method(ShippingZone $zone, int $fee = 1000): ShippingMethod
     {
-        return ShippingMethod::factory()->create([
-            'shipping_zone_id' => $zone->id,
+        $method = ShippingMethod::factory()->create([
             'flat_rate_amount' => $fee,
             'is_active'        => true,
         ]);
+
+        $zone->shippingMethods()->attach($method);
+
+        return $method;
     }
 
     private function address(User $user, string $country = 'Ghana'): Address

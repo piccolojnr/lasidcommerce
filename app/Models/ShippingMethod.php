@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ShippingMethod extends Model
@@ -13,7 +13,6 @@ class ShippingMethod extends Model
     use HasFactory;
 
     protected $fillable = [
-        'shipping_zone_id',
         'name',
         'code',
         'method_type',
@@ -35,9 +34,10 @@ class ShippingMethod extends Model
         ];
     }
 
-    public function shippingZone(): BelongsTo
+    public function shippingZones(): BelongsToMany
     {
-        return $this->belongsTo(ShippingZone::class);
+        return $this->belongsToMany(ShippingZone::class)
+            ->withTimestamps();
     }
 
     public function orders(): HasMany

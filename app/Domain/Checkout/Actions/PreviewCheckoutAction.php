@@ -44,7 +44,7 @@ class PreviewCheckoutAction
             throw new CheckoutException('No shipping zone available for your address.');
         }
 
-        if ($shippingMethod->shipping_zone_id !== $zone->id || ! $shippingMethod->is_active) {
+        if (! $shippingMethod->is_active || ! $zone->shippingMethods()->whereKey($shippingMethod->getKey())->exists()) {
             throw new CheckoutException('Selected shipping method is not available for your address.');
         }
 
