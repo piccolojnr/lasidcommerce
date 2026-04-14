@@ -6,14 +6,21 @@ type StatusTone = 'default' | 'secondary' | 'destructive' | 'outline';
 const toneMap: Record<string, StatusTone> = {
     active: 'default',
     published: 'default',
+    confirmed: 'default',
     paid: 'default',
+    fulfilled: 'default',
     completed: 'default',
     pending: 'secondary',
     processing: 'secondary',
+    shipped: 'secondary',
+    delivered: 'secondary',
+    unpaid: 'outline',
+    unfulfilled: 'outline',
     draft: 'outline',
     inactive: 'outline',
     cancelled: 'destructive',
     failed: 'destructive',
+    returned: 'destructive',
 };
 
 interface StatusBadgeProps {
