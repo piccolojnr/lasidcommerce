@@ -23,11 +23,16 @@ export function NavMain({ groups = [] }: { groups: SidebarNavGroup[] }) {
                     <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
                     <SidebarMenu>
                         {group.items.map((item) => {
-                            const hasChildren = Boolean(item.items && item.items.length > 0);
-                            const childIsActive = item.items?.some((subItem) =>
-                                isCurrentOrParentUrl(subItem.href),
-                            ) ?? false;
-                            const itemIsActive = isCurrentOrParentUrl(item.href) || childIsActive;
+                            const hasChildren = Boolean(
+                                item.items && item.items.length > 0,
+                            );
+                            const childIsActive =
+                                item.items?.some((subItem) =>
+                                    isCurrentOrParentUrl(subItem.href),
+                                ) ?? false;
+                            const itemIsActive =
+                                isCurrentOrParentUrl(item.href) ||
+                                childIsActive;
 
                             return (
                                 <SidebarMenuItem key={item.title}>
@@ -35,7 +40,12 @@ export function NavMain({ groups = [] }: { groups: SidebarNavGroup[] }) {
                                         asChild
                                         isActive={itemIsActive}
                                         tooltip={{ children: item.title }}
-                                        className={cn(hasChildren && itemIsActive ? 'bg-primary/10!' : '')}
+                                        className={cn(
+                                            hasChildren && itemIsActive
+                                                ? 'bg-primary/10!'
+                                                : '',
+                                            hasChildren ? 'mb-4' : '',
+                                        )}
                                     >
                                         <Link href={item.href} prefetch>
                                             {item.icon && <item.icon />}
@@ -45,13 +55,22 @@ export function NavMain({ groups = [] }: { groups: SidebarNavGroup[] }) {
                                     {hasChildren && (
                                         <SidebarMenuSub>
                                             {item.items!.map((subItem) => (
-                                                <SidebarMenuSubItem key={subItem.title}>
+                                                <SidebarMenuSubItem
+                                                    key={subItem.title}
+                                                >
                                                     <SidebarMenuSubButton
                                                         asChild
-                                                        isActive={isCurrentOrParentUrl(subItem.href)}
+                                                        isActive={isCurrentOrParentUrl(
+                                                            subItem.href,
+                                                        )}
                                                     >
-                                                        <Link href={subItem.href} prefetch>
-                                                            <span>{subItem.title}</span>
+                                                        <Link
+                                                            href={subItem.href}
+                                                            prefetch
+                                                        >
+                                                            <span>
+                                                                {subItem.title}
+                                                            </span>
                                                         </Link>
                                                     </SidebarMenuSubButton>
                                                 </SidebarMenuSubItem>
