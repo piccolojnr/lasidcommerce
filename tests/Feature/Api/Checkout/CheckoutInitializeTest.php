@@ -111,7 +111,7 @@ class CheckoutInitializeTest extends TestCase
         $method = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/initialize', [
             'address_id' => $address->id,
             'shipping_method_id' => $method->id,
             'payment_provider' => 'paystack',
@@ -145,7 +145,7 @@ class CheckoutInitializeTest extends TestCase
         $method = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/initialize', [
             'address_id' => $address->id,
             'shipping_method_id' => $method->id,
             'payment_provider' => 'paystack',
@@ -172,7 +172,7 @@ class CheckoutInitializeTest extends TestCase
         $method = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/initialize', [
             'address_id' => $address->id,
             'shipping_method_id' => $method->id,
             'payment_provider' => 'paystack',
@@ -188,3 +188,4 @@ class CheckoutInitializeTest extends TestCase
         ]);
     }
 }
+

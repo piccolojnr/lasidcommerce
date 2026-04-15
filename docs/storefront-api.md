@@ -22,6 +22,59 @@ This backend serves the public shop API under `/api/v1`.
    - One-step:
      - `POST /api/v1/checkout/initialize`
 
+## Storefront auth and session
+
+Storefront auth is cookie-session based and isolated from the admin web session.
+
+### Bootstrap
+
+1. `GET /api/v1/auth/csrf-cookie`
+   - establishes the storefront session cookie
+   - returns:
+     - `csrf_token`
+     - `csrf_cookie`
+     - `csrf_header`
+2. Send the returned token back on mutating auth/session requests using the header named by `csrf_header`.
+
+### Session endpoints
+
+- `GET /api/v1/auth/session`
+  - returns auth state and the current customer payload
+- `POST /api/v1/auth/logout`
+  - invalidates the storefront session only
+
+### Magic-link auth
+
+- `POST /api/v1/auth/magic-link/request`
+  - accepts:
+    - `email`
+    - optional `cart_token`
+    - optional `redirect_to`
+  - if the email belongs to an existing customer, a sign-in link is sent
+  - if the email does not exist, account creation is deferred until the link is used
+  - platform/staff users are not eligible through this surface
+- `GET /api/v1/auth/magic-link/verify`
+  - consumes the one-time link
+  - creates the customer if needed
+  - verifies the email automatically
+  - logs the customer into the storefront session
+  - merges/adopts the guest cart if `cart_token` was provided
+  - redirects to the storefront URL configured by `STOREFRONT_URL`
+
+### Password fallback
+
+- `POST /api/v1/auth/password/login`
+- `POST /api/v1/auth/password/forgot`
+- `POST /api/v1/auth/password/reset`
+
+Password is a fallback. Magic-link-created customers can set a password later through the reset flow.
+
+### Cart continuity
+
+- Guests should persist `X-Cart-Token`
+- On successful magic-link or password login, the backend adopts or merges the guest cart into the customer cart automatically
+- If both carts exist, quantities are merged by product and variant identity
+
 ## Response conventions
 
 - Every response uses the standard envelope:
@@ -77,4 +130,3 @@ The storefront should use that `order_id` to retry payment initialization throug
 ## Current limitations
 
 - Coupon application endpoints are not ready for storefront use yet.
-- Customer auth/session endpoints for the external shop are still pending and should be implemented before production rollout.

@@ -97,7 +97,7 @@ class CheckoutPreviewTest extends TestCase
         $method  = $this->method($zone, 1500);
         $address = $this->address($user, 'Ghana');
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/preview', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
             'address_id'         => $address->id,
             'shipping_method_id' => $method->id,
         ]);
@@ -123,7 +123,7 @@ class CheckoutPreviewTest extends TestCase
         $address = $this->address($user, 'Ghana');
 
         // No cart items — GetOrCreateCartAction will create a new empty cart
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/preview', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
             'address_id'         => $address->id,
             'shipping_method_id' => $method->id,
         ]);
@@ -142,7 +142,7 @@ class CheckoutPreviewTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($other, 'Ghana'); // belongs to other user
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/preview', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
             'address_id'         => $address->id,
             'shipping_method_id' => $method->id,
         ]);
@@ -161,7 +161,7 @@ class CheckoutPreviewTest extends TestCase
         $method  = $this->method($otherZone); // method from a DIFFERENT zone
         $address = $this->address($user, 'Ghana');
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/preview', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
             'address_id'         => $address->id,
             'shipping_method_id' => $method->id,
         ]);
@@ -178,7 +178,7 @@ class CheckoutPreviewTest extends TestCase
         $method  = $this->method($zone, 1500); // shipping = 1500
         $address = $this->address($user, 'Ghana');
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/preview', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
             'address_id'         => $address->id,
             'shipping_method_id' => $method->id,
         ]);
@@ -210,7 +210,7 @@ class CheckoutPreviewTest extends TestCase
         $method  = $this->method($zone, 500);
         $address = $this->address($user, 'Ghana');
 
-        $response = $this->actingAs($user)->postJson('/api/v1/checkout/preview', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
             'address_id'         => $address->id,
             'shipping_method_id' => $method->id,
         ]);
@@ -231,3 +231,4 @@ class CheckoutPreviewTest extends TestCase
         $response->assertUnauthorized();
     }
 }
+

@@ -28,7 +28,7 @@ class OrderTimelineTest extends TestCase
 
     private function getTimeline(User $user, Order $order): \Illuminate\Testing\TestResponse
     {
-        return $this->actingAs($user)->getJson(route('api.v1.orders.timeline', $order));
+        return $this->actingAsCustomer($user)->getJson(route('api.v1.orders.timeline', $order));
     }
 
     // --- authorization ---
@@ -245,3 +245,4 @@ class OrderTimelineTest extends TestCase
         $this->assertSame($sorted, $occurredAts, 'Timeline events are not in chronological order.');
     }
 }
+

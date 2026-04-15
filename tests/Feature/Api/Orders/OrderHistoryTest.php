@@ -41,7 +41,7 @@ class OrderHistoryTest extends TestCase
         $this->orderFor($user);
         $this->orderFor($user);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.index'));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.index'));
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data');
@@ -55,7 +55,7 @@ class OrderHistoryTest extends TestCase
         $this->orderFor($userB);
         $this->orderFor($userB);
 
-        $response = $this->actingAs($userA)->getJson(route('api.v1.orders.index'));
+        $response = $this->actingAsCustomer($userA)->getJson(route('api.v1.orders.index'));
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -66,7 +66,7 @@ class OrderHistoryTest extends TestCase
         $user = $this->user();
         Order::factory()->count(3)->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.index'));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.index'));
 
         $response->assertOk();
         $response->assertJsonStructure(['data', 'meta' => ['total', 'current_page', 'per_page', 'last_page']]);
@@ -77,7 +77,7 @@ class OrderHistoryTest extends TestCase
         $user  = $this->user();
         $order = $this->orderFor($user);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.index'));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.index'));
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -105,7 +105,7 @@ class OrderHistoryTest extends TestCase
         $user  = $this->user();
         $order = $this->orderFor($user);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonFragment(['order_number' => $order->order_number]);
@@ -117,7 +117,7 @@ class OrderHistoryTest extends TestCase
         $userB = $this->user();
         $order = $this->orderFor($userB);
 
-        $response = $this->actingAs($userA)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($userA)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertNotFound();
     }
@@ -129,7 +129,7 @@ class OrderHistoryTest extends TestCase
         OrderItem::factory()->create(['order_id' => $order->id]);
         OrderItem::factory()->create(['order_id' => $order->id]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data.items');
@@ -146,7 +146,7 @@ class OrderHistoryTest extends TestCase
             'total_amount'    => 6000,
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -166,7 +166,7 @@ class OrderHistoryTest extends TestCase
             'city'     => 'Kumasi',
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonFragment(['city' => 'Kumasi']);
@@ -189,7 +189,7 @@ class OrderHistoryTest extends TestCase
             'city'     => 'Kumasi',
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonPath('data.shipping_address.type', 'shipping');
@@ -206,7 +206,7 @@ class OrderHistoryTest extends TestCase
             'tracking_number' => 'GIG-9999',
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data.shipments');
@@ -232,7 +232,7 @@ class OrderHistoryTest extends TestCase
             'returned_at'  => now(),
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $this->assertNotNull($response->json('data.shipments.0.failed_at'));
@@ -244,7 +244,7 @@ class OrderHistoryTest extends TestCase
         $user  = $this->user();
         $order = $this->orderFor($user);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonCount(0, 'data.shipments');
@@ -258,7 +258,7 @@ class OrderHistoryTest extends TestCase
             'fulfillment_status' => 'unfulfilled',
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.orders.show', $order));
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -267,3 +267,4 @@ class OrderHistoryTest extends TestCase
         ]);
     }
 }
+

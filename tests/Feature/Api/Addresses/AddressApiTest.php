@@ -41,7 +41,7 @@ class AddressApiTest extends TestCase
         Address::factory()->create(['user_id' => $user->id]);
         Address::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/v1/addresses');
+        $response = $this->actingAsCustomer($user)->getJson('/api/v1/addresses');
 
         $response->assertOk()
             ->assertJsonPath('success', true);
@@ -62,7 +62,7 @@ class AddressApiTest extends TestCase
     {
         $user = $this->user();
 
-        $response = $this->actingAs($user)->postJson('/api/v1/addresses', $this->addressPayload());
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/addresses', $this->addressPayload());
 
         $response->assertCreated()
             ->assertJsonPath('success', true)
@@ -80,7 +80,7 @@ class AddressApiTest extends TestCase
     {
         $user = $this->user();
 
-        $response = $this->actingAs($user)->postJson('/api/v1/addresses', $this->addressPayload(['is_default' => true]));
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/addresses', $this->addressPayload(['is_default' => true]));
 
         $response->assertCreated()
             ->assertJsonPath('data.is_default', true);
@@ -90,7 +90,7 @@ class AddressApiTest extends TestCase
     {
         $user = $this->user();
 
-        $response = $this->actingAs($user)->postJson('/api/v1/addresses', $this->addressPayload(['type' => 'invalid']));
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/addresses', $this->addressPayload(['type' => 'invalid']));
 
         $response->assertUnprocessable();
     }
@@ -109,7 +109,7 @@ class AddressApiTest extends TestCase
         $user    = $this->user();
         $address = Address::factory()->create(['user_id' => $user->id, 'city' => 'Kumasi']);
 
-        $response = $this->actingAs($user)->patchJson(
+        $response = $this->actingAsCustomer($user)->patchJson(
             "/api/v1/addresses/{$address->id}",
             ['city' => 'Tamale'],
         );
@@ -126,7 +126,7 @@ class AddressApiTest extends TestCase
         $other   = $this->user();
         $address = Address::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->patchJson(
+        $response = $this->actingAsCustomer($user)->patchJson(
             "/api/v1/addresses/{$address->id}",
             ['city' => 'Tamale'],
         );
@@ -141,7 +141,7 @@ class AddressApiTest extends TestCase
         $user    = $this->user();
         $address = Address::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/v1/addresses/{$address->id}");
+        $response = $this->actingAsCustomer($user)->deleteJson("/api/v1/addresses/{$address->id}");
 
         $response->assertOk()
             ->assertJsonPath('success', true);
@@ -155,7 +155,7 @@ class AddressApiTest extends TestCase
         $other   = $this->user();
         $address = Address::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/v1/addresses/{$address->id}");
+        $response = $this->actingAsCustomer($user)->deleteJson("/api/v1/addresses/{$address->id}");
 
         $response->assertNotFound();
         $this->assertDatabaseHas('addresses', ['id' => $address->id]);
@@ -168,7 +168,7 @@ class AddressApiTest extends TestCase
         $user    = $this->user();
         $address = Address::factory()->create(['user_id' => $user->id, 'is_default' => false]);
 
-        $response = $this->actingAs($user)->patchJson("/api/v1/addresses/{$address->id}/default");
+        $response = $this->actingAsCustomer($user)->patchJson("/api/v1/addresses/{$address->id}/default");
 
         $response->assertOk()
             ->assertJsonPath('data.is_default', true);
@@ -182,7 +182,7 @@ class AddressApiTest extends TestCase
         $first   = Address::factory()->create(['user_id' => $user->id, 'is_default' => true]);
         $second  = Address::factory()->create(['user_id' => $user->id, 'is_default' => false]);
 
-        $this->actingAs($user)->patchJson("/api/v1/addresses/{$second->id}/default");
+        $this->actingAsCustomer($user)->patchJson("/api/v1/addresses/{$second->id}/default");
 
         $this->assertDatabaseHas('addresses', ['id' => $first->id,  'is_default' => false]);
         $this->assertDatabaseHas('addresses', ['id' => $second->id, 'is_default' => true]);
@@ -194,8 +194,9 @@ class AddressApiTest extends TestCase
         $other   = $this->user();
         $address = Address::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->patchJson("/api/v1/addresses/{$address->id}/default");
+        $response = $this->actingAsCustomer($user)->patchJson("/api/v1/addresses/{$address->id}/default");
 
         $response->assertNotFound();
     }
 }
+

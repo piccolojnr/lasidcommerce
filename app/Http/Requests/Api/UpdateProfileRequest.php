@@ -17,7 +17,7 @@ class UpdateProfileRequest extends FormRequest
         $userId = $this->user()?->getKey();
 
         return [
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['sometimes', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],

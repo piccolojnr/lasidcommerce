@@ -106,7 +106,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -133,7 +133,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -162,7 +162,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -187,7 +187,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -212,7 +212,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $this->actingAs($user)->postJson(
+        $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -230,7 +230,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -249,7 +249,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($other);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -267,7 +267,7 @@ class CreateOrderTest extends TestCase
         $method    = $this->method($otherZone);
         $address   = $this->address($user, 'Ghana');
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -284,7 +284,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone, 2000); // shipping = 2000
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -314,7 +314,7 @@ class CreateOrderTest extends TestCase
         $method  = $this->method($zone);
         $address = $this->address($user);
 
-        $response = $this->actingAs($user)->postJson(
+        $response = $this->actingAsCustomer($user)->postJson(
             '/api/v1/checkout/orders',
             $this->payload($address, $method),
         );
@@ -335,3 +335,4 @@ class CreateOrderTest extends TestCase
         $response->assertUnauthorized();
     }
 }
+

@@ -49,7 +49,7 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -69,7 +69,7 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -86,7 +86,7 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user);
 
-        $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -120,7 +120,7 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user, ['total_amount' => 8000]);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -135,7 +135,7 @@ class PaymentInitializeTest extends TestCase
         $other = User::factory()->create();
         $order = $this->pendingOrder($other);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -147,7 +147,7 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user, ['payment_status' => 'paid']);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -160,7 +160,7 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user, ['status' => 'cancelled']);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -182,10 +182,10 @@ class PaymentInitializeTest extends TestCase
         $user  = User::factory()->create();
         $order = $this->pendingOrder($user);
 
-        $firstResponse = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $firstResponse = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
-        $secondResponse = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+        $secondResponse = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
             'order_id' => $order->id,
         ]);
 
@@ -198,3 +198,4 @@ class PaymentInitializeTest extends TestCase
         $this->assertSame(1, \App\Models\Payment::where('order_id', $order->id)->count());
     }
 }
+
