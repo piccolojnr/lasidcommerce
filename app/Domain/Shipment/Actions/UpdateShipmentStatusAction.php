@@ -2,6 +2,7 @@
 
 namespace App\Domain\Shipment\Actions;
 
+use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
 use App\Models\Shipment;
@@ -11,6 +12,7 @@ class UpdateShipmentStatusAction
 {
     public function __construct(
         private ShipmentStatusManager $statusManager,
+        private OrderFulfillmentService $fulfillmentService,
     ) {}
 
     /**
@@ -33,10 +35,10 @@ class UpdateShipmentStatusAction
 
         DB::transaction(function () use ($shipment, $updateData, $toStatus) {
             $shipment->update($updateData);
-
-            if ($toStatus === 'delivered') {
-                $shipment->order->update(['fulfillment_status' => 'fulfilled']);
-            }
+            $this->fulfillmentService->sync($shipment->order->fresh([
+                'orderItems.shipmentItems.shipment',
+                'shipments',
+            ]));
         });
 
         return $shipment->fresh();

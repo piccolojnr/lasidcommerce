@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Orders;
 
 use App\Domain\Order\Queries\ListAdminOrdersQuery;
+use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Order\Services\OrderStatusManager;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -11,6 +12,7 @@ use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use App\Models\Shipment;
+use App\Models\WarehouseLocation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,6 +22,7 @@ class OrderController extends Controller
     public function __construct(
         private ListAdminOrdersQuery $listQuery,
         private OrderStatusManager $statusManager,
+        private OrderFulfillmentService $fulfillmentService,
     ) {}
 
     public function index(Request $request): Response
@@ -42,7 +45,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Order $order): Response
+    public function show(Request $request, Order $order): Response
     {
         $this->authorize('view', $order);
 
@@ -50,13 +53,34 @@ class OrderController extends Controller
             'orderItems',
             'orderAddresses',
             'payments',
-            'shipments',
+            'shipments.shipmentItems.orderItem',
+            'shipments.warehouseLocation',
             'orderStatusHistories.changedBy:id,name',
         ]);
 
+        $fulfillmentSummary = $this->fulfillmentService->summarize($order);
+
         return Inertia::render('admin/orders/show', [
-            'order' => $this->formatOrderDetail($order),
+            'order' => $this->formatOrderDetail($order, $fulfillmentSummary),
             'allowedStatuses' => $this->statusManager->allowedFrom($order->status),
+            'availableWarehouses' => WarehouseLocation::query()
+                ->active()
+                ->orderByDesc('is_default')
+                ->orderBy('name')
+                ->get(['id', 'name', 'code', 'city', 'region', 'country', 'is_default'])
+                ->map(fn (WarehouseLocation $warehouse) => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'city' => $warehouse->city,
+                    'region' => $warehouse->region,
+                    'country' => $warehouse->country,
+                    'is_default' => $warehouse->is_default,
+                ])
+                ->values()
+                ->all(),
+            'canCreateShipment' => $request->user()?->can('create', Shipment::class) === true && $fulfillmentSummary['can_create_shipment'],
+            'shipmentCreationMessage' => $this->shipmentCreationMessage($request, $order, $fulfillmentSummary),
         ]);
     }
 
@@ -75,9 +99,10 @@ class OrderController extends Controller
         ];
     }
 
-    private function formatOrderDetail(Order $order): array
+    private function formatOrderDetail(Order $order, array $fulfillmentSummary): array
     {
         $shippingAddress = $order->orderAddresses->firstWhere('type', 'shipping');
+        $itemsById = collect($fulfillmentSummary['items'])->keyBy('id');
 
         return [
             ...$this->formatOrderSummary($order),
@@ -89,8 +114,15 @@ class OrderController extends Controller
             'shipping_method_name' => $order->shipping_method_name,
             'notes' => $order->notes,
             'delivery_notes' => $order->delivery_notes,
+            'fulfillment_summary' => [
+                'total_ordered_quantity' => $fulfillmentSummary['total_ordered_quantity'],
+                'total_allocated_quantity' => $fulfillmentSummary['total_allocated_quantity'],
+                'total_in_progress_quantity' => $fulfillmentSummary['total_in_progress_quantity'],
+                'total_delivered_quantity' => $fulfillmentSummary['total_delivered_quantity'],
+                'total_remaining_quantity' => $fulfillmentSummary['total_remaining_quantity'],
+            ],
             'shipping_address' => $shippingAddress ? $this->formatAddress($shippingAddress) : null,
-            'items' => $order->orderItems->map(fn (OrderItem $item) => $this->formatItem($item))->values()->all(),
+            'items' => $order->orderItems->map(fn (OrderItem $item) => $this->formatItem($item, $itemsById->get($item->id, [])))->values()->all(),
             'payments' => $order->payments->sortByDesc('id')->map(fn (Payment $payment) => $this->formatPayment($payment))->values()->all(),
             'shipments' => $order->shipments->sortByDesc('id')->map(fn (Shipment $shipment) => $this->formatShipment($shipment))->values()->all(),
             'history' => $order->orderStatusHistories->sortByDesc('created_at')->map(fn (OrderStatusHistory $history) => $this->formatHistory($history))->values()->all(),
@@ -114,7 +146,7 @@ class OrderController extends Controller
         ];
     }
 
-    private function formatItem(OrderItem $item): array
+    private function formatItem(OrderItem $item, array $summary): array
     {
         return [
             'id' => $item->id,
@@ -126,6 +158,10 @@ class OrderController extends Controller
             'discount_amount' => $item->discount_amount,
             'tax_amount' => $item->tax_amount,
             'line_total' => $item->line_total,
+            'allocated_quantity' => $summary['allocated_quantity'] ?? 0,
+            'in_progress_quantity' => $summary['in_progress_quantity'] ?? 0,
+            'delivered_quantity' => $summary['delivered_quantity'] ?? 0,
+            'remaining_quantity' => $summary['remaining_quantity'] ?? $item->quantity,
         ];
     }
 
@@ -153,11 +189,21 @@ class OrderController extends Controller
             'tracking_url' => $shipment->tracking_url,
             'rider_name' => $shipment->rider_name,
             'rider_phone' => $shipment->rider_phone,
+            'warehouse_location' => $shipment->warehouseLocation ? [
+                'name' => $shipment->warehouseLocation->name,
+                'code' => $shipment->warehouseLocation->code,
+            ] : null,
             'packed_at' => $shipment->packed_at?->toISOString(),
             'shipped_at' => $shipment->shipped_at?->toISOString(),
             'delivered_at' => $shipment->delivered_at?->toISOString(),
             'failed_at' => $shipment->failed_at?->toISOString(),
             'returned_at' => $shipment->returned_at?->toISOString(),
+            'items' => $shipment->shipmentItems->map(fn ($item) => [
+                'order_item_id' => $item->order_item_id,
+                'product_name' => $item->orderItem?->product_name,
+                'sku' => $item->orderItem?->sku,
+                'quantity' => $item->quantity,
+            ])->values()->all(),
         ];
     }
 
@@ -171,5 +217,22 @@ class OrderController extends Controller
             'changed_by_name' => $history->changedBy?->name,
             'created_at' => $history->created_at?->toISOString(),
         ];
+    }
+
+    private function shipmentCreationMessage(Request $request, Order $order, array $fulfillmentSummary): ?string
+    {
+        if ($request->user()?->can('create', Shipment::class) !== true) {
+            return 'You do not have permission to create shipments.';
+        }
+
+        if ($order->status !== 'processing') {
+            return 'Move this order to processing before creating shipments.';
+        }
+
+        if ($fulfillmentSummary['total_remaining_quantity'] === 0) {
+            return 'All order quantities have already been assigned to shipments.';
+        }
+
+        return null;
     }
 }

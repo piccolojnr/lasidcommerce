@@ -38,6 +38,17 @@ class ShipmentTest extends TestCase
         return OrderItem::factory()->create(['order_id' => $order->id]);
     }
 
+    private function shipmentItemFor(Shipment $shipment, OrderItem $orderItem, int $quantity = 1): void
+    {
+        \DB::table('shipment_items')->insert([
+            'shipment_id' => $shipment->id,
+            'order_item_id' => $orderItem->id,
+            'quantity' => $quantity,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
     private function storeShipment(array $data): \Illuminate\Testing\TestResponse
     {
         return $this->actingAs($this->admin)
@@ -121,7 +132,12 @@ class ShipmentTest extends TestCase
     public function test_shipment_items_are_created(): void
     {
         $order = $this->processingOrder();
-        $item  = $this->orderItemFor($order);
+        $item  = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 2,
+            'unit_price' => 1000,
+            'line_total' => 2000,
+        ]);
 
         $this->storeShipment([
             'order_id' => $order->id,
@@ -132,6 +148,61 @@ class ShipmentTest extends TestCase
             'order_item_id' => $item->id,
             'quantity'      => 2,
         ]);
+    }
+
+    public function test_creating_shipment_marks_order_partially_fulfilled(): void
+    {
+        $order = $this->processingOrder();
+        $item = $this->orderItemFor($order);
+
+        $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ]);
+
+        $this->assertSame('partially_fulfilled', $order->fresh()->fulfillment_status);
+    }
+
+    public function test_cannot_create_shipment_beyond_remaining_quantity(): void
+    {
+        $order = $this->processingOrder();
+        $item = $this->orderItemFor($order);
+
+        $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ]);
+
+        $response = $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => $item->quantity]],
+        ]);
+
+        $response->assertSessionHasErrors('order_id');
+    }
+
+    public function test_split_shipments_can_cover_remaining_quantity_without_exceeding_it(): void
+    {
+        $order = $this->processingOrder();
+        $item = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 2,
+            'line_total' => 2000,
+            'unit_price' => 1000,
+        ]);
+
+        $first = $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ]);
+        $second = $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ]);
+
+        $first->assertRedirect();
+        $second->assertRedirect();
+        $this->assertDatabaseCount('shipments', 2);
     }
 
     public function test_cannot_create_shipment_for_non_processing_order(): void
@@ -326,6 +397,8 @@ class ShipmentTest extends TestCase
             'fulfillment_status' => 'unfulfilled',
         ]);
         $shipment = Shipment::factory()->shipped()->create(['order_id' => $order->id]);
+        $item = $this->orderItemFor($order);
+        $this->shipmentItemFor($shipment, $item, $item->quantity);
 
         $this->updateStatus($shipment, 'delivered');
 
@@ -339,10 +412,27 @@ class ShipmentTest extends TestCase
             'fulfillment_status' => 'unfulfilled',
         ]);
         $shipment = Shipment::factory()->create(['order_id' => $order->id, 'status' => 'pending']);
+        $item = $this->orderItemFor($order);
+        $this->shipmentItemFor($shipment, $item, 1);
 
         $this->updateStatus($shipment, 'packed');
 
-        $this->assertSame('unfulfilled', $order->fresh()->fulfillment_status);
+        $this->assertSame('partially_fulfilled', $order->fresh()->fulfillment_status);
+    }
+
+    public function test_shipped_shipment_marks_order_shipped(): void
+    {
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'fulfillment_status' => 'partially_fulfilled',
+        ]);
+        $shipment = Shipment::factory()->packed()->create(['order_id' => $order->id]);
+        $item = $this->orderItemFor($order);
+        $this->shipmentItemFor($shipment, $item, 1);
+
+        $this->updateStatus($shipment, 'shipped');
+
+        $this->assertSame('shipped', $order->fresh()->status);
     }
 
     // --- redirect behaviour ---

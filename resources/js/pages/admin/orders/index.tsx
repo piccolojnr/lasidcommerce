@@ -164,7 +164,7 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={EMPTY_SENTINEL}>All fulfillment states</SelectItem>
-                                {['unfulfilled', 'fulfilled'].map((status) => (
+                                {['unfulfilled', 'partially_fulfilled', 'fulfilled'].map((status) => (
                                     <SelectItem key={status} value={status}>
                                         {status.replace(/\b\w/g, (character) => character.toUpperCase())}
                                     </SelectItem>

@@ -22,6 +22,10 @@ export interface AdminOrderItem {
     discount_amount: number;
     tax_amount: number;
     line_total: number;
+    allocated_quantity: number;
+    in_progress_quantity: number;
+    delivered_quantity: number;
+    remaining_quantity: number;
 }
 
 export interface AdminOrderAddress {
@@ -62,6 +66,34 @@ export interface AdminOrderShipment {
     delivered_at: string | null;
     failed_at: string | null;
     returned_at: string | null;
+    warehouse_location: {
+        name: string;
+        code: string;
+    } | null;
+    items: Array<{
+        order_item_id: number;
+        product_name: string | null;
+        sku: string | null;
+        quantity: number;
+    }>;
+}
+
+export interface AdminOrderWarehouseOption {
+    id: number;
+    name: string;
+    code: string;
+    city: string;
+    region: string | null;
+    country: string;
+    is_default: boolean;
+}
+
+export interface AdminOrderFulfillmentSummary {
+    total_ordered_quantity: number;
+    total_allocated_quantity: number;
+    total_in_progress_quantity: number;
+    total_delivered_quantity: number;
+    total_remaining_quantity: number;
 }
 
 export interface AdminOrderHistoryEntry {
@@ -82,6 +114,7 @@ export interface AdminOrderDetail extends AdminOrder {
     shipping_method_name: string | null;
     notes: string | null;
     delivery_notes: string | null;
+    fulfillment_summary: AdminOrderFulfillmentSummary;
     shipping_address: AdminOrderAddress | null;
     items: AdminOrderItem[];
     payments: AdminOrderPayment[];

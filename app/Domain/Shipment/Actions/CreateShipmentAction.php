@@ -3,13 +3,19 @@
 namespace App\Domain\Shipment\Actions;
 
 use App\Domain\Shipment\Exceptions\ShipmentException;
+use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
 use Illuminate\Support\Facades\DB;
 
 class CreateShipmentAction
 {
+    public function __construct(
+        private OrderFulfillmentService $fulfillmentService,
+    ) {}
+
     /**
      * @throws ShipmentException
      */
@@ -21,9 +27,42 @@ class CreateShipmentAction
             );
         }
 
+        $order->loadMissing([
+            'orderItems.shipmentItems.shipment',
+            'shipments',
+        ]);
+
+        $summary = collect($this->fulfillmentService->summarize($order)['items'])->keyBy('id');
+        $requestedItems = collect($data['items']);
+
+        if ($requestedItems->duplicates('order_item_id')->isNotEmpty()) {
+            throw new ShipmentException('Each order item can only appear once in a shipment request.');
+        }
+
+        foreach ($requestedItems as $item) {
+            $orderItem = $summary->get($item['order_item_id']);
+
+            if ($orderItem === null) {
+                throw new ShipmentException('Shipment items must belong to the selected order.');
+            }
+
+            if ($item['quantity'] > $orderItem['remaining_quantity']) {
+                $orderItemModel = $order->orderItems->firstWhere('id', $item['order_item_id']);
+
+                throw new ShipmentException(
+                    sprintf(
+                        'Requested quantity for "%s" exceeds the remaining shippable quantity.',
+                        $orderItemModel instanceof OrderItem ? $orderItemModel->product_name : 'this item',
+                    )
+                );
+            }
+        }
+
         return DB::transaction(function () use ($order, $data) {
             $shipment = Shipment::create([
                 'order_id'        => $order->id,
+                'warehouse_location_id' => $data['warehouse_location_id'] ?? null,
+                'shipping_method_id' => $order->shipping_method_id,
                 'status'          => 'pending',
                 'carrier_name'    => $data['carrier_name'] ?? null,
                 'tracking_number' => $data['tracking_number'] ?? null,
@@ -41,7 +80,12 @@ class CreateShipmentAction
                 ]);
             }
 
-            return $shipment->load('shipmentItems');
+            $this->fulfillmentService->sync($order->fresh([
+                'orderItems.shipmentItems.shipment',
+                'shipments',
+            ]));
+
+            return $shipment->load('shipmentItems.orderItem', 'warehouseLocation', 'shippingMethod');
         });
     }
 }

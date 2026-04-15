@@ -12,6 +12,7 @@ const toneMap: Record<string, StatusTone> = {
     completed: 'default',
     pending: 'secondary',
     packed: 'secondary',
+    partially_fulfilled: 'secondary',
     processing: 'secondary',
     shipped: 'secondary',
     in_transit: 'secondary',
