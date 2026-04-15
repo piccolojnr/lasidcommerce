@@ -7,6 +7,7 @@ export interface AdminOrder {
     status: string;
     payment_status: string;
     fulfillment_status: string;
+    shipping_summary: string;
     currency_code: string;
     total_amount: number;
     placed_at?: string | null;
@@ -94,6 +95,8 @@ export interface AdminOrderFulfillmentSummary {
     total_in_progress_quantity: number;
     total_delivered_quantity: number;
     total_remaining_quantity: number;
+    shipping_summary: string;
+    needs_reshipment: boolean;
 }
 
 export interface AdminOrderHistoryEntry {

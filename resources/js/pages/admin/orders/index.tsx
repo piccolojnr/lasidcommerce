@@ -128,7 +128,7 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={EMPTY_SENTINEL}>All order states</SelectItem>
-                                {['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'].map((status) => (
+                                {['pending', 'confirmed', 'processing', 'completed', 'cancelled'].map((status) => (
                                     <SelectItem key={status} value={status}>
                                         {status.replace(/\b\w/g, (character) => character.toUpperCase())}
                                     </SelectItem>

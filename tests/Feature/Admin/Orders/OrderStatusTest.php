@@ -84,23 +84,12 @@ class OrderStatusTest extends TestCase
         $this->assertSame('processing', $order->fresh()->status);
     }
 
-    public function test_processing_to_shipped(): void
+    public function test_processing_to_completed_when_fulfilled(): void
     {
-        $order = $this->order('processing');
-        $this->updateStatus($order,['status' => 'shipped']);
-        $this->assertSame('shipped', $order->fresh()->status);
-    }
-
-    public function test_shipped_to_delivered(): void
-    {
-        $order = $this->order('shipped');
-        $this->updateStatus($order,['status' => 'delivered']);
-        $this->assertSame('delivered', $order->fresh()->status);
-    }
-
-    public function test_delivered_to_completed(): void
-    {
-        $order = $this->order('delivered');
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'fulfillment_status' => 'fulfilled',
+        ]);
         $this->updateStatus($order,['status' => 'completed']);
         $this->assertSame('completed', $order->fresh()->status);
     }
@@ -132,7 +121,7 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('pending');
 
-        $response = $this->updateStatus($order,['status' => 'shipped']); // skip steps
+        $response = $this->updateStatus($order,['status' => 'completed']); // skip steps
 
         $response->assertRedirect(route('admin.orders.show', $order));
         $response->assertSessionHasErrors('status');
@@ -153,20 +142,20 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('completed');
 
-        $response = $this->updateStatus($order,['status' => 'delivered']);
+        $response = $this->updateStatus($order,['status' => 'processing']);
 
         $response->assertSessionHasErrors('status');
         $this->assertSame('completed', $order->fresh()->status);
     }
 
-    public function test_shipped_cannot_go_back_to_processing(): void
+    public function test_processing_cannot_complete_when_not_fulfilled(): void
     {
-        $order = $this->order('shipped');
+        $order = $this->order('processing');
 
-        $response = $this->updateStatus($order,['status' => 'processing']);
+        $response = $this->updateStatus($order,['status' => 'completed']);
 
         $response->assertSessionHasErrors('status');
-        $this->assertSame('shipped', $order->fresh()->status);
+        $this->assertSame('processing', $order->fresh()->status);
     }
 
     // --- history ---

@@ -62,7 +62,7 @@ class OrderController extends Controller
 
         return Inertia::render('admin/orders/show', [
             'order' => $this->formatOrderDetail($order, $fulfillmentSummary),
-            'allowedStatuses' => $this->statusManager->allowedFrom($order->status),
+            'allowedStatuses' => $this->statusManager->allowedFrom($order),
             'availableWarehouses' => WarehouseLocation::query()
                 ->active()
                 ->orderByDesc('is_default')
@@ -84,8 +84,10 @@ class OrderController extends Controller
         ]);
     }
 
-    private function formatOrderSummary(Order $order): array
+    private function formatOrderSummary(Order $order, ?array $fulfillmentSummary = null): array
     {
+        $fulfillmentSummary ??= $this->fulfillmentService->summarize($order);
+
         return [
             'id' => $order->id,
             'order_number' => $order->order_number,
@@ -93,6 +95,7 @@ class OrderController extends Controller
             'status' => $order->status,
             'payment_status' => $order->payment_status,
             'fulfillment_status' => $order->fulfillment_status,
+            'shipping_summary' => $fulfillmentSummary['shipping_summary'],
             'currency_code' => $order->currency_code,
             'total_amount' => $order->total_amount,
             'placed_at' => $order->placed_at?->toISOString(),
@@ -105,7 +108,7 @@ class OrderController extends Controller
         $itemsById = collect($fulfillmentSummary['items'])->keyBy('id');
 
         return [
-            ...$this->formatOrderSummary($order),
+            ...$this->formatOrderSummary($order, $fulfillmentSummary),
             'subtotal_amount' => $order->subtotal_amount,
             'discount_amount' => $order->discount_amount,
             'tax_amount' => $order->tax_amount,
@@ -120,6 +123,8 @@ class OrderController extends Controller
                 'total_in_progress_quantity' => $fulfillmentSummary['total_in_progress_quantity'],
                 'total_delivered_quantity' => $fulfillmentSummary['total_delivered_quantity'],
                 'total_remaining_quantity' => $fulfillmentSummary['total_remaining_quantity'],
+                'shipping_summary' => $fulfillmentSummary['shipping_summary'],
+                'needs_reshipment' => $fulfillmentSummary['needs_reshipment'],
             ],
             'shipping_address' => $shippingAddress ? $this->formatAddress($shippingAddress) : null,
             'items' => $order->orderItems->map(fn (OrderItem $item) => $this->formatItem($item, $itemsById->get($item->id, [])))->values()->all(),
@@ -230,7 +235,7 @@ class OrderController extends Controller
         }
 
         if ($fulfillmentSummary['total_remaining_quantity'] === 0) {
-            return 'All order quantities have already been assigned to shipments.';
+            return 'No remaining quantities are available for another shipment attempt.';
         }
 
         return null;

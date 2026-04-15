@@ -17,7 +17,7 @@ class UpdateOrderStatusRequest extends FormRequest
             'status' => [
                 'required',
                 'string',
-                'in:pending,confirmed,processing,shipped,delivered,completed,cancelled',
+                'in:pending,confirmed,processing,completed,cancelled',
             ],
             'note' => ['nullable', 'string', 'max:1000'],
         ];

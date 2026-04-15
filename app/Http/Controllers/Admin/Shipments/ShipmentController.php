@@ -56,8 +56,13 @@ class ShipmentController extends Controller
             'shippingMethod',
         ]);
 
+        $orderSummary = $shipment->order ? $this->fulfillmentService->summarize($shipment->order->loadMissing([
+            'orderItems.shipmentItems.shipment',
+            'shipments',
+        ])) : null;
+
         return Inertia::render('admin/shipments/show', [
-            'shipment' => $this->formatShipmentDetail($shipment),
+            'shipment' => $this->formatShipmentDetail($shipment, $orderSummary),
             'allowedStatuses' => $this->statusManager->allowedFrom($shipment->status),
         ]);
     }
@@ -146,7 +151,7 @@ class ShipmentController extends Controller
         ];
     }
 
-    private function formatShipmentDetail(Shipment $shipment): array
+    private function formatShipmentDetail(Shipment $shipment, ?array $orderSummary = null): array
     {
         return [
             ...$this->formatShipmentSummary($shipment),
@@ -166,6 +171,12 @@ class ShipmentController extends Controller
                 'code' => $shipment->shippingMethod->code,
                 'method_type' => $shipment->shippingMethod->method_type,
             ] : null,
+            'order_fulfillment_status' => $shipment->order?->fulfillment_status,
+            'order_shipping_summary' => $orderSummary['shipping_summary'] ?? null,
+            'order_remaining_quantity' => $orderSummary['total_remaining_quantity'] ?? 0,
+            'can_reship_from_order' => $shipment->order !== null
+                && $shipment->order->status === 'processing'
+                && ($orderSummary['can_create_shipment'] ?? false),
             'items' => $shipment->shipmentItems
                 ->map(fn (ShipmentItem $item) => [
                     'id' => $item->id,

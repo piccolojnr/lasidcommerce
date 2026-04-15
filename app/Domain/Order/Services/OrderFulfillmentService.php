@@ -3,17 +3,18 @@
 namespace App\Domain\Order\Services;
 
 use App\Models\Order;
-use App\Models\OrderStatusHistory;
 
 class OrderFulfillmentService
 {
-    private const ACTIVE_SHIPMENT_STATUSES = ['pending', 'packed', 'shipped', 'in_transit', 'delivered'];
+    private const ALLOCATED_SHIPMENT_STATUSES = ['pending', 'packed', 'shipped', 'in_transit'];
 
-    private const IN_PROGRESS_SHIPMENT_STATUSES = ['pending', 'packed', 'shipped', 'in_transit'];
+    private const IN_PROGRESS_SHIPMENT_STATUSES = ['shipped', 'in_transit'];
 
     private const DELIVERED_SHIPMENT_STATUSES = ['delivered'];
 
-    private const SHIPPED_ORDER_SIGNAL_STATUSES = ['shipped', 'in_transit', 'delivered'];
+    private const PENDING_SHIPMENT_STATUSES = ['pending', 'packed'];
+
+    private const ATTENTION_SHIPMENT_STATUSES = ['failed', 'returned'];
 
     public function summarize(Order $order): array
     {
@@ -44,7 +45,7 @@ class OrderFulfillmentService
                     continue;
                 }
 
-                if (in_array($status, self::ACTIVE_SHIPMENT_STATUSES, true)) {
+                if (in_array($status, self::ALLOCATED_SHIPMENT_STATUSES, true)) {
                     $allocatedQuantity += $shipmentItem->quantity;
                 }
 
@@ -57,7 +58,7 @@ class OrderFulfillmentService
                 }
             }
 
-            $remainingQuantity = max($item->quantity - $allocatedQuantity, 0);
+            $remainingQuantity = max($item->quantity - $allocatedQuantity - $deliveredQuantity, 0);
 
             $totalOrderedQuantity += $item->quantity;
             $totalAllocatedQuantity += $allocatedQuantity;
@@ -78,6 +79,7 @@ class OrderFulfillmentService
             $totalAllocatedQuantity,
             $totalDeliveredQuantity,
         );
+        $totalRemainingQuantity = max($totalOrderedQuantity - $totalAllocatedQuantity - $totalDeliveredQuantity, 0);
 
         return [
             'items' => $items->all(),
@@ -85,40 +87,20 @@ class OrderFulfillmentService
             'total_allocated_quantity' => $totalAllocatedQuantity,
             'total_in_progress_quantity' => $totalInProgressQuantity,
             'total_delivered_quantity' => $totalDeliveredQuantity,
-            'total_remaining_quantity' => max($totalOrderedQuantity - $totalAllocatedQuantity, 0),
+            'total_remaining_quantity' => $totalRemainingQuantity,
             'fulfillment_status' => $fulfillmentStatus,
             'can_create_shipment' => $order->status === 'processing' && $items->contains(fn (array $item) => $item['remaining_quantity'] > 0),
-            'synced_order_status' => $this->determineOrderStatus($order, $totalOrderedQuantity, $totalDeliveredQuantity),
+            'shipping_summary' => $this->determineShippingSummary($order, $totalOrderedQuantity, $totalAllocatedQuantity, $totalDeliveredQuantity, $totalRemainingQuantity),
+            'needs_reshipment' => $this->needsReshipment($order, $totalRemainingQuantity),
         ];
     }
 
     public function sync(Order $order): Order
     {
         $summary = $this->summarize($order);
-        $updateData = [];
-
         if ($order->fulfillment_status !== $summary['fulfillment_status']) {
-            $updateData['fulfillment_status'] = $summary['fulfillment_status'];
-        }
-
-        if ($order->status !== $summary['synced_order_status']) {
-            $fromStatus = $order->status;
-            $updateData['status'] = $summary['synced_order_status'];
-        }
-
-        if ($updateData !== []) {
-            $order->update($updateData);
-        }
-
-        if (isset($fromStatus)) {
-            OrderStatusHistory::create([
-                'order_id' => $order->id,
-                'from_status' => $fromStatus,
-                'to_status' => $summary['synced_order_status'],
-                'note' => $summary['synced_order_status'] === 'delivered'
-                    ? 'Order marked as delivered from shipment activity.'
-                    : 'Order marked as shipped from shipment activity.',
-                'changed_by' => null,
+            $order->update([
+                'fulfillment_status' => $summary['fulfillment_status'],
             ]);
         }
 
@@ -142,27 +124,47 @@ class OrderFulfillmentService
         return 'unfulfilled';
     }
 
-    private function determineOrderStatus(Order $order, int $totalOrderedQuantity, int $totalDeliveredQuantity): string
-    {
-        if (in_array($order->status, ['cancelled', 'completed', 'delivered'], true)) {
-            return $order->status;
+    private function determineShippingSummary(
+        Order $order,
+        int $totalOrderedQuantity,
+        int $totalAllocatedQuantity,
+        int $totalDeliveredQuantity,
+        int $totalRemainingQuantity,
+    ): string {
+        if ($totalOrderedQuantity === 0) {
+            return 'no_shipment';
         }
 
-        if (
-            $totalOrderedQuantity > 0
-            && $totalDeliveredQuantity >= $totalOrderedQuantity
-            && in_array($order->status, ['processing', 'shipped'], true)
-        ) {
+        if ($totalDeliveredQuantity >= $totalOrderedQuantity) {
             return 'delivered';
         }
 
-        if (
-            $order->status === 'processing'
-            && $order->shipments->contains(fn ($shipment) => in_array($shipment->status, self::SHIPPED_ORDER_SIGNAL_STATUSES, true))
-        ) {
-            return 'shipped';
+        if ($this->needsReshipment($order, $totalRemainingQuantity)) {
+            return 'attention_required';
         }
 
-        return $order->status;
+        if ($totalDeliveredQuantity > 0) {
+            return 'partially_delivered';
+        }
+
+        if ($order->shipments->contains(fn ($shipment) => in_array($shipment->status, self::IN_PROGRESS_SHIPMENT_STATUSES, true))) {
+            return 'partially_shipped';
+        }
+
+        if ($order->shipments->contains(fn ($shipment) => in_array($shipment->status, self::PENDING_SHIPMENT_STATUSES, true))) {
+            return 'shipment_pending';
+        }
+
+        if ($totalAllocatedQuantity > 0) {
+            return 'shipment_pending';
+        }
+
+        return 'no_shipment';
+    }
+
+    private function needsReshipment(Order $order, int $totalRemainingQuantity): bool
+    {
+        return $totalRemainingQuantity > 0
+            && $order->shipments->contains(fn ($shipment) => in_array($shipment->status, self::ATTENTION_SHIPMENT_STATUSES, true));
     }
 }

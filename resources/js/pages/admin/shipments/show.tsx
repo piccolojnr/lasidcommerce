@@ -2,6 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import * as OrderController from '@/actions/App/Http/Controllers/Admin/Orders/OrderController';
 import * as ShipmentController from '@/actions/App/Http/Controllers/Admin/Shipments/ShipmentController';
 import * as ShipmentStatusController from '@/actions/App/Http/Controllers/Admin/Shipments/ShipmentStatusController';
+import { FulfillmentGuideDialog } from '@/components/shared/guides/fulfillment-guide-dialog';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ export default function ShipmentShowPage({ shipment, allowedStatuses }: Props) {
                     description={`Current state: ${shipment.status.replace(/_/g, ' ')}.`}
                     actions={
                         <div className="flex items-center gap-2">
+                            <FulfillmentGuideDialog triggerLabel="Workflow guide" />
                             <Button variant="outline" asChild><Link href={ShipmentController.index.url()}>Back to shipments</Link></Button>
                             {shipment.order ? <Button asChild><Link href={OrderController.show.url(shipment.order.id)}>View order</Link></Button> : null}
                         </div>
@@ -46,16 +48,24 @@ export default function ShipmentShowPage({ shipment, allowedStatuses }: Props) {
                     <Card className="border-border/70 bg-muted/30">
                         <CardHeader className="space-y-3">
                             <div className="flex items-center justify-between gap-3">
-                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Fulfillment stage</p>
-                                <StatusBadge status={shipment.status} />
+                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Shipment attempt</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <StatusBadge status={shipment.status} />
+                                    {shipment.order_fulfillment_status ? <StatusBadge status={shipment.order_fulfillment_status} /> : null}
+                                    {shipment.order_shipping_summary ? <StatusBadge status={shipment.order_shipping_summary} /> : null}
+                                </div>
                             </div>
                             <CardTitle className="text-2xl">{shipment.tracking_number ?? `Shipment #${shipment.id}`}</CardTitle>
-                            <p className="text-sm leading-6 text-muted-foreground">Shipment status tracks real-world movement only. If you need to move the business/order stage, go back to the order page.</p>
+                            <p className="text-sm leading-6 text-muted-foreground">
+                                Shipment status tracks package movement only. If this attempt fails or is returned, create
+                                the next shipment from the order page instead of reusing this record.
+                            </p>
                         </CardHeader>
-                        <CardContent className="grid gap-4 border-t border-border/70 pt-6 md:grid-cols-3">
+                        <CardContent className="grid gap-4 border-t border-border/70 pt-6 md:grid-cols-4">
                             <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Order</p><p className="mt-2 font-semibold">{shipment.order?.order_number ?? 'N/A'}</p></div>
                             <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Carrier</p><p className="mt-2 font-semibold">{shipment.carrier_name ?? 'N/A'}</p></div>
                             <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Items</p><p className="mt-2 font-semibold">{shipment.items.length}</p></div>
+                            <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Remaining order qty</p><p className="mt-2 font-semibold">{shipment.order_remaining_quantity}</p></div>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70 bg-primary/5">
@@ -72,6 +82,15 @@ export default function ShipmentShowPage({ shipment, allowedStatuses }: Props) {
 
                 <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
                     <div className="space-y-6">
+                        {(shipment.status === 'failed' || shipment.status === 'returned') && shipment.can_reship_from_order ? (
+                            <Card className="border-border/70 bg-amber-500/10">
+                                <CardContent className="p-6 text-sm text-muted-foreground">
+                                    This shipment attempt is closed. The order still has remaining quantity, so create the
+                                    next shipment from the order page.
+                                </CardContent>
+                            </Card>
+                        ) : null}
+
                         <Card className="overflow-hidden border-border/70 pt-0">
                             <CardHeader className="border-b border-border/70 bg-muted/30 py-6"><CardTitle>Shipment controls</CardTitle></CardHeader>
                             <CardContent className="space-y-4 p-6">
@@ -88,8 +107,9 @@ export default function ShipmentShowPage({ shipment, allowedStatuses }: Props) {
                                     </div>
                                 ) : <p className="text-sm text-muted-foreground">No further status transitions are allowed for this shipment.</p>}
                                 <form className="space-y-4 border-t border-border/70 pt-4" onSubmit={(event) => {
- event.preventDefault(); statusForm.patch(ShipmentStatusController.update.url(shipment), { preserveScroll: true }); 
-}}>
+                                    event.preventDefault();
+                                    statusForm.patch(ShipmentStatusController.update.url(shipment), { preserveScroll: true });
+                                }}>
                                     <div className="space-y-2">
                                         <Label htmlFor="status">Advanced shipment update</Label>
                                         <Select value={statusForm.data.status} onValueChange={(value) => statusForm.setData('status', value)}>
@@ -109,18 +129,9 @@ export default function ShipmentShowPage({ shipment, allowedStatuses }: Props) {
                         <Card className="overflow-hidden border-border/70 pt-0">
                             <CardHeader className="border-b border-border/70 bg-muted/30 py-6"><CardTitle>Assignment</CardTitle></CardHeader>
                             <CardContent className="space-y-4 p-6 text-sm">
-                                <div>
-                                    <p className="font-medium">Warehouse</p>
-                                    <p className="text-muted-foreground">{shipment.warehouse_location ? `${shipment.warehouse_location.name} (${shipment.warehouse_location.code})` : 'No warehouse attached'}</p>
-                                </div>
-                                <div>
-                                    <p className="font-medium">Shipping method</p>
-                                    <p className="text-muted-foreground">{shipment.shipping_method ? `${shipment.shipping_method.name} • ${shipment.shipping_method.code}` : 'No shipping method attached'}</p>
-                                </div>
-                                <div>
-                                    <p className="font-medium">Rider</p>
-                                    <p className="text-muted-foreground">{shipment.rider_name ?? 'No rider assigned'}{shipment.rider_phone ? ` • ${shipment.rider_phone}` : ''}</p>
-                                </div>
+                                <div><p className="font-medium">Warehouse</p><p className="text-muted-foreground">{shipment.warehouse_location ? `${shipment.warehouse_location.name} (${shipment.warehouse_location.code})` : 'No warehouse attached'}</p></div>
+                                <div><p className="font-medium">Shipping method</p><p className="text-muted-foreground">{shipment.shipping_method ? `${shipment.shipping_method.name} • ${shipment.shipping_method.code}` : 'No shipping method attached'}</p></div>
+                                <div><p className="font-medium">Rider</p><p className="text-muted-foreground">{shipment.rider_name ?? 'No rider assigned'}{shipment.rider_phone ? ` • ${shipment.rider_phone}` : ''}</p></div>
                             </CardContent>
                         </Card>
                     </div>

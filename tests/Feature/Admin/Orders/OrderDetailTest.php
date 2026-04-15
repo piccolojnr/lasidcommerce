@@ -46,6 +46,7 @@ class OrderDetailTest extends TestCase
             ->component('admin/orders/show')
             ->where('canCreateShipment', true)
             ->where('order.fulfillment_summary.total_remaining_quantity', 3)
+            ->where('order.fulfillment_summary.shipping_summary', 'no_shipment')
             ->where('order.items.0.id', $item->id)
             ->where('order.items.0.remaining_quantity', 3)
         );

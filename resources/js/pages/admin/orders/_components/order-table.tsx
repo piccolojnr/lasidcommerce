@@ -57,6 +57,7 @@ export function OrderTable({ orders }: OrderTableProps) {
                                         <StatusBadge status={order.status} />
                                         <StatusBadge status={order.payment_status} />
                                         <StatusBadge status={order.fulfillment_status} />
+                                        <StatusBadge status={order.shipping_summary} />
                                     </div>
                                 </td>
                                 <td className="px-5 py-4">

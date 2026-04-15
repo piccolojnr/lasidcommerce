@@ -26,6 +26,10 @@ class ListAdminOrdersQuery
     public function paginate(): LengthAwarePaginator
     {
         return Order::query()
+            ->with([
+                'shipments',
+                'orderItems.shipmentItems.shipment',
+            ])
             ->when($this->search, function ($query, $search) {
                 $query->where(function ($nestedQuery) use ($search) {
                     $nestedQuery

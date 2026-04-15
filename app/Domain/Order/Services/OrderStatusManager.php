@@ -9,23 +9,26 @@ class OrderStatusManager
     private const TRANSITIONS = [
         'pending'    => ['confirmed', 'cancelled'],
         'confirmed'  => ['processing', 'cancelled'],
-        'processing' => ['shipped', 'cancelled'],
-        'shipped'    => ['delivered'],
-        'delivered'  => ['completed'],
+        'processing' => ['completed', 'cancelled'],
         'completed'  => [],
         'cancelled'  => [],
     ];
 
     public function canTransition(Order $order, string $toStatus): bool
     {
-        $allowed = self::TRANSITIONS[$order->status] ?? [];
-
-        return in_array($toStatus, $allowed, true);
+        return in_array($toStatus, $this->allowedFrom($order), true);
     }
 
-    public function allowedFrom(string $fromStatus): array
+    public function allowedFrom(Order|string $from): array
     {
-        return self::TRANSITIONS[$fromStatus] ?? [];
+        $fromStatus = $from instanceof Order ? $from->status : $from;
+        $allowed = self::TRANSITIONS[$fromStatus] ?? [];
+
+        if ($from instanceof Order && in_array('completed', $allowed, true) && $from->fulfillment_status !== 'fulfilled') {
+            $allowed = array_values(array_filter($allowed, fn (string $status) => $status !== 'completed'));
+        }
+
+        return $allowed;
     }
 
     public function allStatuses(): array

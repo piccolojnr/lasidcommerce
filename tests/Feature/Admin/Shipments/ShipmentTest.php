@@ -486,7 +486,7 @@ class ShipmentTest extends TestCase
     public function test_delivered_shipment_marks_order_fulfilled(): void
     {
         $order    = Order::factory()->create([
-            'status'             => 'shipped',
+            'status'             => 'processing',
             'fulfillment_status' => 'unfulfilled',
         ]);
         $shipment = Shipment::factory()->shipped()->create(['order_id' => $order->id]);
@@ -496,6 +496,7 @@ class ShipmentTest extends TestCase
         $this->updateStatus($shipment, 'delivered');
 
         $this->assertSame('fulfilled', $order->fresh()->fulfillment_status);
+        $this->assertSame('processing', $order->fresh()->status);
     }
 
     public function test_non_delivery_transition_does_not_change_fulfillment(): void
@@ -513,7 +514,7 @@ class ShipmentTest extends TestCase
         $this->assertSame('partially_fulfilled', $order->fresh()->fulfillment_status);
     }
 
-    public function test_shipped_shipment_marks_order_shipped(): void
+    public function test_shipped_shipment_does_not_change_order_business_status(): void
     {
         $order = Order::factory()->create([
             'status' => 'processing',
@@ -525,7 +526,63 @@ class ShipmentTest extends TestCase
 
         $this->updateStatus($shipment, 'shipped');
 
-        $this->assertSame('shipped', $order->fresh()->status);
+        $this->assertSame('processing', $order->fresh()->status);
+    }
+
+    public function test_returned_shipment_reopens_remaining_quantity(): void
+    {
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'fulfillment_status' => 'fulfilled',
+        ]);
+        $item = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 2,
+            'line_total' => 2000,
+            'unit_price' => 1000,
+        ]);
+        $shipment = Shipment::factory()->delivered()->create(['order_id' => $order->id]);
+        $this->shipmentItemFor($shipment, $item, 2);
+
+        $this->updateStatus($shipment, 'returned');
+
+        $order = $order->fresh([
+            'orderItems.shipmentItems.shipment',
+            'shipments',
+        ]);
+
+        $this->assertSame('unfulfilled', $order->fulfillment_status);
+        $summary = app(\App\Domain\Order\Services\OrderFulfillmentService::class)->summarize($order);
+        $this->assertSame(2, $summary['total_remaining_quantity']);
+        $this->assertSame('attention_required', $summary['shipping_summary']);
+    }
+
+    public function test_failed_shipment_reopens_remaining_quantity(): void
+    {
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'fulfillment_status' => 'partially_fulfilled',
+        ]);
+        $item = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 2,
+            'line_total' => 2000,
+            'unit_price' => 1000,
+        ]);
+        $shipment = Shipment::factory()->shipped()->create(['order_id' => $order->id]);
+        $this->shipmentItemFor($shipment, $item, 2);
+
+        $this->updateStatus($shipment, 'failed');
+
+        $order = $order->fresh([
+            'orderItems.shipmentItems.shipment',
+            'shipments',
+        ]);
+
+        $this->assertSame('unfulfilled', $order->fulfillment_status);
+        $summary = app(\App\Domain\Order\Services\OrderFulfillmentService::class)->summarize($order);
+        $this->assertSame(2, $summary['total_remaining_quantity']);
+        $this->assertSame('attention_required', $summary['shipping_summary']);
     }
 
     // --- redirect behaviour ---

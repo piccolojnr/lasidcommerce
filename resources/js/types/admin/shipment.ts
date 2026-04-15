@@ -31,6 +31,10 @@ export interface AdminShipmentDetail extends AdminShipment {
     rider_name: string | null;
     rider_phone: string | null;
     notes: string | null;
+    order_fulfillment_status: string | null;
+    order_shipping_summary: string | null;
+    order_remaining_quantity: number;
+    can_reship_from_order: boolean;
     warehouse_location: {
         name: string;
         code: string;
