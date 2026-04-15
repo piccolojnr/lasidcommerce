@@ -22,6 +22,27 @@ class InitializePaystackPaymentAction
      */
     public function execute(Order $order, User $user): array
     {
+        $existingPayment = Payment::query()
+            ->where('order_id', $order->id)
+            ->where('user_id', $user->id)
+            ->where('provider', 'paystack')
+            ->where('status', 'pending')
+            ->latest('id')
+            ->first();
+
+        if (
+            $existingPayment !== null
+            && is_array($existingPayment->raw_payload_json)
+            && isset($existingPayment->raw_payload_json['authorization_url'], $existingPayment->raw_payload_json['access_code'])
+        ) {
+            return [
+                'authorization_url' => $existingPayment->raw_payload_json['authorization_url'],
+                'access_code' => $existingPayment->raw_payload_json['access_code'],
+                'reference' => $existingPayment->reference,
+                'payment' => $existingPayment,
+            ];
+        }
+
         $reference = $this->referenceGenerator->generate();
 
         $payload = [
@@ -45,6 +66,7 @@ class InitializePaystackPaymentAction
         }
 
         $data = $response->json('data');
+        $reference = $data['reference'] ?? $reference;
 
         $payment = Payment::create([
             'order_id'      => $order->id,

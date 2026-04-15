@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api\Checkout;
 
 use App\Domain\Cart\Actions\GetOrCreateCartAction;
 use App\Domain\Checkout\Actions\CreateOrderFromCartAction;
+use App\Domain\Checkout\Actions\InitializeCheckoutAction;
 use App\Domain\Checkout\Actions\PreviewCheckoutAction;
 use App\Domain\Checkout\Exceptions\CheckoutException;
+use App\Domain\Shipping\Actions\ResolveShippingMethodsAction;
+use App\Domain\Shipping\DTOs\ShippingAddressData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateOrderRequest;
 use App\Http\Requests\Api\InitializeCheckoutRequest;
@@ -15,6 +18,7 @@ use App\Http\Resources\Api\Checkout\CheckoutPreviewResource;
 use App\Http\Resources\Api\Checkout\OrderResource;
 use App\Models\Address;
 use App\Models\ShippingMethod;
+use App\Models\Cart;
 use App\Support\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,11 +29,28 @@ class CheckoutController extends Controller
         private GetOrCreateCartAction $getOrCreateCart,
         private PreviewCheckoutAction $previewAction,
         private CreateOrderFromCartAction $createOrderAction,
+        private ResolveShippingMethodsAction $resolveShippingMethodsAction,
+        private InitializeCheckoutAction $initializeCheckoutAction,
     ) {}
 
     public function resolveShippingMethods(ResolveShippingMethodsRequest $request): JsonResponse
     {
-        return ApiResponse::success([], 'Shipping methods placeholder');
+        $resolved = $this->resolveShippingMethodsAction->execute(new ShippingAddressData(
+            country: $request->country,
+            region: $request->region,
+            city: $request->city,
+        ));
+
+        $cart = null;
+        if ($request->filled('cart_id')) {
+            $cart = Cart::query()->active()->find($request->integer('cart_id'));
+        }
+
+        return ApiResponse::success([
+            'shipping_zone' => $resolved['shipping_zone'],
+            'shipping_methods' => $resolved['shipping_methods'],
+            'cart_id' => $cart?->id,
+        ]);
     }
 
     public function preview(PreviewCheckoutRequest $request): JsonResponse
@@ -89,6 +110,53 @@ class CheckoutController extends Controller
 
     public function initialize(InitializeCheckoutRequest $request): JsonResponse
     {
-        return ApiResponse::created([], 'Checkout initialize placeholder');
+        $cart = $this->getOrCreateCart->execute(
+            user: $request->user(),
+            cartToken: $request->header('X-Cart-Token'),
+        );
+
+        $address = Address::find($request->address_id);
+
+        if ($address === null || $address->user_id !== $request->user()->id) {
+            return ApiResponse::error('Address not found.', [], Response::HTTP_NOT_FOUND);
+        }
+
+        $method = ShippingMethod::find($request->shipping_method_id);
+
+        try {
+            $result = $this->initializeCheckoutAction->execute(
+                cart: $cart,
+                address: $address,
+                shippingMethod: $method,
+                user: $request->user(),
+                paymentProvider: $request->payment_provider,
+                notes: $request->notes,
+                deliveryNotes: $request->delivery_notes,
+                couponCode: $request->coupon_code,
+            );
+        } catch (CheckoutException $e) {
+            return ApiResponse::error($e->getMessage(), [], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if ($result['payment_error'] !== null) {
+            return ApiResponse::error(
+                'Checkout was created, but payment initialization failed.',
+                [
+                    'order_id' => $result['order']->id,
+                    'payment' => $result['payment_error'],
+                ],
+                Response::HTTP_BAD_GATEWAY,
+            );
+        }
+
+        return ApiResponse::created([
+            'order' => new OrderResource($result['order']),
+            'payment' => [
+                'provider' => $request->payment_provider,
+                'authorization_url' => $result['payment']['authorization_url'],
+                'access_code' => $result['payment']['access_code'],
+                'reference' => $result['payment']['reference'],
+            ],
+        ]);
     }
 }

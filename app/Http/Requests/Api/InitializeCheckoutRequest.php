@@ -16,9 +16,10 @@ class InitializeCheckoutRequest extends FormRequest
         return [
             'address_id' => ['required', 'integer', 'exists:addresses,id'],
             'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
-            'payment_provider' => ['required', 'string', 'max:50'],
+            'payment_provider' => ['required', 'string', 'in:paystack'],
             'coupon_code' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
+            'delivery_notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

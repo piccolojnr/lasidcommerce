@@ -198,4 +198,22 @@ class PaystackWebhookTest extends TestCase
             'processed' => true,
         ]);
     }
+
+    public function test_does_not_reopen_cancelled_order_on_late_success_webhook(): void
+    {
+        $payment = $this->pendingPayment([
+            'status' => 'cancelled',
+            'payment_status' => 'unpaid',
+        ]);
+        $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
+        $sig     = $this->sign($payload);
+
+        $this->postRaw($payload, $sig)->assertOk();
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $payment->order_id,
+            'status' => 'cancelled',
+            'payment_status' => 'paid',
+        ]);
+    }
 }

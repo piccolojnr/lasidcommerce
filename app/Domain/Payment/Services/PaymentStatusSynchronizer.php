@@ -23,19 +23,23 @@ class PaymentStatusSynchronizer
 
             $order      = $payment->order;
             $fromStatus = $order->status;
+            $updateData = ['payment_status' => 'paid'];
 
-            $order->update([
-                'payment_status' => 'paid',
-                'status'         => 'confirmed',
-            ]);
+            if ($order->status === 'pending') {
+                $updateData['status'] = 'confirmed';
+            }
 
-            OrderStatusHistory::create([
-                'order_id'    => $order->id,
-                'from_status' => $fromStatus,
-                'to_status'   => 'confirmed',
-                'note'        => 'Payment confirmed via Paystack webhook.',
-                'changed_by'  => null,
-            ]);
+            $order->update($updateData);
+
+            if (($updateData['status'] ?? null) === 'confirmed') {
+                OrderStatusHistory::create([
+                    'order_id'    => $order->id,
+                    'from_status' => $fromStatus,
+                    'to_status'   => 'confirmed',
+                    'note'        => 'Payment confirmed via Paystack webhook.',
+                    'changed_by'  => null,
+                ]);
+            }
         });
     }
 }

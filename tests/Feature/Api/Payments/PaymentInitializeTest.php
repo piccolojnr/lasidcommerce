@@ -174,4 +174,27 @@ class PaymentInitializeTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_reuses_existing_pending_payment_attempt(): void
+    {
+        $this->paystackOk('PAY-REUSED-001');
+
+        $user  = User::factory()->create();
+        $order = $this->pendingOrder($user);
+
+        $firstResponse = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+            'order_id' => $order->id,
+        ]);
+        $secondResponse = $this->actingAs($user)->postJson('/api/v1/payments/initialize', [
+            'order_id' => $order->id,
+        ]);
+
+        $firstResponse->assertOk();
+        $secondResponse->assertOk();
+        $this->assertSame(
+            $firstResponse->json('data.reference'),
+            $secondResponse->json('data.reference'),
+        );
+        $this->assertSame(1, \App\Models\Payment::where('order_id', $order->id)->count());
+    }
 }
