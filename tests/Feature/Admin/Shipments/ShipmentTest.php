@@ -61,6 +61,12 @@ class ShipmentTest extends TestCase
             ->patch(route('admin.shipments.status.update', $shipment), ['status' => $status]);
     }
 
+    private function quickStoreShipment(Order $order): \Illuminate\Testing\TestResponse
+    {
+        return $this->actingAs($this->admin)
+            ->post(route('admin.orders.shipments.quick-store', $order));
+    }
+
     // --- authorization: store ---
 
     public function test_guest_cannot_create_shipment(): void
@@ -205,6 +211,66 @@ class ShipmentTest extends TestCase
         $this->assertDatabaseCount('shipments', 2);
     }
 
+    public function test_quick_create_shipment_uses_all_remaining_quantities(): void
+    {
+        $order = $this->processingOrder();
+        $firstItem = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 2,
+            'line_total' => 2000,
+            'unit_price' => 1000,
+        ]);
+        $secondItem = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 3,
+            'line_total' => 3000,
+            'unit_price' => 1000,
+        ]);
+
+        $response = $this->quickStoreShipment($order);
+
+        $response->assertRedirect();
+        $shipment = Shipment::query()->where('order_id', $order->id)->latest('id')->firstOrFail();
+
+        $this->assertDatabaseHas('shipment_items', [
+            'shipment_id' => $shipment->id,
+            'order_item_id' => $firstItem->id,
+            'quantity' => 2,
+        ]);
+        $this->assertDatabaseHas('shipment_items', [
+            'shipment_id' => $shipment->id,
+            'order_item_id' => $secondItem->id,
+            'quantity' => 3,
+        ]);
+    }
+
+    public function test_quick_create_shipment_only_uses_remaining_quantities(): void
+    {
+        $order = $this->processingOrder();
+        $item = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'quantity' => 3,
+            'line_total' => 3000,
+            'unit_price' => 1000,
+        ]);
+
+        $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ]);
+
+        $response = $this->quickStoreShipment($order);
+
+        $response->assertRedirect();
+        $shipment = Shipment::query()->where('order_id', $order->id)->latest('id')->firstOrFail();
+
+        $this->assertDatabaseHas('shipment_items', [
+            'shipment_id' => $shipment->id,
+            'order_item_id' => $item->id,
+            'quantity' => 2,
+        ]);
+    }
+
     public function test_cannot_create_shipment_for_non_processing_order(): void
     {
         $order = Order::factory()->create(['status' => 'pending']);
@@ -230,6 +296,33 @@ class ShipmentTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('order_id');
+    }
+
+    public function test_quick_create_shipment_fails_for_non_processing_order(): void
+    {
+        $order = Order::factory()->create(['status' => 'pending']);
+        $this->orderItemFor($order);
+
+        $response = $this->quickStoreShipment($order);
+
+        $response->assertSessionHasErrors('order_id');
+        $this->assertDatabaseCount('shipments', 0);
+    }
+
+    public function test_quick_create_shipment_fails_when_nothing_remains_to_ship(): void
+    {
+        $order = $this->processingOrder();
+        $item = $this->orderItemFor($order);
+
+        $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => $item->quantity]],
+        ]);
+
+        $response = $this->quickStoreShipment($order);
+
+        $response->assertSessionHasErrors('order_id');
+        $this->assertDatabaseCount('shipments', 1);
     }
 
     public function test_store_requires_at_least_one_item(): void

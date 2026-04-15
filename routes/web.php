@@ -56,6 +56,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('orders/{order}/status', [OrderStatusController::class, 'update'])->name('orders.status.update');
+        Route::post('orders/{order}/shipments/quick', [ShipmentController::class, 'quickStore'])->name('orders.shipments.quick-store');
 
         Route::resource('shipments', ShipmentController::class)->only(['index', 'show', 'store', 'update']);
         Route::patch('shipments/{shipment}/status', [ShipmentStatusController::class, 'update'])->name('shipments.status.update');

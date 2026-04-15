@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin\Shipments;
 use App\Domain\Shipment\Actions\CreateShipmentAction;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Queries\ListAdminShipmentsQuery;
+use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShipmentRequest;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
+use App\Models\WarehouseLocation;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -22,6 +24,7 @@ class ShipmentController extends Controller
         private CreateShipmentAction $createShipmentAction,
         private ListAdminShipmentsQuery $listQuery,
         private ShipmentStatusManager $statusManager,
+        private OrderFulfillmentService $fulfillmentService,
     ) {}
 
     public function index(Request $request): InertiaResponse
@@ -67,6 +70,46 @@ class ShipmentController extends Controller
 
         try {
             $shipment = $this->createShipmentAction->execute($order, $request->validated());
+        } catch (ShipmentException $e) {
+            return back()->withErrors(['order_id' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('admin.shipments.show', $shipment)
+            ->with('success', 'Shipment created successfully.');
+    }
+
+    public function quickStore(Order $order): RedirectResponse
+    {
+        $this->authorize('create', Shipment::class);
+
+        $summary = $this->fulfillmentService->summarize($order);
+        $items = collect($summary['items'])
+            ->filter(fn (array $item) => $item['remaining_quantity'] > 0)
+            ->map(fn (array $item) => [
+                'order_item_id' => $item['id'],
+                'quantity' => $item['remaining_quantity'],
+            ])
+            ->values()
+            ->all();
+
+        if ($items === []) {
+            return back()->withErrors([
+                'order_id' => 'There are no remaining shippable items for this order.',
+            ]);
+        }
+
+        $defaultWarehouse = WarehouseLocation::query()
+            ->active()
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->first();
+
+        try {
+            $shipment = $this->createShipmentAction->execute($order, [
+                'warehouse_location_id' => $defaultWarehouse?->id,
+                'items' => $items,
+            ]);
         } catch (ShipmentException $e) {
             return back()->withErrors(['order_id' => $e->getMessage()]);
         }

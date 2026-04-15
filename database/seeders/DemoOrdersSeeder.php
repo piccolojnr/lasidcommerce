@@ -44,6 +44,7 @@ class DemoOrdersSeeder extends Seeder
         $customerKojo = User::query()->where('email', 'customer.kojo@example.com')->first();
         $customerEfua = User::query()->where('email', 'customer.efua@example.com')->first();
 
+        // order 1: Processing order with same-day delivery in Accra
         $this->seedOrder(
             orderNumber: 'ORD-DEMO-1001',
             customer: $customerAma,
@@ -97,6 +98,7 @@ class DemoOrdersSeeder extends Seeder
             ],
         );
 
+        // order 2: Completed order with nationwide delivery
         $this->seedOrder(
             orderNumber: 'ORD-DEMO-1002',
             customer: $customerKojo,
@@ -154,8 +156,93 @@ class DemoOrdersSeeder extends Seeder
             ],
         );
 
+        // order 3: Pending order awaiting payment authorization in Accra
         $this->seedOrder(
             orderNumber: 'ORD-DEMO-1003',
+            customer: $customerEfua,
+            actor: $ordersManager,
+            zone: $accraZone,
+            method: $sameDay,
+            warehouse: $warehouse,
+            orderAttributes: [
+                'status' => 'pending',
+                'payment_status' => 'unpaid',
+                'fulfillment_status' => 'unfulfilled',
+                'shipping_amount' => 2500,
+                'placed_at' => now()->subHours(8),
+                'notes' => 'Awaiting customer payment authorization.',
+            ],
+            address: [
+                'name' => 'Efua Nkrumah',
+                'phone' => '+233270000113',
+                'country' => 'Ghana',
+                'region' => 'Greater Accra',
+                'city' => 'Accra',
+                'district' => 'East Legon',
+                'address_line_1' => '7 East Legon Avenue',
+                'address_line_2' => null,
+                'landmark' => 'Adjiringanor Junction',
+                'postal_code' => null,
+            ],
+            items: [
+                ['sku' => 'LAS-SND-002', 'quantity' => 1],
+                ['sku' => 'LAS-CAP-004', 'quantity' => 1],
+            ],
+            payment: [
+                'reference' => 'PAY-DEMO-1003',
+                'status' => 'pending',
+                'gateway_response' => 'Awaiting authorization',
+                'paid_at' => null,
+            ],
+            shipment: null,
+            statusHistory: [
+                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subHours(8)],
+            ],
+        );
+        $this->seedOrder(
+            orderNumber: 'ORD-DEMO-1004',
+            customer: $customerEfua,
+            actor: $ordersManager,
+            zone: $accraZone,
+            method: $sameDay,
+            warehouse: $warehouse,
+            orderAttributes: [
+                'status' => 'pending',
+                'payment_status' => 'unpaid',
+                'fulfillment_status' => 'unfulfilled',
+                'shipping_amount' => 2500,
+                'placed_at' => now()->subHours(8),
+                'notes' => 'Awaiting customer payment authorization.',
+            ],
+            address: [
+                'name' => 'Efua Nkrumah',
+                'phone' => '+233270000113',
+                'country' => 'Ghana',
+                'region' => 'Greater Accra',
+                'city' => 'Accra',
+                'district' => 'East Legon',
+                'address_line_1' => '7 East Legon Avenue',
+                'address_line_2' => null,
+                'landmark' => 'Adjiringanor Junction',
+                'postal_code' => null,
+            ],
+            items: [
+                ['sku' => 'LAS-SND-002', 'quantity' => 1],
+                ['sku' => 'LAS-CAP-004', 'quantity' => 1],
+            ],
+            payment: [
+                'reference' => 'PAY-DEMO-1003',
+                'status' => 'pending',
+                'gateway_response' => 'Awaiting authorization',
+                'paid_at' => null,
+            ],
+            shipment: null,
+            statusHistory: [
+                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subHours(8)],
+            ],
+        );
+        $this->seedOrder(
+            orderNumber: 'ORD-DEMO-1005',
             customer: $customerEfua,
             actor: $ordersManager,
             zone: $accraZone,
@@ -217,7 +304,7 @@ class DemoOrdersSeeder extends Seeder
         ?array $shipment,
         array $statusHistory,
     ): void {
-        if (! $customer) {
+        if (!$customer) {
             return;
         }
 
@@ -227,7 +314,7 @@ class DemoOrdersSeeder extends Seeder
         foreach ($items as $item) {
             $product = Product::query()->where('sku', $item['sku'])->first();
 
-            if (! $product) {
+            if (!$product) {
                 continue;
             }
 
@@ -349,7 +436,7 @@ class DemoOrdersSeeder extends Seeder
             foreach ($lineItems as $lineItem) {
                 $orderItem = $orderItems->get($lineItem['product']->sku);
 
-                if (! $orderItem) {
+                if (!$orderItem) {
                     continue;
                 }
 
