@@ -50,18 +50,20 @@ class InitializeGuestCheckoutAction
         }
 
         $address = $this->createAddressAction->execute($user, [
-            'type' => 'shipping',
-            'name' => $payload['name'],
-            'phone' => $payload['phone'] ?? null,
-            'country' => $payload['country'],
-            'region' => $payload['region'] ?? null,
-            'city' => $payload['city'],
-            'district' => $payload['district'] ?? null,
-            'address_line_1' => $payload['address_line_1'],
-            'address_line_2' => $payload['address_line_2'] ?? null,
-            'landmark' => $payload['landmark'] ?? null,
-            'postal_code' => $payload['postal_code'] ?? null,
-            'is_default' => true,
+            'type'                   => 'shipping',
+            'name'                   => $payload['name'],
+            'phone'                  => $payload['phone'] ?? null,
+            'country'                => $payload['country'] ?? 'GH',
+            'region'                 => $payload['region'] ?? null,
+            'city'                   => $payload['city'] ?? null,
+            'district'               => $payload['district'] ?? null,
+            'address_line_1'         => $payload['address_line_1'],
+            'address_line_2'         => $payload['address_line_2'] ?? null,
+            'landmark'               => $payload['landmark'] ?? null,
+            'postal_code'            => $payload['postal_code'] ?? null,
+            'is_default'             => true,
+            'shipping_zone_id'       => $payload['shipping_zone_id'] ?? null,
+            'shipping_zone_area_id'  => $payload['shipping_zone_area_id'] ?? null,
         ]);
 
         $method = ShippingMethod::find($payload['shipping_method_id']);

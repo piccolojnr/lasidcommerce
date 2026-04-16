@@ -27,4 +27,14 @@ class PaystackClient
             ->acceptJson()
             ->post("{$this->baseUrl}/transaction/initialize", $payload);
     }
+
+    /**
+     * Verify a transaction by reference.
+     */
+    public function verifyTransaction(string $reference): Response
+    {
+        return Http::withToken($this->secretKey)
+            ->acceptJson()
+            ->get("{$this->baseUrl}/transaction/verify/{$reference}");
+    }
 }

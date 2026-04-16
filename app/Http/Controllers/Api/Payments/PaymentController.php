@@ -3,18 +3,22 @@
 namespace App\Http\Controllers\Api\Payments;
 
 use App\Domain\Payment\Actions\InitializePaystackPaymentAction;
+use App\Domain\Payment\Actions\VerifyPaystackPaymentAction;
 use App\Domain\Payment\Exceptions\PaymentException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\InitializePaymentRequest;
+use App\Http\Resources\Api\Checkout\OrderResource;
 use App\Models\Order;
 use App\Support\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PaymentController extends Controller
 {
     public function __construct(
         private InitializePaystackPaymentAction $initializeAction,
+        private VerifyPaystackPaymentAction $verifyAction,
     ) {}
 
     public function initialize(InitializePaymentRequest $request): JsonResponse
@@ -51,6 +55,30 @@ class PaymentController extends Controller
             'authorization_url' => $result['authorization_url'],
             'access_code'       => $result['access_code'],
             'reference'         => $result['reference'],
+        ]);
+    }
+
+    public function verify(Request $request): JsonResponse
+    {
+        $reference = $request->query('reference');
+
+        if (! $reference) {
+            return ApiResponse::error('Reference is required.', [], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $payment = $this->verifyAction->execute($reference);
+
+        if ($payment === null) {
+            return ApiResponse::error('Payment not found.', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($payment->order->user_id !== $request->user()->id) {
+            return ApiResponse::error('Payment not found.', [], Response::HTTP_NOT_FOUND);
+        }
+
+        return ApiResponse::success([
+            'payment_status' => $payment->status,
+            'order'          => new OrderResource($payment->order),
         ]);
     }
 }

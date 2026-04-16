@@ -53,6 +53,7 @@ Route::middleware(['auth:customer', 'ensure.storefront.customer'])->group(functi
     Route::get('orders/{order}/timeline', [OrderController::class, 'timeline'])->name('orders.timeline');
 
     Route::post('payments/initialize', [PaymentController::class, 'initialize'])->name('payments.initialize');
+    Route::get('payments/verify', [PaymentController::class, 'verify'])->name('payments.verify');
 
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update'])->name('profile.update');
