@@ -12,6 +12,7 @@ class ApplyStorefrontSessionConfig
     {
         config([
             'session.cookie' => config('storefront.session_cookie'),
+            'session.domain' => config('storefront.session_domain'),
         ]);
 
         return $next($request);

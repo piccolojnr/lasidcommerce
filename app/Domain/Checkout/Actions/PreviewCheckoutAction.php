@@ -31,14 +31,14 @@ class PreviewCheckoutAction
             throw new CheckoutException('Cart is empty.');
         }
 
-        $addressData = new ShippingAddressData(
-            country:  $address->country,
-            region:   $address->region,
-            city:     $address->city,
-            district: $address->district,
-        );
-
-        $zone = $this->zoneResolver->resolve($addressData);
+        $zone = $address->shipping_zone_id
+            ? ShippingZone::find($address->shipping_zone_id)
+            : $this->zoneResolver->resolve(new ShippingAddressData(
+                country:  $address->country,
+                region:   $address->region,
+                city:     $address->city,
+                district: $address->district,
+            ));
 
         if ($zone === null) {
             throw new CheckoutException('No shipping zone available for your address.');

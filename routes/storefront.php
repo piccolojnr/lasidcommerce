@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Checkout\CheckoutController;
 use App\Http\Controllers\Api\Orders\OrderController;
 use App\Http\Controllers\Api\Payments\PaymentController;
 use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Shipping\ShippingZoneController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->name('auth.')->group(function () {
@@ -31,6 +32,11 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('password/reset', [PasswordAuthController::class, 'reset'])
         ->name('password.reset');
 });
+
+Route::get('shipping-zones', [ShippingZoneController::class, 'index'])->name('shipping-zones.index');
+
+Route::post('checkout/guest/initialize', [CheckoutController::class, 'initializeGuest'])
+    ->name('checkout.guest.initialize');
 
 Route::middleware(['auth:customer', 'ensure.storefront.customer'])->group(function () {
     Route::prefix('checkout')->name('checkout.')->group(function () {

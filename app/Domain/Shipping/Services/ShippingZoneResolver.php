@@ -9,11 +9,27 @@ class ShippingZoneResolver
 {
     public function resolve(ShippingAddressData $addressData): ?ShippingZone
     {
-        return ShippingZone::active()
-            ->whereHas('areas', function ($q) use ($addressData) {
-                $q->where('area_type', 'country')
-                    ->where('area_name', $addressData->country);
-            })
-            ->first();
+        $candidates = [
+            ['district', $addressData->district],
+            ['city',     $addressData->city ?: null],
+            ['region',   $addressData->region],
+            ['country',  $addressData->country],
+        ];
+
+        foreach ($candidates as [$type, $name]) {
+            if (empty($name)) {
+                continue;
+            }
+
+            $zone = ShippingZone::active()
+                ->whereHas('areas', fn ($q) => $q->where('area_type', $type)->where('area_name', $name))
+                ->first();
+
+            if ($zone !== null) {
+                return $zone;
+            }
+        }
+
+        return null;
     }
 }

@@ -27,7 +27,8 @@ class AddressController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $addresses = Address::where('user_id', $request->user()->id)
+        $addresses = Address::with(['shippingZone', 'shippingZoneArea'])
+            ->where('user_id', $request->user()->id)
             ->orderByDesc('is_default')
             ->orderBy('created_at')
             ->get();

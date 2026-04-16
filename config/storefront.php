@@ -3,6 +3,7 @@
 return [
     'url' => env('STOREFRONT_URL', env('APP_URL', 'http://localhost')),
     'session_cookie' => env('STOREFRONT_SESSION_COOKIE', 'storefront_session'),
+    'session_domain' => env('STOREFRONT_SESSION_DOMAIN', null),
     'csrf_cookie' => env('STOREFRONT_CSRF_COOKIE', 'XSRF-STOREFRONT-TOKEN'),
     'csrf_header' => env('STOREFRONT_CSRF_HEADER', 'X-STOREFRONT-CSRF-TOKEN'),
     'default_redirect_path' => env('STOREFRONT_DEFAULT_REDIRECT_PATH', '/account'),

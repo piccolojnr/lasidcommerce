@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAddressRequest extends FormRequest
+class InitializeGuestCheckoutRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,7 @@ class StoreAddressRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', 'string', 'in:shipping,billing'],
+            'email' => ['required', 'email', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'country' => ['required', 'string', 'max:255'],
@@ -25,9 +25,11 @@ class StoreAddressRequest extends FormRequest
             'address_line_2' => ['nullable', 'string', 'max:255'],
             'landmark' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['nullable', 'string', 'max:50'],
-            'is_default'             => ['sometimes', 'boolean'],
-            'shipping_zone_id'       => ['nullable', 'integer', 'exists:shipping_zones,id'],
-            'shipping_zone_area_id'  => ['nullable', 'integer', 'exists:shipping_zone_areas,id'],
+            'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
+            'payment_provider' => ['required', 'string', 'in:paystack'],
+            'coupon_code' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'delivery_notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

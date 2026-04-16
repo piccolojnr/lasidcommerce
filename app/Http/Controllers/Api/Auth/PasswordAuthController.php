@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Support\Responses\ApiResponse;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -29,6 +30,15 @@ class PasswordAuthController extends Controller
     {
         $user = $this->loginAction->execute(CustomerPasswordLoginData::fromArray($request->validated()));
 
+        $expireStale = Cookie::create(config('storefront.session_cookie'))
+            ->withValue('')
+            ->withExpires(1)
+            ->withPath('/')
+            ->withDomain(null)
+            ->withSecure(false)
+            ->withHttpOnly(true)
+            ->withSameSite(Cookie::SAMESITE_LAX);
+
         return ApiResponse::success([
             'authenticated' => true,
             'user' => [
@@ -40,7 +50,7 @@ class PasswordAuthController extends Controller
                 'email_verified_at' => $user->email_verified_at?->toISOString(),
                 'profile_completion_required' => blank($user->name),
             ],
-        ], 'Logged in successfully.');
+        ], 'Logged in successfully.')->withCookie($expireStale);
     }
 
     public function forgot(ForgotCustomerPasswordRequest $request): JsonResponse

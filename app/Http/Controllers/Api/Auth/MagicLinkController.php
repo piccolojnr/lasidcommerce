@@ -11,6 +11,7 @@ use App\Support\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class MagicLinkController extends Controller
 {
@@ -28,8 +29,22 @@ class MagicLinkController extends Controller
 
     public function verify(Request $request): RedirectResponse
     {
-        return redirect()->away(
-            $this->verifyAction->execute((string) $request->query('token')),
-        );
+        $redirect = $this->verifyAction->execute((string) $request->query('token'));
+
+        // Expire any stale session cookie that has no Domain attribute (created
+        // before STOREFRONT_SESSION_DOMAIN was configured). Without this,
+        // browsers with old cookies can send the stale ID first in the Cookie
+        // header, causing PHP to read it and overwrite the authenticated
+        // Domain-scoped cookie during the next session write-back.
+        $expireStale = Cookie::create(config('storefront.session_cookie'))
+            ->withValue('')
+            ->withExpires(1)   // Unix timestamp 1 = expired
+            ->withPath('/')
+            ->withDomain(null) // targets only the no-Domain variant
+            ->withSecure(false)
+            ->withHttpOnly(true)
+            ->withSameSite(Cookie::SAMESITE_LAX);
+
+        return redirect()->away($redirect)->withCookie($expireStale);
     }
 }

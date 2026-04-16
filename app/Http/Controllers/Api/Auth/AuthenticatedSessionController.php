@@ -11,8 +11,14 @@ class AuthenticatedSessionController extends Controller
 {
     public function csrfCookie(Request $request): JsonResponse
     {
-        $request->session()->regenerateToken();
-
+        // Do NOT regenerate the CSRF token here. The session already carries a
+        // stable token (seeded by StartSession on first session creation and
+        // rotated on login/logout via session()->regenerate()). Calling
+        // regenerateToken() unconditionally marks the session as dirty and
+        // causes StartSession to write the session cookie back in every
+        // bootstrap response. When a stale no-domain session cookie is also
+        // present in the browser, that write-back can overwrite the correct
+        // authenticated cookie with the stale one.
         return ApiResponse::success([
             'csrf_token' => $request->session()->token(),
             'csrf_cookie' => config('storefront.csrf_cookie'),

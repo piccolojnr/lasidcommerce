@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\ShippingZone;
+use App\Models\ShippingZoneArea;
 
 class Address extends Model
 {
@@ -26,6 +28,8 @@ class Address extends Model
         'landmark',
         'postal_code',
         'is_default',
+        'shipping_zone_id',
+        'shipping_zone_area_id',
     ];
 
     protected function casts(): array
@@ -38,6 +42,16 @@ class Address extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function shippingZone(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZone::class);
+    }
+
+    public function shippingZoneArea(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZoneArea::class);
     }
 
     public function scopeDefault(Builder $query): Builder
