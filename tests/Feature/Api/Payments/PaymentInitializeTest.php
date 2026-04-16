@@ -4,8 +4,10 @@ namespace Tests\Feature\Api\Payments;
 
 use App\Models\Order;
 use App\Models\User;
+use App\Notifications\PaymentActionRequiredNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class PaymentInitializeTest extends TestCase
@@ -44,6 +46,7 @@ class PaymentInitializeTest extends TestCase
 
     public function test_initializes_payment_successfully(): void
     {
+        Notification::fake();
         $this->paystackOk();
 
         $user  = User::factory()->create();
@@ -60,6 +63,7 @@ class PaymentInitializeTest extends TestCase
             ]);
 
         $this->assertSame('https://checkout.paystack.com/abc123', $response->json('data.authorization_url'));
+        Notification::assertSentOnDemand(PaymentActionRequiredNotification::class);
     }
 
     public function test_authorization_url_returned(): void
@@ -190,6 +194,7 @@ class PaymentInitializeTest extends TestCase
 
     public function test_reuses_existing_pending_payment_attempt(): void
     {
+        Notification::fake();
         $this->paystackOk('PAY-REUSED-001');
 
         $user  = User::factory()->create();
@@ -209,6 +214,7 @@ class PaymentInitializeTest extends TestCase
             $secondResponse->json('data.reference'),
         );
         $this->assertSame(1, \App\Models\Payment::where('order_id', $order->id)->count());
+        Notification::assertSentOnDemandTimes(PaymentActionRequiredNotification::class, 1);
     }
 }
 

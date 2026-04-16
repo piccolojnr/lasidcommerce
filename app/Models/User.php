@@ -2,7 +2,12 @@
 
 namespace App\Models;
 
+use App\Domain\User\Services\UserSegmentService;
+use App\Notifications\CustomerResetPasswordNotification;
+use App\Notifications\CustomerVerifyEmailNotification;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -77,6 +82,32 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function orderStatusHistories(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class, 'changed_by');
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $segmentService = app(UserSegmentService::class);
+
+        if ($segmentService->isCustomer($this)) {
+            $this->notify(new CustomerVerifyEmailNotification());
+
+            return;
+        }
+
+        $this->notify(new VerifyEmail());
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $segmentService = app(UserSegmentService::class);
+
+        if ($segmentService->isCustomer($this)) {
+            $this->notify(new CustomerResetPasswordNotification($token));
+
+            return;
+        }
+
+        $this->notify(new ResetPassword($token));
     }
 
     protected function fullName(): Attribute

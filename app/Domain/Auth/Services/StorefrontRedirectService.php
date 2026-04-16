@@ -16,6 +16,11 @@ class StorefrontRedirectService
         return $base.(str_contains($base, '?') ? '&' : '?').'auth_error='.$reason;
     }
 
+    public function toPathUrl(string $path): string
+    {
+        return $this->buildUrl($this->sanitizePath($path) ?? config('storefront.default_redirect_path'));
+    }
+
     public function sanitizePath(?string $path): ?string
     {
         if ($path === null || $path === '') {

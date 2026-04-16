@@ -2,6 +2,7 @@
 
 namespace App\Domain\Order\Actions;
 
+use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Domain\Order\Exceptions\InvalidOrderTransitionException;
 use App\Domain\Order\Services\OrderStatusManager;
 use App\Models\Order;
@@ -12,6 +13,7 @@ class UpdateOrderStatusAction
 {
     public function __construct(
         private OrderStatusManager $statusManager,
+        private CustomerNotificationService $notificationService,
     ) {}
 
     /**
@@ -37,6 +39,10 @@ class UpdateOrderStatusAction
             'changed_by'  => $actor?->id,
         ]);
 
-        return $order->fresh();
+        $updatedOrder = $order->fresh();
+
+        $this->notificationService->sendOrderStatusUpdated($updatedOrder, $fromStatus, $toStatus, $note);
+
+        return $updatedOrder;
     }
 }

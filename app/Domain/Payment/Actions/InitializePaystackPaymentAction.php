@@ -2,6 +2,7 @@
 
 namespace App\Domain\Payment\Actions;
 
+use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Domain\Payment\Exceptions\PaymentException;
 use App\Domain\Payment\Services\PaymentReferenceGenerator;
 use App\Domain\Payment\Services\PaystackClient;
@@ -14,6 +15,7 @@ class InitializePaystackPaymentAction
     public function __construct(
         private PaystackClient $client,
         private PaymentReferenceGenerator $referenceGenerator,
+        private CustomerNotificationService $notificationService,
     ) {}
 
     /**
@@ -78,6 +80,8 @@ class InitializePaystackPaymentAction
             'currency_code' => $order->currency_code,
             'raw_payload_json' => $data,
         ]);
+
+        $this->notificationService->sendPaymentActionRequired($order, $payment, $data['authorization_url']);
 
         return [
             'authorization_url' => $data['authorization_url'],

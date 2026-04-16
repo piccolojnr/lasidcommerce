@@ -4,6 +4,7 @@ namespace App\Domain\Checkout\Actions;
 
 use App\Domain\Checkout\Exceptions\CheckoutException;
 use App\Domain\Checkout\Services\OrderNumberGenerator;
+use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Order;
@@ -19,6 +20,7 @@ class CreateOrderFromCartAction
     public function __construct(
         private PreviewCheckoutAction $previewAction,
         private OrderNumberGenerator $numberGenerator,
+        private CustomerNotificationService $notificationService,
     ) {}
 
     /**
@@ -35,7 +37,7 @@ class CreateOrderFromCartAction
         // Reuse preview for validation + totals
         $preview = $this->previewAction->execute($cart, $address, $shippingMethod);
 
-        return DB::transaction(function () use ($preview, $cart, $address, $shippingMethod, $user, $notes, $deliveryNotes) {
+        $order = DB::transaction(function () use ($preview, $cart, $address, $shippingMethod, $user, $notes, $deliveryNotes) {
             $zone = $preview['shipping_zone'];
 
             $order = Order::create([
@@ -109,5 +111,9 @@ class CreateOrderFromCartAction
 
             return $order->load('orderItems', 'orderAddresses', 'orderStatusHistories');
         });
+
+        $this->notificationService->sendOrderPlaced($order);
+
+        return $order;
     }
 }

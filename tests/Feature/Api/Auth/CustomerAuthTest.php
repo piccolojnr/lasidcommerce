@@ -6,7 +6,8 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\User;
 use App\Notifications\CustomerMagicLinkNotification;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\CustomerResetPasswordNotification;
+use App\Notifications\CustomerWelcomeNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
@@ -112,6 +113,7 @@ class CustomerAuthTest extends TestCase
 
         $this->assertNotNull($user->email_verified_at);
         $this->assertSame('', $user->name);
+        Notification::assertSentTo($user, CustomerWelcomeNotification::class);
 
         $adoptedCart = Cart::active()->where('user_id', $user->id)->first();
         $this->assertNotNull($adoptedCart);
@@ -203,7 +205,7 @@ class CustomerAuthTest extends TestCase
             'email' => $staff->email,
         ])->assertOk();
 
-        Notification::assertSentTo($customer, ResetPassword::class);
-        Notification::assertNotSentTo($staff, ResetPassword::class);
+        Notification::assertSentTo($customer, CustomerResetPasswordNotification::class);
+        Notification::assertNotSentTo($staff, CustomerResetPasswordNotification::class);
     }
 }

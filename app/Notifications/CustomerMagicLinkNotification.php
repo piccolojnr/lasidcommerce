@@ -2,32 +2,31 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Domain\Notification\DTOs\CustomerMailData;
 
-class CustomerMagicLinkNotification extends Notification implements ShouldQueue
+class CustomerMagicLinkNotification extends CustomerMailNotification
 {
-    use Queueable;
-
     public function __construct(
         public readonly string $verifyUrl,
         public readonly \DateTimeInterface $expiresAt,
     ) {}
 
-    public function via(object $notifiable): array
+    protected function mailData(object $notifiable): CustomerMailData
     {
-        return ['mail'];
-    }
-
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->subject('Your sign-in link')
-            ->line('Use this one-time link to sign in to your customer account.')
-            ->action('Sign in', $this->verifyUrl)
-            ->line('This link expires at '.$this->expiresAt->format('Y-m-d H:i:s').' UTC.')
-            ->line('If you did not request this link, you can ignore this email.');
+        return new CustomerMailData(
+            subject: 'Your sign-in link',
+            preheader: 'Use this one-time sign-in link to access your customer account.',
+            eyebrow: 'Customer access',
+            title: 'Sign in to your account',
+            intro: 'Use the secure link below to sign in to your customer account.',
+            lines: [
+                'This one-time link expires at '.$this->formatDateTime($this->expiresAt).'.',
+            ],
+            actionText: 'Sign in',
+            actionUrl: $this->verifyUrl,
+            footerLines: [
+                'If you did not request this link, you can ignore this email.',
+            ],
+        );
     }
 }

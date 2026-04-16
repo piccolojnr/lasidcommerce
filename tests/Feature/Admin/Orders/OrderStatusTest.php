@@ -5,7 +5,9 @@ namespace Tests\Feature\Admin\Orders;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\User;
+use App\Notifications\OrderStatusUpdatedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -62,12 +64,14 @@ class OrderStatusTest extends TestCase
 
     public function test_valid_transition_succeeds(): void
     {
+        Notification::fake();
         $order = $this->order('pending');
 
         $response = $this->updateStatus($order,['status' => 'confirmed']);
 
         $response->assertRedirect(route('admin.orders.show', $order));
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'confirmed']);
+        Notification::assertSentOnDemand(OrderStatusUpdatedNotification::class);
     }
 
     public function test_pending_to_confirmed(): void

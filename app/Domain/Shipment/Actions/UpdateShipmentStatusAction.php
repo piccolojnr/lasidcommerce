@@ -2,6 +2,7 @@
 
 namespace App\Domain\Shipment\Actions;
 
+use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
@@ -13,6 +14,7 @@ class UpdateShipmentStatusAction
     public function __construct(
         private ShipmentStatusManager $statusManager,
         private OrderFulfillmentService $fulfillmentService,
+        private CustomerNotificationService $notificationService,
     ) {}
 
     /**
@@ -26,6 +28,7 @@ class UpdateShipmentStatusAction
             );
         }
 
+        $fromStatus = $shipment->status;
         $updateData = ['status' => $toStatus];
 
         $tsField = $this->statusManager->timestampField($toStatus);
@@ -41,6 +44,10 @@ class UpdateShipmentStatusAction
             ]));
         });
 
-        return $shipment->fresh();
+        $updatedShipment = $shipment->fresh(['order']);
+
+        $this->notificationService->sendShipmentStatusUpdated($updatedShipment, $fromStatus, $toStatus);
+
+        return $updatedShipment;
     }
 }

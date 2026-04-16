@@ -10,7 +10,9 @@ use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
 use App\Models\User;
+use App\Notifications\OrderPlacedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class CreateOrderTest extends TestCase
@@ -99,6 +101,8 @@ class CreateOrderTest extends TestCase
 
     public function test_creates_order_successfully(): void
     {
+        Notification::fake();
+
         $user    = $this->user();
         $product = $this->activeProduct();
         $this->cartWithItem($user, $product);
@@ -122,6 +126,7 @@ class CreateOrderTest extends TestCase
             'email'   => $user->email,
             'status'  => 'pending',
         ]);
+        Notification::assertSentOnDemand(OrderPlacedNotification::class);
     }
 
     public function test_creates_order_items(): void
