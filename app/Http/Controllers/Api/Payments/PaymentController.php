@@ -21,6 +21,10 @@ class PaymentController extends Controller
     {
         $order = Order::find($request->order_id);
 
+        if ($order === null) {
+            return ApiResponse::error('Order not found.', [], Response::HTTP_NOT_FOUND);
+        }
+
         if ($order->user_id !== $request->user()->id) {
             return ApiResponse::error('Order not found.', [], Response::HTTP_NOT_FOUND);
         }

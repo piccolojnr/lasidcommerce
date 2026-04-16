@@ -175,6 +175,19 @@ class PaymentInitializeTest extends TestCase
         $response->assertUnauthorized();
     }
 
+    public function test_returns_not_found_for_missing_order(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
+            'order_id' => 999999,
+        ]);
+
+        $response->assertNotFound()
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Order not found.');
+    }
+
     public function test_reuses_existing_pending_payment_attempt(): void
     {
         $this->paystackOk('PAY-REUSED-001');

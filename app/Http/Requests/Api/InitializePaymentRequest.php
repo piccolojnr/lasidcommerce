@@ -14,7 +14,7 @@ class InitializePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_id' => ['required', 'integer', 'exists:orders,id'],
+            'order_id' => ['required', 'integer'],
         ];
     }
 }

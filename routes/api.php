@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Cart\CartController;
 use App\Http\Controllers\Api\Cart\CartCouponController;
 use App\Http\Controllers\Api\Cart\CartItemController;
+use App\Http\Controllers\Api\Catalog\BrandController;
 use App\Http\Controllers\Api\Catalog\CategoryController;
 use App\Http\Controllers\Api\Catalog\ProductController;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
@@ -10,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::prefix('catalog')->name('catalog.')->group(function () {
+        Route::get('brands', [BrandController::class, 'index'])->name('brands.index');
+        Route::get('brands/{slug}', [BrandController::class, 'show'])->name('brands.show');
+
         Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
         Route::get('categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 
