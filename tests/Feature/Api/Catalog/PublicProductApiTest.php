@@ -76,6 +76,18 @@ class PublicProductApiTest extends TestCase
         $this->assertNotContains($other->id, $ids->toArray());
     }
 
+    public function test_index_search_is_case_insensitive(): void
+    {
+        $match = $this->visibleProduct(['name' => 'Classic Sneaker']);
+        $other = $this->visibleProduct(['name' => 'Running Boot']);
+
+        $response = $this->getJson('/api/v1/catalog/products?search=sNeAkEr');
+
+        $ids = collect($response->json('data'))->pluck('id');
+        $this->assertContains($match->id, $ids->toArray());
+        $this->assertNotContains($other->id, $ids->toArray());
+    }
+
     public function test_index_filters_by_category_slug(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
@@ -87,6 +99,32 @@ class PublicProductApiTest extends TestCase
         $ids = collect($response->json('data'))->pluck('id');
         $this->assertContains($match->id, $ids->toArray());
         $this->assertNotContains($other->id, $ids->toArray());
+    }
+
+    public function test_index_filters_parent_category_including_descendants(): void
+    {
+        $parent = Category::factory()->create(['is_active' => true]);
+        $child = Category::factory()->create([
+            'is_active' => true,
+            'parent_id' => $parent->id,
+        ]);
+        $grandchild = Category::factory()->create([
+            'is_active' => true,
+            'parent_id' => $child->id,
+        ]);
+
+        $directMatch = $this->visibleProduct(['category_id' => $parent->id]);
+        $childMatch = $this->visibleProduct(['category_id' => $child->id]);
+        $grandchildMatch = $this->visibleProduct(['category_id' => $grandchild->id]);
+        $other = $this->visibleProduct();
+
+        $response = $this->getJson("/api/v1/catalog/products?category={$parent->slug}");
+
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains($directMatch->id, $ids);
+        $this->assertContains($childMatch->id, $ids);
+        $this->assertContains($grandchildMatch->id, $ids);
+        $this->assertNotContains($other->id, $ids);
     }
 
     public function test_index_filters_by_brand_slug(): void

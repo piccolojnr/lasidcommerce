@@ -22,6 +22,26 @@ class ShippingSetupSeeder extends Seeder
             ]
         );
 
+        $ashantiZone = ShippingZone::query()->updateOrCreate(
+            ['code' => 'GH-ASHANTI'],
+            [
+                'name' => 'Ashanti Region',
+                'description' => 'Regional delivery coverage for Kumasi and nearby districts.',
+                'country_code' => 'GH',
+                'is_active' => true,
+            ]
+        );
+
+        $northernZone = ShippingZone::query()->updateOrCreate(
+            ['code' => 'GH-NORTHERN'],
+            [
+                'name' => 'Northern Corridor',
+                'description' => 'Extended delivery coverage for Tamale and northern destinations.',
+                'country_code' => 'GH',
+                'is_active' => true,
+            ]
+        );
+
         $nationwideZone = ShippingZone::query()->updateOrCreate(
             ['code' => 'GH-NATIONWIDE'],
             [
@@ -37,6 +57,24 @@ class ShippingSetupSeeder extends Seeder
                 'shipping_zone_id' => $greaterAccraZone->getKey(),
                 'area_type' => 'region',
                 'area_name' => 'Greater Accra',
+            ],
+            []
+        );
+
+        ShippingZoneArea::query()->updateOrCreate(
+            [
+                'shipping_zone_id' => $ashantiZone->getKey(),
+                'area_type' => 'region',
+                'area_name' => 'Ashanti',
+            ],
+            []
+        );
+
+        ShippingZoneArea::query()->updateOrCreate(
+            [
+                'shipping_zone_id' => $northernZone->getKey(),
+                'area_type' => 'region',
+                'area_name' => 'Northern',
             ],
             []
         );
@@ -64,6 +102,34 @@ class ShippingSetupSeeder extends Seeder
             ]
         );
 
+        $nextDayAccra = ShippingMethod::query()->updateOrCreate(
+            ['code' => 'next-day-accra'],
+            [
+                'name' => 'Next Day Accra',
+                'method_type' => 'courier',
+                'price_type' => 'flat_rate',
+                'flat_rate_amount' => 1800,
+                'min_delivery_days' => 1,
+                'max_delivery_days' => 2,
+                'description' => 'Lower-cost next-day delivery in Greater Accra.',
+                'is_active' => true,
+            ]
+        );
+
+        $expressAshanti = ShippingMethod::query()->updateOrCreate(
+            ['code' => 'express-ashanti'],
+            [
+                'name' => 'Ashanti Express',
+                'method_type' => 'courier',
+                'price_type' => 'flat_rate',
+                'flat_rate_amount' => 4200,
+                'min_delivery_days' => 1,
+                'max_delivery_days' => 2,
+                'description' => 'Fast tracked delivery within Kumasi and surrounding areas.',
+                'is_active' => true,
+            ]
+        );
+
         $standardGhana = ShippingMethod::query()->updateOrCreate(
             ['code' => 'standard-ghana'],
             [
@@ -78,8 +144,52 @@ class ShippingSetupSeeder extends Seeder
             ]
         );
 
-        $greaterAccraZone->shippingMethods()->syncWithoutDetaching([$sameDayAccra->getKey()]);
-        $nationwideZone->shippingMethods()->syncWithoutDetaching([$standardGhana->getKey()]);
+        $northernEconomy = ShippingMethod::query()->updateOrCreate(
+            ['code' => 'northern-economy'],
+            [
+                'name' => 'Northern Economy',
+                'method_type' => 'courier',
+                'price_type' => 'flat_rate',
+                'flat_rate_amount' => 6500,
+                'min_delivery_days' => 3,
+                'max_delivery_days' => 6,
+                'description' => 'Longer-haul delivery for northern destinations.',
+                'is_active' => true,
+            ]
+        );
+
+        $pickup = ShippingMethod::query()->updateOrCreate(
+            ['code' => 'pickup-station'],
+            [
+                'name' => 'Pickup Station',
+                'method_type' => 'pickup',
+                'price_type' => 'flat_rate',
+                'flat_rate_amount' => 0,
+                'min_delivery_days' => 0,
+                'max_delivery_days' => 2,
+                'description' => 'Pick up from a Lasid fulfillment point.',
+                'is_active' => true,
+            ]
+        );
+
+        $greaterAccraZone->shippingMethods()->syncWithoutDetaching([
+            $sameDayAccra->getKey(),
+            $nextDayAccra->getKey(),
+            $pickup->getKey(),
+        ]);
+        $ashantiZone->shippingMethods()->syncWithoutDetaching([
+            $expressAshanti->getKey(),
+            $standardGhana->getKey(),
+            $pickup->getKey(),
+        ]);
+        $northernZone->shippingMethods()->syncWithoutDetaching([
+            $northernEconomy->getKey(),
+            $standardGhana->getKey(),
+        ]);
+        $nationwideZone->shippingMethods()->syncWithoutDetaching([
+            $standardGhana->getKey(),
+            $pickup->getKey(),
+        ]);
 
         WarehouseLocation::query()->updateOrCreate(
             ['code' => 'ACCRA-HQ'],
@@ -94,6 +204,38 @@ class ShippingSetupSeeder extends Seeder
                 'email' => 'warehouse@example.com',
                 'is_active' => true,
                 'is_default' => true,
+            ]
+        );
+
+        WarehouseLocation::query()->updateOrCreate(
+            ['code' => 'KUMASI-HUB'],
+            [
+                'name' => 'Kumasi Fulfillment Hub',
+                'country' => 'Ghana',
+                'region' => 'Ashanti',
+                'city' => 'Kumasi',
+                'address_line_1' => 'Asokwa Industrial Area',
+                'address_line_2' => null,
+                'phone' => '+233200000002',
+                'email' => 'kumasi.warehouse@example.com',
+                'is_active' => true,
+                'is_default' => false,
+            ]
+        );
+
+        WarehouseLocation::query()->updateOrCreate(
+            ['code' => 'TAMALE-HUB'],
+            [
+                'name' => 'Tamale Dispatch Hub',
+                'country' => 'Ghana',
+                'region' => 'Northern',
+                'city' => 'Tamale',
+                'address_line_1' => 'Tamale Central Business District',
+                'address_line_2' => null,
+                'phone' => '+233200000003',
+                'email' => 'tamale.warehouse@example.com',
+                'is_active' => true,
+                'is_default' => false,
             ]
         );
     }

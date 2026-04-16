@@ -30,6 +30,12 @@ class DemoUsersSeeder extends Seeder
                 'phone' => '+233200000103',
                 'role' => 'support_agent',
             ],
+            [
+                'email' => 'shipping.manager@example.com',
+                'name' => 'Shipping Manager',
+                'phone' => '+233200000104',
+                'role' => 'support_agent',
+            ],
         ];
 
         foreach ($staffUsers as $definition) {
@@ -76,6 +82,24 @@ class DemoUsersSeeder extends Seeder
                 'region' => 'Greater Accra',
                 'address_line_1' => '7 East Legon Avenue',
                 'landmark' => 'Adjiringanor Junction',
+            ],
+            [
+                'email' => 'customer.abena@example.com',
+                'name' => 'Abena Owusu',
+                'phone' => '+233500000114',
+                'city' => 'Takoradi',
+                'region' => 'Western',
+                'address_line_1' => '4 Beach Road',
+                'landmark' => 'Near Market Circle',
+            ],
+            [
+                'email' => 'customer.kweku@example.com',
+                'name' => 'Kweku Badu',
+                'phone' => '+233550000115',
+                'city' => 'Tamale',
+                'region' => 'Northern',
+                'address_line_1' => '16 Central Road',
+                'landmark' => 'Close to the stadium',
             ],
         ];
 

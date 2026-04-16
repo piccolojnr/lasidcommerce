@@ -24,10 +24,18 @@ class DemoOrdersSeeder extends Seeder
             ?? User::query()->where('email', 'admin@example.com')->first();
 
         $warehouse = WarehouseLocation::query()->where('code', 'ACCRA-HQ')->first();
+        $kumasiWarehouse = WarehouseLocation::query()->where('code', 'KUMASI-HUB')->first();
+        $tamaleWarehouse = WarehouseLocation::query()->where('code', 'TAMALE-HUB')->first();
         $accraZone = ShippingZone::query()->where('code', 'GH-ACCRA')->first();
+        $ashantiZone = ShippingZone::query()->where('code', 'GH-ASHANTI')->first();
+        $northernZone = ShippingZone::query()->where('code', 'GH-NORTHERN')->first();
         $nationwideZone = ShippingZone::query()->where('code', 'GH-NATIONWIDE')->first();
         $sameDay = ShippingMethod::query()->where('code', 'same-day-accra')->first();
+        $nextDayAccra = ShippingMethod::query()->where('code', 'next-day-accra')->first();
+        $expressAshanti = ShippingMethod::query()->where('code', 'express-ashanti')->first();
         $standard = ShippingMethod::query()->where('code', 'standard-ghana')->first();
+        $northernEconomy = ShippingMethod::query()->where('code', 'northern-economy')->first();
+        $pickup = ShippingMethod::query()->where('code', 'pickup-station')->first();
 
         $productMap = Product::query()
             ->whereIn('sku', [
@@ -36,6 +44,17 @@ class DemoOrdersSeeder extends Seeder
                 'LAS-BAG-003',
                 'LAS-CAP-004',
                 'LAS-WLT-005',
+                'ADM-DRS-006',
+                'ADM-TOP-007',
+                'ADB-SHT-008',
+                'ADB-TRS-009',
+                'KID-UNI-010',
+                'KID-PLY-011',
+                'LAS-XBD-012',
+                'GCC-FRG-013',
+                'GCC-SKN-014',
+                'NHL-DEC-015',
+                'NHL-BTH-016',
             ])
             ->get()
             ->keyBy('sku');
@@ -43,6 +62,8 @@ class DemoOrdersSeeder extends Seeder
         $customerAma = User::query()->where('email', 'customer.ama@example.com')->first();
         $customerKojo = User::query()->where('email', 'customer.kojo@example.com')->first();
         $customerEfua = User::query()->where('email', 'customer.efua@example.com')->first();
+        $customerAbena = User::query()->where('email', 'customer.abena@example.com')->first();
+        $customerKweku = User::query()->where('email', 'customer.kweku@example.com')->first();
 
         // order 1: Processing order with same-day delivery in Accra
         $this->seedOrder(
@@ -199,88 +220,146 @@ class DemoOrdersSeeder extends Seeder
                 ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subHours(8)],
             ],
         );
+
         $this->seedOrder(
             orderNumber: 'ORD-DEMO-1004',
-            customer: $customerEfua,
+            customer: $customerAbena,
             actor: $ordersManager,
-            zone: $accraZone,
-            method: $sameDay,
+            zone: $nationwideZone,
+            method: $pickup,
             warehouse: $warehouse,
             orderAttributes: [
-                'status' => 'pending',
-                'payment_status' => 'unpaid',
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
                 'fulfillment_status' => 'unfulfilled',
-                'shipping_amount' => 2500,
-                'placed_at' => now()->subHours(8),
-                'notes' => 'Awaiting customer payment authorization.',
+                'shipping_amount' => 0,
+                'placed_at' => now()->subDays(1),
+                'notes' => 'Pickup station order confirmed and waiting collection prep.',
             ],
             address: [
-                'name' => 'Efua Nkrumah',
-                'phone' => '+233270000113',
+                'name' => 'Abena Owusu',
+                'phone' => '+233500000114',
                 'country' => 'Ghana',
-                'region' => 'Greater Accra',
-                'city' => 'Accra',
-                'district' => 'East Legon',
-                'address_line_1' => '7 East Legon Avenue',
+                'region' => 'Western',
+                'city' => 'Takoradi',
+                'district' => 'Market Circle',
+                'address_line_1' => '4 Beach Road',
                 'address_line_2' => null,
-                'landmark' => 'Adjiringanor Junction',
+                'landmark' => 'Near Market Circle',
                 'postal_code' => null,
             ],
             items: [
-                ['sku' => 'LAS-SND-002', 'quantity' => 1],
-                ['sku' => 'LAS-CAP-004', 'quantity' => 1],
+                ['sku' => 'GCC-FRG-013', 'quantity' => 1],
+                ['sku' => 'LAS-XBD-012', 'quantity' => 1],
             ],
             payment: [
-                'reference' => 'PAY-DEMO-1003',
-                'status' => 'pending',
-                'gateway_response' => 'Awaiting authorization',
-                'paid_at' => null,
+                'reference' => 'PAY-DEMO-1004',
+                'status' => 'paid',
+                'gateway_response' => 'Paid',
+                'paid_at' => now()->subDay()->addMinutes(25),
             ],
             shipment: null,
             statusHistory: [
-                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subHours(8)],
+                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subDay()],
+                ['from_status' => 'pending', 'to_status' => 'confirmed', 'note' => 'Pickup payment cleared and order confirmed.', 'created_at' => now()->subDay()->addMinutes(25)],
             ],
         );
+
         $this->seedOrder(
             orderNumber: 'ORD-DEMO-1005',
-            customer: $customerEfua,
+            customer: $customerKweku,
             actor: $ordersManager,
-            zone: $accraZone,
-            method: $sameDay,
-            warehouse: $warehouse,
+            zone: $northernZone,
+            method: $northernEconomy,
+            warehouse: $tamaleWarehouse ?? $warehouse,
             orderAttributes: [
-                'status' => 'pending',
-                'payment_status' => 'unpaid',
-                'fulfillment_status' => 'unfulfilled',
-                'shipping_amount' => 2500,
-                'placed_at' => now()->subHours(8),
-                'notes' => 'Awaiting customer payment authorization.',
+                'status' => 'processing',
+                'payment_status' => 'paid',
+                'fulfillment_status' => 'partially_fulfilled',
+                'shipping_amount' => 6500,
+                'placed_at' => now()->subDays(3),
+                'notes' => 'Northern route order already handed to long-haul dispatch.',
             ],
             address: [
-                'name' => 'Efua Nkrumah',
-                'phone' => '+233270000113',
+                'name' => 'Kweku Badu',
+                'phone' => '+233550000115',
                 'country' => 'Ghana',
-                'region' => 'Greater Accra',
-                'city' => 'Accra',
-                'district' => 'East Legon',
-                'address_line_1' => '7 East Legon Avenue',
+                'region' => 'Northern',
+                'city' => 'Tamale',
+                'district' => 'Central',
+                'address_line_1' => '16 Central Road',
                 'address_line_2' => null,
-                'landmark' => 'Adjiringanor Junction',
+                'landmark' => 'Close to the stadium',
                 'postal_code' => null,
             ],
             items: [
-                ['sku' => 'LAS-SND-002', 'quantity' => 1],
-                ['sku' => 'LAS-CAP-004', 'quantity' => 1],
+                ['sku' => 'ADB-TRS-009', 'quantity' => 1],
+                ['sku' => 'NHL-BTH-016', 'quantity' => 1],
             ],
             payment: [
-                'reference' => 'PAY-DEMO-1003',
-                'status' => 'pending',
-                'gateway_response' => 'Awaiting authorization',
+                'reference' => 'PAY-DEMO-1005',
+                'status' => 'paid',
+                'gateway_response' => 'Paid',
+                'paid_at' => now()->subDays(3)->addMinutes(35),
+            ],
+            shipment: [
+                'status' => 'shipped',
+                'carrier_name' => 'Lasid Northern Line',
+                'rider_name' => 'Fuseini Driver',
+                'rider_phone' => '+233201111005',
+                'tracking_number' => 'TRK-DEMO-1005',
+                'tracking_url' => 'https://example.com/track/TRK-DEMO-1005',
+                'notes' => 'Loaded onto long-haul route.',
+                'packed_at' => now()->subDays(3)->addHour(),
+                'shipped_at' => now()->subDays(2),
+            ],
+            statusHistory: [
+                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subDays(3)],
+                ['from_status' => 'pending', 'to_status' => 'processing', 'note' => 'Payment captured and inventory allocated.', 'created_at' => now()->subDays(3)->addMinutes(35)],
+            ],
+        );
+
+        $this->seedOrder(
+            orderNumber: 'ORD-DEMO-1006',
+            customer: $customerAma,
+            actor: $ordersManager,
+            zone: $ashantiZone,
+            method: $expressAshanti,
+            warehouse: $kumasiWarehouse ?? $warehouse,
+            orderAttributes: [
+                'status' => 'cancelled',
+                'payment_status' => 'unpaid',
+                'fulfillment_status' => 'unfulfilled',
+                'shipping_amount' => 4200,
+                'placed_at' => now()->subDays(5),
+                'cancelled_at' => now()->subDays(4),
+                'notes' => 'Customer requested cancellation before payment completion.',
+            ],
+            address: [
+                'name' => 'Ama Mensah',
+                'phone' => '+233240000111',
+                'country' => 'Ghana',
+                'region' => 'Ashanti',
+                'city' => 'Kumasi',
+                'district' => 'Asokwa',
+                'address_line_1' => '18 Osu Ringway',
+                'address_line_2' => null,
+                'landmark' => 'Near transport terminal',
+                'postal_code' => null,
+            ],
+            items: [
+                ['sku' => 'ADM-DRS-006', 'quantity' => 1],
+            ],
+            payment: [
+                'reference' => 'PAY-DEMO-1006',
+                'status' => 'failed',
+                'gateway_response' => 'Cancelled by customer',
                 'paid_at' => null,
             ],
             shipment: null,
             statusHistory: [
-                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subHours(8)],
+                ['from_status' => null, 'to_status' => 'pending', 'note' => 'Order created.', 'created_at' => now()->subDays(5)],
+                ['from_status' => 'pending', 'to_status' => 'cancelled', 'note' => 'Cancelled before payment.', 'created_at' => now()->subDays(4)],
             ],
         );
     }

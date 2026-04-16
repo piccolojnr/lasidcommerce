@@ -22,11 +22,13 @@ class ProductController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = [
-            'search'   => $request->query('search') ?: null,
-            'category' => $request->query('category') ?: null,
-            'brand'    => $request->query('brand') ?: null,
-            'featured' => $request->query('featured') ?: null,
-            'sort'     => $request->query('sort') ?: 'latest',
+            'search'    => $request->query('search') ?: null,
+            'category'  => $request->query('category') ?: null,
+            'brand'     => $request->query('brand') ?: null,
+            'featured'  => $request->query('featured') ?: null,
+            'sort'      => $request->query('sort') ?: 'latest',
+            'min_price' => $request->query('min_price') !== null ? (int) $request->query('min_price') : null,
+            'max_price' => $request->query('max_price') !== null ? (int) $request->query('max_price') : null,
         ];
 
         $paginator = $this->listQuery->withFilters($filters)->paginate(20);
