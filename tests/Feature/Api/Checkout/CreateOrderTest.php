@@ -10,6 +10,7 @@ use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
 use App\Models\User;
+use App\Notifications\InternalOrderPlacedNotification;
 use App\Notifications\OrderPlacedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -102,6 +103,7 @@ class CreateOrderTest extends TestCase
     public function test_creates_order_successfully(): void
     {
         Notification::fake();
+        config()->set('notifications.internal.recipients', ['ops@example.com']);
 
         $user    = $this->user();
         $product = $this->activeProduct();
@@ -127,6 +129,7 @@ class CreateOrderTest extends TestCase
             'status'  => 'pending',
         ]);
         Notification::assertSentOnDemand(OrderPlacedNotification::class);
+        Notification::assertSentOnDemand(InternalOrderPlacedNotification::class);
     }
 
     public function test_creates_order_items(): void

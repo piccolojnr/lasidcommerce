@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\CustomerMagicLinkNotification;
 use App\Notifications\CustomerResetPasswordNotification;
 use App\Notifications\CustomerWelcomeNotification;
+use App\Notifications\InternalNewCustomerNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
@@ -72,6 +73,7 @@ class CustomerAuthTest extends TestCase
     public function test_magic_link_verification_creates_customer_logs_in_and_adopts_guest_cart(): void
     {
         Notification::fake();
+        config()->set('notifications.internal.recipients', ['ops@example.com']);
 
         config()->set('storefront.url', 'http://shop.example.test');
 
@@ -114,6 +116,10 @@ class CustomerAuthTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
         $this->assertSame('', $user->name);
         Notification::assertSentTo($user, CustomerWelcomeNotification::class);
+        Notification::assertSentOnDemand(InternalNewCustomerNotification::class, function (InternalNewCustomerNotification $notification, array $channels, object $notifiable) {
+            return $notifiable->routes['mail'] === 'ops@example.com'
+                && $notification->user->email === 'new-customer@example.com';
+        });
 
         $adoptedCart = Cart::active()->where('user_id', $user->id)->first();
         $this->assertNotNull($adoptedCart);

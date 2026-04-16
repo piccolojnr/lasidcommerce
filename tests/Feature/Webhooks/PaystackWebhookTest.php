@@ -5,6 +5,7 @@ namespace Tests\Feature\Webhooks;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
+use App\Notifications\InternalPaymentReceivedNotification;
 use App\Notifications\PaymentReceivedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -111,6 +112,7 @@ class PaystackWebhookTest extends TestCase
     public function test_marks_payment_successful(): void
     {
         Notification::fake();
+        config()->set('notifications.internal.recipients', ['ops@example.com']);
         $payment = $this->pendingPayment();
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
         $sig     = $this->sign($payload);
@@ -123,6 +125,7 @@ class PaystackWebhookTest extends TestCase
         ]);
         $this->assertNotNull($payment->fresh()->paid_at);
         Notification::assertSentOnDemand(PaymentReceivedNotification::class);
+        Notification::assertSentOnDemand(InternalPaymentReceivedNotification::class);
     }
 
     public function test_updates_order_payment_status(): void

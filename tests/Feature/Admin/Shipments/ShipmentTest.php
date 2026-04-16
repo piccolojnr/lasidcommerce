@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
 use App\Models\User;
+use App\Notifications\InternalShipmentStatusUpdatedNotification;
 use App\Notifications\ShipmentStatusUpdatedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -363,6 +364,7 @@ class ShipmentTest extends TestCase
     public function test_pending_to_packed(): void
     {
         Notification::fake();
+        config()->set('notifications.internal.recipients', ['ops@example.com']);
         $shipment = Shipment::factory()->create(['status' => 'pending']);
 
         $this->updateStatus($shipment, 'packed');
@@ -370,6 +372,7 @@ class ShipmentTest extends TestCase
         $this->assertSame('packed', $shipment->fresh()->status);
         $this->assertNotNull($shipment->fresh()->packed_at);
         Notification::assertSentOnDemand(ShipmentStatusUpdatedNotification::class);
+        Notification::assertSentOnDemand(InternalShipmentStatusUpdatedNotification::class);
     }
 
     public function test_packed_to_shipped(): void

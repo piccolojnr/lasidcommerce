@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin\Orders;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\User;
+use App\Notifications\InternalOrderStatusUpdatedNotification;
 use App\Notifications\OrderStatusUpdatedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -65,6 +66,7 @@ class OrderStatusTest extends TestCase
     public function test_valid_transition_succeeds(): void
     {
         Notification::fake();
+        config()->set('notifications.internal.recipients', ['ops@example.com']);
         $order = $this->order('pending');
 
         $response = $this->updateStatus($order,['status' => 'confirmed']);
@@ -72,6 +74,7 @@ class OrderStatusTest extends TestCase
         $response->assertRedirect(route('admin.orders.show', $order));
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'confirmed']);
         Notification::assertSentOnDemand(OrderStatusUpdatedNotification::class);
+        Notification::assertSentOnDemand(InternalOrderStatusUpdatedNotification::class);
     }
 
     public function test_pending_to_confirmed(): void

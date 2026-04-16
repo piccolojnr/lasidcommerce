@@ -3,6 +3,7 @@
 namespace App\Domain\Payment\Services;
 
 use App\Domain\Notification\Services\CustomerNotificationService;
+use App\Domain\Notification\Services\InternalNotificationService;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ class PaymentStatusSynchronizer
 {
     public function __construct(
         private CustomerNotificationService $notificationService,
+        private InternalNotificationService $internalNotificationService,
     ) {}
 
     public function syncSuccess(Payment $payment, array $paystackData): void
@@ -48,5 +50,6 @@ class PaymentStatusSynchronizer
         });
 
         $this->notificationService->sendPaymentReceived($payment->fresh(['order']));
+        $this->internalNotificationService->sendPaymentReceived($payment->fresh(['order']));
     }
 }

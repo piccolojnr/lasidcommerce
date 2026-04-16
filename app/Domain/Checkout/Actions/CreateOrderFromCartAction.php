@@ -5,6 +5,7 @@ namespace App\Domain\Checkout\Actions;
 use App\Domain\Checkout\Exceptions\CheckoutException;
 use App\Domain\Checkout\Services\OrderNumberGenerator;
 use App\Domain\Notification\Services\CustomerNotificationService;
+use App\Domain\Notification\Services\InternalNotificationService;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Order;
@@ -21,6 +22,7 @@ class CreateOrderFromCartAction
         private PreviewCheckoutAction $previewAction,
         private OrderNumberGenerator $numberGenerator,
         private CustomerNotificationService $notificationService,
+        private InternalNotificationService $internalNotificationService,
     ) {}
 
     /**
@@ -113,6 +115,7 @@ class CreateOrderFromCartAction
         });
 
         $this->notificationService->sendOrderPlaced($order);
+        $this->internalNotificationService->sendOrderPlaced($order);
 
         return $order;
     }

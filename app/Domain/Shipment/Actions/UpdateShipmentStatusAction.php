@@ -3,6 +3,7 @@
 namespace App\Domain\Shipment\Actions;
 
 use App\Domain\Notification\Services\CustomerNotificationService;
+use App\Domain\Notification\Services\InternalNotificationService;
 use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
@@ -15,6 +16,7 @@ class UpdateShipmentStatusAction
         private ShipmentStatusManager $statusManager,
         private OrderFulfillmentService $fulfillmentService,
         private CustomerNotificationService $notificationService,
+        private InternalNotificationService $internalNotificationService,
     ) {}
 
     /**
@@ -47,6 +49,7 @@ class UpdateShipmentStatusAction
         $updatedShipment = $shipment->fresh(['order']);
 
         $this->notificationService->sendShipmentStatusUpdated($updatedShipment, $fromStatus, $toStatus);
+        $this->internalNotificationService->sendShipmentStatusUpdated($updatedShipment, $fromStatus, $toStatus);
 
         return $updatedShipment;
     }

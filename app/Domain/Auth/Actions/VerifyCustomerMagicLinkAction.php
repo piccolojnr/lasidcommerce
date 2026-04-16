@@ -5,6 +5,7 @@ namespace App\Domain\Auth\Actions;
 use App\Domain\Auth\Services\StorefrontRedirectService;
 use App\Domain\Cart\Actions\MergeGuestCartAction;
 use App\Domain\Notification\Services\CustomerNotificationService;
+use App\Domain\Notification\Services\InternalNotificationService;
 use App\Domain\User\Services\UserSegmentService;
 use App\Models\CustomerMagicLink;
 use App\Models\User;
@@ -18,6 +19,7 @@ class VerifyCustomerMagicLinkAction
         private UserSegmentService $segmentService,
         private StorefrontRedirectService $redirectService,
         private CustomerNotificationService $notificationService,
+        private InternalNotificationService $internalNotificationService,
     ) {}
 
     public function execute(string $token): string
@@ -77,6 +79,7 @@ class VerifyCustomerMagicLinkAction
 
         if ($result['was_created'] && $result['user'] instanceof User) {
             $this->notificationService->sendWelcome($result['user']);
+            $this->internalNotificationService->sendNewCustomer($result['user']);
         }
 
         return $result['redirect'];
