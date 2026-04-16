@@ -4,6 +4,7 @@ namespace App\Domain\Auth\Actions;
 
 use App\Domain\Auth\DTOs\RequestCustomerMagicLinkData;
 use App\Domain\Auth\Services\StorefrontRedirectService;
+use App\Domain\Notification\Services\NotificationPreferenceService;
 use App\Domain\User\Services\UserSegmentService;
 use App\Models\CustomerMagicLink;
 use App\Models\User;
@@ -17,6 +18,7 @@ class RequestCustomerMagicLinkAction
     public function __construct(
         private UserSegmentService $segmentService,
         private StorefrontRedirectService $redirectService,
+        private NotificationPreferenceService $preferenceService,
     ) {}
 
     public function execute(RequestCustomerMagicLinkData $data): void
@@ -24,6 +26,10 @@ class RequestCustomerMagicLinkAction
         $user = User::where('email', $data->email)->first();
 
         if ($user !== null && ! $this->segmentService->isCustomer($user)) {
+            return;
+        }
+
+        if ($user !== null && ! $this->preferenceService->allows($user, 'auth_magic_link')) {
             return;
         }
 

@@ -147,11 +147,33 @@ Internal recipients are configured through `INTERNAL_NOTIFICATION_EMAILS`.
 ## Implementation Notes
 
 - Customer-facing operational notifications are dispatched through [app/Domain/Notification/Services/CustomerNotificationService.php](C:/Users/USER/projects/ecommerce/lasidcommerce/app/Domain/Notification/Services/CustomerNotificationService.php).
+- Internal operational notifications are dispatched through [app/Domain/Notification/Services/InternalNotificationService.php](C:/Users/USER/projects/ecommerce/lasidcommerce/app/Domain/Notification/Services/InternalNotificationService.php).
+- Customer notification preferences are resolved through [app/Domain/Notification/Services/NotificationPreferenceService.php](C:/Users/USER/projects/ecommerce/lasidcommerce/app/Domain/Notification/Services/NotificationPreferenceService.php).
 - Shared branded email rendering lives in [app/Notifications/CustomerMailNotification.php](C:/Users/USER/projects/ecommerce/lasidcommerce/app/Notifications/CustomerMailNotification.php).
 - Shared HTML and text templates live in:
   - [resources/views/mail/customer/notification.blade.php](C:/Users/USER/projects/ecommerce/lasidcommerce/resources/views/mail/customer/notification.blade.php)
   - [resources/views/mail/customer/notification-text.blade.php](C:/Users/USER/projects/ecommerce/lasidcommerce/resources/views/mail/customer/notification-text.blade.php)
 - Platform users keep Laravel default verify/reset notifications. Customer-branded auth notifications only apply to users classified as customers.
+- Customer opt-outs only affect customer-facing emails. Internal operational alerts still send to `INTERNAL_NOTIFICATION_EMAILS`.
+
+## Storefront Preferences
+
+Customer notification preferences are stored on the user record and exposed via the storefront profile API:
+
+- `GET /api/v1/profile`
+- `PATCH /api/v1/profile`
+
+Supported preference keys:
+
+- `auth_magic_link`
+- `auth_verify_email`
+- `auth_password_reset`
+- `auth_welcome`
+- `orders_placed`
+- `orders_status_updates`
+- `payments_action_required`
+- `payments_received`
+- `shipments_status_updates`
 
 ## Verification
 

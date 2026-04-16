@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Domain\Notification\DTOs\CustomerMailData;
+use App\Domain\Notification\Services\NotificationPreferenceService;
 use App\Models\Order;
 
 class OrderPlacedNotification extends CustomerMailNotification
@@ -11,6 +12,11 @@ class OrderPlacedNotification extends CustomerMailNotification
         public readonly Order $order,
         public readonly string $ordersUrl,
     ) {}
+
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        return app(NotificationPreferenceService::class)->allows($this->order->user, 'orders_placed');
+    }
 
     protected function mailData(object $notifiable): CustomerMailData
     {

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Domain\Notification\DTOs\CustomerMailData;
+use App\Domain\Notification\Services\NotificationPreferenceService;
 use App\Models\Payment;
 
 class PaymentReceivedNotification extends CustomerMailNotification
@@ -11,6 +12,11 @@ class PaymentReceivedNotification extends CustomerMailNotification
         public readonly Payment $payment,
         public readonly string $ordersUrl,
     ) {}
+
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        return app(NotificationPreferenceService::class)->allows($this->payment->order->user, 'payments_received');
+    }
 
     protected function mailData(object $notifiable): CustomerMailData
     {

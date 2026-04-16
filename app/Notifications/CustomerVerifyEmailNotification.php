@@ -3,11 +3,17 @@
 namespace App\Notifications;
 
 use App\Domain\Notification\DTOs\CustomerMailData;
+use App\Domain\Notification\Services\NotificationPreferenceService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
 class CustomerVerifyEmailNotification extends CustomerMailNotification
 {
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        return app(NotificationPreferenceService::class)->allows($notifiable, 'auth_verify_email');
+    }
+
     protected function mailData(object $notifiable): CustomerMailData
     {
         $verifyUrl = URL::temporarySignedRoute(

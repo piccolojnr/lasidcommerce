@@ -3,12 +3,18 @@
 namespace App\Notifications;
 
 use App\Domain\Notification\DTOs\CustomerMailData;
+use App\Domain\Notification\Services\NotificationPreferenceService;
 
 class CustomerResetPasswordNotification extends CustomerMailNotification
 {
     public function __construct(
         public readonly string $token,
     ) {}
+
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        return app(NotificationPreferenceService::class)->allows($notifiable, 'auth_password_reset');
+    }
 
     protected function mailData(object $notifiable): CustomerMailData
     {

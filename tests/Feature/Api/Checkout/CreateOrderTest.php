@@ -132,6 +132,31 @@ class CreateOrderTest extends TestCase
         Notification::assertSentOnDemand(InternalOrderPlacedNotification::class);
     }
 
+    public function test_order_placed_customer_notification_can_be_opted_out_without_affecting_internal_alert(): void
+    {
+        Notification::fake();
+        config()->set('notifications.internal.recipients', ['ops@example.com']);
+
+        $user = User::factory()->create([
+            'notification_preferences' => [
+                'orders_placed' => false,
+            ],
+        ]);
+        $product = $this->activeProduct();
+        $this->cartWithItem($user, $product);
+        $zone = $this->zone();
+        $method = $this->method($zone);
+        $address = $this->address($user);
+
+        $this->actingAsCustomer($user)->postJson(
+            '/api/v1/checkout/orders',
+            $this->payload($address, $method),
+        )->assertCreated();
+
+        Notification::assertSentOnDemandTimes(OrderPlacedNotification::class, 0);
+        Notification::assertSentOnDemand(InternalOrderPlacedNotification::class);
+    }
+
     public function test_creates_order_items(): void
     {
         $user    = $this->user();

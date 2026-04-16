@@ -70,6 +70,24 @@ class CustomerAuthTest extends TestCase
         Notification::assertNothingSent();
     }
 
+    public function test_magic_link_request_respects_customer_notification_opt_out(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create([
+            'email' => 'customer@example.com',
+            'notification_preferences' => [
+                'auth_magic_link' => false,
+            ],
+        ]);
+
+        $this->postJson('/api/v1/auth/magic-link/request', [
+            'email' => $user->email,
+        ])->assertOk();
+
+        Notification::assertNothingSent();
+    }
+
     public function test_magic_link_verification_creates_customer_logs_in_and_adopts_guest_cart(): void
     {
         Notification::fake();

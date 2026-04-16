@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Domain\Notification\DTOs\CustomerMailData;
+use App\Domain\Notification\Services\NotificationPreferenceService;
 use App\Models\Shipment;
 
 class ShipmentStatusUpdatedNotification extends CustomerMailNotification
@@ -13,6 +14,11 @@ class ShipmentStatusUpdatedNotification extends CustomerMailNotification
         public readonly string $toStatus,
         public readonly string $ordersUrl,
     ) {}
+
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        return app(NotificationPreferenceService::class)->allows($this->shipment->order->user, 'shipments_status_updates');
+    }
 
     protected function mailData(object $notifiable): CustomerMailData
     {

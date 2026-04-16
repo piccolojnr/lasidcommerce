@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'phone',
         'password',
         'status',
+        'notification_preferences',
     ];
 
     protected $hidden = [
@@ -45,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'email_verified_at' => 'datetime',
             'deleted_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
