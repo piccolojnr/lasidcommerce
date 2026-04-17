@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Admin\Catalog\BrandController;
 use App\Http\Controllers\Admin\Catalog\CategoryController;
+use App\Http\Controllers\Admin\Catalog\CollectionController;
 use App\Http\Controllers\Admin\Catalog\ProductController;
 use App\Http\Controllers\Admin\Catalog\ProductOptionTypeController;
 use App\Http\Controllers\Admin\Catalog\ProductOptionValueController;
 use App\Http\Controllers\Admin\Catalog\ProductVariantController;
 use App\Http\Controllers\Admin\Catalog\ProductVariantOptionValueController;
+use App\Http\Controllers\Admin\Catalog\TagController;
 use App\Http\Controllers\Admin\Coupons\CouponController;
 use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\Inventory\StockAdjustmentController;
@@ -48,6 +50,12 @@ Route::middleware(['auth', 'verified'])
             Route::resource('brands', BrandController::class);
             Route::patch('brands/{brand}/toggle-status', [BrandController::class, 'toggleStatus'])
                 ->name('brands.toggle-status');
+            Route::resource('tags', TagController::class);
+            Route::patch('tags/{tag}/toggle-status', [TagController::class, 'toggleStatus'])
+                ->name('tags.toggle-status');
+            Route::resource('collections', CollectionController::class);
+            Route::patch('collections/{collection}/toggle-status', [CollectionController::class, 'toggleStatus'])
+                ->name('collections.toggle-status');
             Route::resource('products', ProductController::class);
             Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])
                 ->name('products.toggle-status');

@@ -48,6 +48,20 @@ export function ProductTable({ products }: ProductTableProps) {
                                             <div className="text-xs text-muted-foreground">
                                                 {product.brand_name ?? 'No brand'} • {product.variants_count} variant{product.variants_count === 1 ? '' : 's'}
                                             </div>
+                                            {(product.tags.length > 0 || product.badges.length > 0) && (
+                                                <div className="flex flex-wrap gap-1 pt-1">
+                                                    {product.badges.map((badge) => (
+                                                        <span key={badge.key} className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                                                            {badge.label}
+                                                        </span>
+                                                    ))}
+                                                    {product.tags.slice(0, 2).map((tag) => (
+                                                        <span key={tag.id} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                                                            {tag.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </td>

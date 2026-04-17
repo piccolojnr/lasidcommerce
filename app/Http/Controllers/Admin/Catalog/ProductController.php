@@ -7,6 +7,7 @@ use App\Domain\Catalog\Actions\DeleteProductAction;
 use App\Domain\Catalog\Actions\SyncProductMediaAction;
 use App\Domain\Catalog\Actions\ToggleProductStatusAction;
 use App\Domain\Catalog\Actions\UpdateProductAction;
+use App\Domain\Catalog\Services\ProductBadgeService;
 use App\Domain\Catalog\Exceptions\CannotDeleteProductException;
 use App\Domain\Catalog\Queries\ListAdminProductsQuery;
 use App\Http\Controllers\Controller;
@@ -14,7 +15,9 @@ use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
+use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,6 +32,7 @@ class ProductController extends Controller
         private ToggleProductStatusAction $toggleAction,
         private SyncProductMediaAction $syncMediaAction,
         private DeleteProductAction $deleteAction,
+        private ProductBadgeService $badgeService,
     ) {
         $this->authorizeResource(Product::class, 'product');
     }
@@ -40,6 +44,8 @@ class ProductController extends Controller
             'status'      => $request->query('status') ?: null,
             'category_id' => $request->query('category_id') ?: null,
             'brand_id'    => $request->query('brand_id') ?: null,
+            'tag_id'      => $request->query('tag_id') ?: null,
+            'collection_id' => $request->query('collection_id') ?: null,
         ];
 
         $products = $this->listQuery->withFilters($filters)->paginate();
@@ -50,6 +56,8 @@ class ProductController extends Controller
             'filters'    => $filters,
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'brands'     => Brand::orderBy('name')->get(['id', 'name']),
+            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
+            'collections'=> Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -58,6 +66,8 @@ class ProductController extends Controller
         return Inertia::render('admin/catalog/products/create', [
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'brands'     => Brand::orderBy('name')->get(['id', 'name']),
+            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
+            'collections'=> Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -76,7 +86,7 @@ class ProductController extends Controller
     {
         $product->loadMedia('images');
         $product->loadCount('variants');
-        $product->load(['category', 'brand']);
+        $product->load(['category', 'brand', 'tags', 'collections']);
 
         return Inertia::render('admin/catalog/products/show', [
             'product' => $this->formatProduct($product, withImages: true),
@@ -87,12 +97,14 @@ class ProductController extends Controller
     {
         $product->loadMedia('images');
         $product->loadCount('variants');
-        $product->load(['category', 'brand']);
+        $product->load(['category', 'brand', 'tags', 'collections']);
 
         return Inertia::render('admin/catalog/products/edit', [
             'product'    => $this->formatProduct($product, withImages: true),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'brands'     => Brand::orderBy('name')->get(['id', 'name']),
+            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
+            'collections'=> Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -154,6 +166,22 @@ class ProductController extends Controller
             'category_name'    => $product->category?->name,
             'brand_id'         => $product->brand_id,
             'brand_name'       => $product->brand?->name,
+            'tags'             => $product->relationLoaded('tags')
+                ? $product->tags->map(fn (Tag $tag) => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                ])->values()->all()
+                : [],
+            'collections'      => $product->relationLoaded('collections')
+                ? $product->collections->map(fn (Collection $collection) => [
+                    'id' => $collection->id,
+                    'name' => $collection->name,
+                    'slug' => $collection->slug,
+                    'pivot_sort_order' => (int) ($collection->pivot?->sort_order ?? 0),
+                ])->values()->all()
+                : [],
+            'badges'           => $this->badgeService->resolve($product),
             'variants_count'   => $product->variants_count ?? 0,
             'images'           => $withImages
                 ? $product->getMedia('images')->map(fn ($media, $index) => [

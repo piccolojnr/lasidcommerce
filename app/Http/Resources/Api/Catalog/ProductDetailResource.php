@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Catalog;
 
+use App\Domain\Catalog\Services\ProductBadgeService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,6 +31,7 @@ class ProductDetailResource extends JsonResource
             'base_price'       => $this->base_price,
             'compare_at_price' => $this->compare_at_price,
             'is_featured'      => $this->is_featured,
+            'badges'           => app(ProductBadgeService::class)->resolve($this->resource),
             'track_inventory'  => $this->track_inventory,
             'allow_backorders' => $this->allow_backorders,
             'published_at'     => $this->published_at?->toISOString(),
@@ -55,6 +57,25 @@ class ProductDetailResource extends JsonResource
                     'slug'      => $this->brand->slug,
                     'image_url' => $this->brand->getFirstMediaUrl('images') ?: null,
                 ],
+            ),
+            'tags' => $this->when(
+                $this->relationLoaded('tags'),
+                fn () => $this->tags->map(fn ($tag) => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                    'description' => $tag->description,
+                ])->values(),
+            ),
+            'collections' => $this->when(
+                $this->relationLoaded('collections'),
+                fn () => $this->collections->map(fn ($collection) => [
+                    'id' => $collection->id,
+                    'name' => $collection->name,
+                    'slug' => $collection->slug,
+                    'description' => $collection->description,
+                    'sort_order' => (int) ($collection->pivot?->sort_order ?? 0),
+                ])->values(),
             ),
             'variants' => $this->when(
                 $this->relationLoaded('variants'),

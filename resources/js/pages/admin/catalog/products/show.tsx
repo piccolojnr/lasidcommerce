@@ -149,6 +149,16 @@ export default function ProductShowPage({ product }: Props) {
                                     {product.product_type}
                                 </span>
                             </div>
+                            <div className="space-y-2 pt-2">
+                                <span className="text-muted-foreground">Computed badges</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {product.badges.length > 0 ? product.badges.map((badge) => (
+                                        <span key={badge.key} className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                                            {badge.label}
+                                        </span>
+                                    )) : <span className="text-sm font-medium">None</span>}
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -277,6 +287,26 @@ export default function ProductShowPage({ product }: Props) {
                                                     ? 'Yes'
                                                     : 'No'}
                                             </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground">Tags</p>
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {product.tags.length > 0 ? product.tags.map((tag) => (
+                                                    <span key={tag.id} className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">
+                                                        {tag.name}
+                                                    </span>
+                                                )) : <span className="text-sm font-medium">No tags</span>}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground">Collections</p>
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {product.collections.length > 0 ? product.collections.map((collection) => (
+                                                    <span key={collection.id} className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">
+                                                        {collection.name}
+                                                    </span>
+                                                )) : <span className="text-sm font-medium">No collections</span>}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

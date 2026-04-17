@@ -15,9 +15,11 @@ interface Props {
     product: AdminProduct;
     categories: SelectOption[];
     brands: SelectOption[];
+    tags: SelectOption[];
+    collections: SelectOption[];
 }
 
-export default function ProductEditPage({ product, categories, brands }: Props) {
+export default function ProductEditPage({ product, categories, brands, tags, collections }: Props) {
     return (
         <AdminLayout title="Edit Product">
             <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -30,7 +32,7 @@ export default function ProductEditPage({ product, categories, brands }: Props) 
                         </Button>
                     }
                 />
-                <ProductForm product={product} categories={categories} brands={brands} />
+                <ProductForm product={product} categories={categories} brands={brands} tags={tags} collections={collections} />
             </div>
         </AdminLayout>
     );

@@ -5,7 +5,9 @@ use App\Http\Controllers\Api\Cart\CartCouponController;
 use App\Http\Controllers\Api\Cart\CartItemController;
 use App\Http\Controllers\Api\Catalog\BrandController;
 use App\Http\Controllers\Api\Catalog\CategoryController;
+use App\Http\Controllers\Api\Catalog\CollectionController;
 use App\Http\Controllers\Api\Catalog\ProductController;
+use App\Http\Controllers\Api\Catalog\TagController;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +18,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
         Route::get('categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
+
+        Route::get('tags', [TagController::class, 'index'])->name('tags.index');
+        Route::get('tags/{slug}', [TagController::class, 'show'])->name('tags.show');
+
+        Route::get('collections', [CollectionController::class, 'index'])->name('collections.index');
+        Route::get('collections/{slug}', [CollectionController::class, 'show'])->name('collections.show');
 
         Route::get('products', [ProductController::class, 'index'])->name('products.index');
         Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');

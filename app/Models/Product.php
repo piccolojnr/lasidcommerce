@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -83,6 +84,20 @@ class Product extends Model implements HasMedia
         return $this->hasMany(OrderItem::class);
     }
 
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class)->orderBy('tags.name');
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class)
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderByPivot('sort_order')
+            ->orderBy('collections.name');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');
@@ -100,6 +115,13 @@ class Product extends Model implements HasMedia
             ->where('published_at', '<=', now());
     }
 
+    public function scopeVisibleOnStorefront(Builder $query): Builder
+    {
+        return $query
+            ->active()
+            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';
@@ -108,6 +130,11 @@ class Product extends Model implements HasMedia
     public function isPublished(): bool
     {
         return $this->published_at !== null && $this->published_at->isPast();
+    }
+
+    public function isOnSale(): bool
+    {
+        return $this->compare_at_price !== null && $this->compare_at_price > $this->base_price;
     }
 
     public function registerMediaCollections(): void

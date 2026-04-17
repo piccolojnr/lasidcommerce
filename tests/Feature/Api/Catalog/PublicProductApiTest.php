@@ -4,7 +4,9 @@ namespace Tests\Feature\Api\Catalog;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
+use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -152,6 +154,34 @@ class PublicProductApiTest extends TestCase
         $this->assertNotContains($notFeatured->id, $ids->toArray());
     }
 
+    public function test_index_filters_by_tag_slug(): void
+    {
+        $tag = Tag::factory()->create(['is_active' => true]);
+        $match = $this->visibleProduct();
+        $match->tags()->attach($tag);
+        $other = $this->visibleProduct();
+
+        $response = $this->getJson("/api/v1/catalog/products?tag={$tag->slug}");
+
+        $ids = collect($response->json('data'))->pluck('id');
+        $this->assertContains($match->id, $ids->toArray());
+        $this->assertNotContains($other->id, $ids->toArray());
+    }
+
+    public function test_index_filters_by_collection_slug(): void
+    {
+        $collection = Collection::factory()->create(['is_active' => true]);
+        $match = $this->visibleProduct();
+        $match->collections()->attach($collection, ['sort_order' => 10]);
+        $other = $this->visibleProduct();
+
+        $response = $this->getJson("/api/v1/catalog/products?collection={$collection->slug}");
+
+        $ids = collect($response->json('data'))->pluck('id');
+        $this->assertContains($match->id, $ids->toArray());
+        $this->assertNotContains($other->id, $ids->toArray());
+    }
+
     // --- index: sorting ---
 
     public function test_index_sort_by_price_asc(): void
@@ -203,6 +233,28 @@ class PublicProductApiTest extends TestCase
             ],
             'meta',
         ]);
+    }
+
+    public function test_index_includes_tags_collections_and_computed_badges(): void
+    {
+        $tag = Tag::factory()->create(['name' => 'Editor Pick', 'slug' => 'editor-pick']);
+        $collection = Collection::factory()->create(['name' => 'Top Picks', 'slug' => 'top-picks']);
+        $product = $this->visibleProduct([
+            'base_price' => 1000,
+            'compare_at_price' => 1500,
+            'published_at' => now()->subDays(2),
+        ]);
+        $product->tags()->attach($tag);
+        $product->collections()->attach($collection, ['sort_order' => 10]);
+
+        $response = $this->getJson('/api/v1/catalog/products');
+
+        $item = collect($response->json('data'))->firstWhere('id', $product->id);
+        $this->assertNotNull($item);
+        $this->assertSame('editor-pick', $item['tags'][0]['slug']);
+        $this->assertSame('top-picks', $item['collections'][0]['slug']);
+        $this->assertContains('new_arrival', collect($item['badges'])->pluck('key')->all());
+        $this->assertContains('on_sale', collect($item['badges'])->pluck('key')->all());
     }
 
     // --- show ---
@@ -322,7 +374,7 @@ class PublicProductApiTest extends TestCase
                 'id', 'name', 'slug', 'sku', 'product_type',
                 'short_description', 'description',
                 'base_price', 'compare_at_price',
-                'is_featured', 'track_inventory', 'allow_backorders',
+                'is_featured', 'badges', 'tags', 'collections', 'track_inventory', 'allow_backorders',
                 'published_at', 'images', 'related_products',
             ],
         ]);

@@ -13,9 +13,11 @@ interface SelectOption {
 interface Props {
     categories: SelectOption[];
     brands: SelectOption[];
+    tags: SelectOption[];
+    collections: SelectOption[];
 }
 
-export default function ProductCreatePage({ categories, brands }: Props) {
+export default function ProductCreatePage({ categories, brands, tags, collections }: Props) {
     return (
         <AdminLayout title="Create Product">
             <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -28,7 +30,7 @@ export default function ProductCreatePage({ categories, brands }: Props) {
                         </Button>
                     }
                 />
-                <ProductForm categories={categories} brands={brands} />
+                <ProductForm categories={categories} brands={brands} tags={tags} collections={collections} />
             </div>
         </AdminLayout>
     );

@@ -25,6 +25,8 @@ class ProductController extends Controller
             'search'    => $request->query('search') ?: null,
             'category'  => $request->query('category') ?: null,
             'brand'     => $request->query('brand') ?: null,
+            'tag'       => $request->query('tag') ?: null,
+            'collection'=> $request->query('collection') ?: null,
             'featured'  => $request->query('featured') ?: null,
             'sort'      => $request->query('sort') ?: 'latest',
             'min_price' => $request->query('min_price') !== null ? (int) $request->query('min_price') : null,

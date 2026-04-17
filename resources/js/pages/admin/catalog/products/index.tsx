@@ -19,6 +19,8 @@ interface ProductFilters {
     status: string | null;
     category_id: string | null;
     brand_id: string | null;
+    tag_id: string | null;
+    collection_id: string | null;
 }
 
 interface Props {
@@ -26,9 +28,11 @@ interface Props {
     filters: ProductFilters;
     categories: SelectOption[];
     brands: SelectOption[];
+    tags: SelectOption[];
+    collections: SelectOption[];
 }
 
-export default function ProductIndexPage({ products, filters, categories, brands }: Props) {
+export default function ProductIndexPage({ products, filters, categories, brands, tags, collections }: Props) {
     const { search, setSearch, setFilter } = useFilters(ProductController.index.url(), filters);
     const activeProducts = products.data.filter((product) => product.status === 'active').length;
     const featuredProducts = products.data.filter((product) => product.is_featured).length;
@@ -113,6 +117,30 @@ export default function ProductIndexPage({ products, filters, categories, brands
                             <SelectItem value={EMPTY_SENTINEL}>All brands</SelectItem>
                             {brands.map((b) => (
                                 <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                        value={filters.tag_id ?? EMPTY_SENTINEL}
+                        onValueChange={(v) => setFilter('tag_id', v === EMPTY_SENTINEL ? null : v)}
+                    >
+                        <SelectTrigger className="w-40"><SelectValue placeholder="All tags" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={EMPTY_SENTINEL}>All tags</SelectItem>
+                            {tags.map((tag) => (
+                                <SelectItem key={tag.id} value={String(tag.id)}>{tag.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                        value={filters.collection_id ?? EMPTY_SENTINEL}
+                        onValueChange={(v) => setFilter('collection_id', v === EMPTY_SENTINEL ? null : v)}
+                    >
+                        <SelectTrigger className="w-48"><SelectValue placeholder="All collections" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={EMPTY_SENTINEL}>All collections</SelectItem>
+                            {collections.map((collection) => (
+                                <SelectItem key={collection.id} value={String(collection.id)}>{collection.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>

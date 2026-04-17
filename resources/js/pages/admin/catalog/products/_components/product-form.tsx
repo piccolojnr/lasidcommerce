@@ -27,6 +27,8 @@ interface ProductFormProps {
     product?: AdminProduct;
     categories: SelectOption[];
     brands: SelectOption[];
+    tags: SelectOption[];
+    collections: SelectOption[];
 }
 
 function slugify(value: string): string {
@@ -102,7 +104,7 @@ function ToggleTile({
     );
 }
 
-export function ProductForm({ product, categories, brands }: ProductFormProps) {
+export function ProductForm({ product, categories, brands, tags: tagOptions, collections: collectionOptions }: ProductFormProps) {
     const isEdit = product !== undefined;
     const [slugManual, setSlugManual] = useState(isEdit);
     const [slugValue, setSlugValue] = useState(product?.slug ?? '');
@@ -113,6 +115,8 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
     const [isFeatured, setIsFeatured] = useState(product?.is_featured ?? false);
     const [trackInventory, setTrackInventory] = useState(product?.track_inventory ?? true);
     const [allowBackorders, setAllowBackorders] = useState(product?.allow_backorders ?? false);
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>(product?.tags.map((tag) => String(tag.id)) ?? []);
+    const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>(product?.collections.map((collection) => String(collection.id)) ?? []);
     const [basePrice, setBasePrice] = useState(isEdit ? centsToDisplay(product.base_price) : '0.00');
     const [compareAtPrice, setCompareAtPrice] = useState(centsToDisplay(product?.compare_at_price));
     const [costPrice, setCostPrice] = useState(centsToDisplay(product?.cost_price));
@@ -136,6 +140,8 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                     <input type="hidden" name="base_price" value={displayToCents(basePrice)} />
                     <input type="hidden" name="compare_at_price" value={displayToCents(compareAtPrice)} />
                     <input type="hidden" name="cost_price" value={displayToCents(costPrice)} />
+                    {selectedTagIds.map((id) => <input key={`tag-${id}`} type="hidden" name="tag_ids[]" value={id} />)}
+                    {selectedCollectionIds.map((id) => <input key={`collection-${id}`} type="hidden" name="collection_ids[]" value={id} />)}
 
                     <div className="grid gap-8 xl:grid-cols-[minmax(0,1.65fr)_340px]">
                         <div className="space-y-8">
@@ -290,6 +296,62 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                                         <FieldError message={errors.brand_id} />
                                     </div>
                                 </div>
+                                <div className="grid gap-6 lg:grid-cols-2">
+                                    <div className="space-y-3">
+                                        <div>
+                                            <Label>Tags</Label>
+                                            <p className="text-xs text-muted-foreground">Flexible merchandising labels for discovery and marketing context.</p>
+                                        </div>
+                                        <div className="grid gap-2 rounded-2xl border border-border/70 p-4">
+                                            {tagOptions.map((tag) => {
+                                                const checked = selectedTagIds.includes(String(tag.id));
+                                                return (
+                                                    <label key={tag.id} className="flex items-center gap-3 text-sm">
+                                                        <Checkbox
+                                                            checked={checked}
+                                                                onCheckedChange={(value) => {
+                                                                    const nextChecked = Boolean(value);
+                                                                    setSelectedTagIds((current) => nextChecked
+                                                                    ? Array.from(new Set([...current, String(tag.id)]))
+                                                                    : current.filter((id) => id !== String(tag.id)));
+                                                                }}
+                                                        />
+                                                        <span>{tag.name}</span>
+                                                    </label>
+                                                );
+                                            })}
+                                            {tagOptions.length === 0 && <p className="text-sm text-muted-foreground">No tags created yet.</p>}
+                                        </div>
+                                        <FieldError message={errors.tag_ids} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <Label>Collections</Label>
+                                            <p className="text-xs text-muted-foreground">Add this product to curated merchandising rails and campaign groupings.</p>
+                                        </div>
+                                        <div className="grid gap-2 rounded-2xl border border-border/70 p-4">
+                                            {collectionOptions.map((collection) => {
+                                                const checked = selectedCollectionIds.includes(String(collection.id));
+                                                return (
+                                                    <label key={collection.id} className="flex items-center gap-3 text-sm">
+                                                        <Checkbox
+                                                            checked={checked}
+                                                                onCheckedChange={(value) => {
+                                                                    const nextChecked = Boolean(value);
+                                                                    setSelectedCollectionIds((current) => nextChecked
+                                                                    ? Array.from(new Set([...current, String(collection.id)]))
+                                                                    : current.filter((id) => id !== String(collection.id)));
+                                                                }}
+                                                        />
+                                                        <span>{collection.name}</span>
+                                                    </label>
+                                                );
+                                            })}
+                                            {collectionOptions.length === 0 && <p className="text-sm text-muted-foreground">No collections created yet.</p>}
+                                        </div>
+                                        <FieldError message={errors.collection_ids} />
+                                    </div>
+                                </div>
                             </FormSection>
 
                             <FormSection title="Pricing architecture" description="Enter decimal values here. The form still submits minor units behind the scenes." badge="Commerce" contentClassName="space-y-6">
@@ -372,6 +434,7 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                                             <div className="flex items-center gap-2 text-white/70"><Tag className="size-4" /><span className="text-sm">Taxonomy</span></div>
                                             <p className="mt-2 text-sm font-medium">{selectedCategory}</p>
                                             <p className="text-sm text-white/70">{selectedBrand}</p>
+                                            <p className="pt-2 text-xs text-white/60">{selectedTagIds.length} tag(s) • {selectedCollectionIds.length} collection(s)</p>
                                         </div>
                                         <div className="rounded-2xl bg-white/10 p-4">
                                             <div className="flex items-center gap-2 text-white/70"><Package2 className="size-4" /><span className="text-sm">Availability</span></div>
@@ -386,6 +449,8 @@ export function ProductForm({ product, categories, brands }: ProductFormProps) {
                                 <div className="grid gap-3">
                                     <SummaryItem label="Slug mode" value={slugManual ? 'Manual' : 'Auto'} />
                                     <SummaryItem label="Featured" value={isFeatured ? 'Yes' : 'No'} />
+                                    <SummaryItem label="Tags" value={String(selectedTagIds.length)} />
+                                    <SummaryItem label="Collections" value={String(selectedCollectionIds.length)} />
                                     <SummaryItem label="Gallery images" value={String(product?.images.length ?? 0)} />
                                     <SummaryItem label="Current status" value={status === 'active' ? 'Active' : 'Draft'} />
                                 </div>

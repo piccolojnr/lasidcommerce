@@ -4,7 +4,9 @@ namespace Tests\Feature\Admin\Catalog;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -56,6 +58,8 @@ class ProductTest extends TestCase
             ->component('admin/catalog/products/create')
             ->has('categories')
             ->has('brands')
+            ->has('tags')
+            ->has('collections')
         );
     }
 
@@ -73,6 +77,27 @@ class ProductTest extends TestCase
 
         $response->assertRedirect(route('admin.catalog.products.index'));
         $this->assertDatabaseHas('products', ['name' => 'Classic Sneaker', 'slug' => 'classic-sneaker']);
+    }
+
+    public function test_admin_can_create_product_with_tags_and_collections(): void
+    {
+        $this->actingAs($this->admin);
+        $tag = Tag::factory()->create();
+        $collection = Collection::factory()->create();
+
+        $this->post(route('admin.catalog.products.store'), [
+            'name' => 'Tagged Sneaker',
+            'sku' => 'SNK-101',
+            'status' => 'draft',
+            'product_type' => 'physical',
+            'base_price' => 25000,
+            'tag_ids' => [$tag->id],
+            'collection_ids' => [$collection->id],
+        ])->assertRedirect(route('admin.catalog.products.index'));
+
+        $product = Product::query()->where('sku', 'SNK-101')->firstOrFail();
+        $this->assertDatabaseHas('product_tag', ['product_id' => $product->id, 'tag_id' => $tag->id]);
+        $this->assertDatabaseHas('collection_product', ['product_id' => $product->id, 'collection_id' => $collection->id]);
     }
 
     public function test_store_auto_generates_slug_from_name(): void
@@ -119,6 +144,8 @@ class ProductTest extends TestCase
             ->has('product')
             ->has('categories')
             ->has('brands')
+            ->has('tags')
+            ->has('collections')
         );
     }
 
@@ -137,6 +164,27 @@ class ProductTest extends TestCase
 
         $response->assertRedirect(route('admin.catalog.products.index'));
         $this->assertDatabaseHas('products', ['id' => $product->id, 'name' => 'New Name']);
+    }
+
+    public function test_admin_can_update_product_tags_and_collections(): void
+    {
+        $this->actingAs($this->admin);
+        $product = Product::factory()->create();
+        $tag = Tag::factory()->create();
+        $collection = Collection::factory()->create();
+
+        $this->put(route('admin.catalog.products.update', $product), [
+            'name' => $product->name,
+            'sku' => $product->sku,
+            'status' => 'draft',
+            'product_type' => 'physical',
+            'base_price' => $product->base_price,
+            'tag_ids' => [$tag->id],
+            'collection_ids' => [$collection->id],
+        ])->assertRedirect(route('admin.catalog.products.index'));
+
+        $this->assertDatabaseHas('product_tag', ['product_id' => $product->id, 'tag_id' => $tag->id]);
+        $this->assertDatabaseHas('collection_product', ['product_id' => $product->id, 'collection_id' => $collection->id]);
     }
 
     public function test_admin_can_toggle_product_status(): void
@@ -312,6 +360,38 @@ class ProductTest extends TestCase
         );
     }
 
+    public function test_index_filters_by_tag(): void
+    {
+        $this->actingAs($this->admin);
+        $tag = Tag::factory()->create();
+        $match = Product::factory()->create();
+        $match->tags()->attach($tag);
+        $other = Product::factory()->create();
+
+        $response = $this->get(route('admin.catalog.products.index', ['tag_id' => $tag->id]));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
+    public function test_index_filters_by_collection(): void
+    {
+        $this->actingAs($this->admin);
+        $collection = Collection::factory()->create();
+        $match = Product::factory()->create();
+        $match->collections()->attach($collection, ['sort_order' => 10]);
+        $other = Product::factory()->create();
+
+        $response = $this->get(route('admin.catalog.products.index', ['collection_id' => $collection->id]));
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('products.data', fn ($data) => collect($data)->contains('id', $match->id))
+            ->where('products.data', fn ($data) => collect($data)->doesntContain('id', $other->id))
+        );
+    }
+
     public function test_index_passes_filter_values_as_props(): void
     {
         $this->actingAs($this->admin);
@@ -327,6 +407,8 @@ class ProductTest extends TestCase
             ->where('filters.status', 'active')
             ->has('categories')
             ->has('brands')
+            ->has('tags')
+            ->has('collections')
         );
     }
 

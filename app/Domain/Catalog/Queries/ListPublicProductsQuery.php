@@ -11,6 +11,8 @@ class ListPublicProductsQuery
     private ?string $search = null;
     private ?string $categorySlug = null;
     private ?string $brandSlug = null;
+    private ?string $tagSlug = null;
+    private ?string $collectionSlug = null;
     private bool $featuredOnly = false;
     private string $sort = 'latest';
     private ?int $minPrice = null;
@@ -22,6 +24,8 @@ class ListPublicProductsQuery
         $clone->search       = $filters['search'] ?? null;
         $clone->categorySlug = $filters['category'] ?? null;
         $clone->brandSlug    = $filters['brand'] ?? null;
+        $clone->tagSlug      = $filters['tag'] ?? null;
+        $clone->collectionSlug = $filters['collection'] ?? null;
         $clone->featuredOnly = isset($filters['featured'])
             && filter_var($filters['featured'], FILTER_VALIDATE_BOOLEAN);
         $clone->sort         = in_array($filters['sort'] ?? '', ['price_asc', 'price_desc', 'latest'], true)
@@ -42,9 +46,8 @@ class ListPublicProductsQuery
             ? '%'.mb_strtolower($this->search).'%'
             : null;
 
-        return Product::with(['media', 'category', 'brand'])
-            ->active()
-            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))
+        return Product::with(['media', 'category', 'brand', 'tags', 'collections'])
+            ->visibleOnStorefront()
             ->when($searchTerm, fn ($q, $term) => $q->whereRaw('LOWER(name) LIKE ?', [$term]))
             ->when($categoryIds !== null, fn ($q) => $q->whereHas(
                 'category',
@@ -53,6 +56,14 @@ class ListPublicProductsQuery
             ->when($this->brandSlug, fn ($q, $slug) => $q->whereHas(
                 'brand',
                 fn ($q2) => $q2->where('slug', $slug),
+            ))
+            ->when($this->tagSlug, fn ($q, $slug) => $q->whereHas(
+                'tags',
+                fn ($q2) => $q2->where('slug', $slug)->where('is_active', true),
+            ))
+            ->when($this->collectionSlug, fn ($q, $slug) => $q->whereHas(
+                'collections',
+                fn ($q2) => $q2->where('slug', $slug)->where('is_active', true),
             ))
             ->when($this->featuredOnly, fn ($q) => $q->featured())
             ->when($this->minPrice !== null, fn ($q) => $q->where('base_price', '>=', $this->minPrice))

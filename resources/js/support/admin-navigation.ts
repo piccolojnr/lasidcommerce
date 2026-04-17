@@ -90,6 +90,14 @@ export const adminSidebarGroups: SidebarNavGroup[] = [
                         title: 'Brands',
                         href: '/admin/catalog/brands',
                     },
+                    {
+                        title: 'Tags',
+                        href: '/admin/catalog/tags',
+                    },
+                    {
+                        title: 'Collections',
+                        href: '/admin/catalog/collections',
+                    },
                 ],
             },
         ],

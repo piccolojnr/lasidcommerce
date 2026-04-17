@@ -3,7 +3,7 @@
 namespace App\Domain\Catalog\Queries;
 
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class GetProductDetailQuery
 {
@@ -13,24 +13,24 @@ class GetProductDetailQuery
             'media',
             'category.media',
             'brand.media',
+            'tags',
+            'collections',
             'variants'   => fn ($q) => $q->where('is_active', true)->orderBy('price'),
             'optionTypes.optionValues',
         ])
-            ->active()
-            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))
+            ->visibleOnStorefront()
             ->where('slug', $slug)
             ->first();
     }
 
-    public function relatedProducts(Product $product, int $limit = 6): Collection
+    public function relatedProducts(Product $product, int $limit = 6): EloquentCollection
     {
         if ($product->category_id === null) {
-            return new Collection();
+            return new EloquentCollection();
         }
 
-        return Product::with(['media'])
-            ->active()
-            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))
+        return Product::with(['media', 'category', 'brand', 'tags', 'collections'])
+            ->visibleOnStorefront()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->orderByDesc('id')

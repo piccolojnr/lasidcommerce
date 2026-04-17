@@ -4,9 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use App\Models\StockItem;
 use App\Models\StockMovement;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -45,6 +47,43 @@ class DemoCatalogSeeder extends Seeder
             'gold-coast-care' => Brand::query()->firstWhere('slug', 'gold-coast-care'),
         ];
 
+        $tags = collect([
+            ['name' => 'New Season', 'slug' => 'new-season', 'description' => 'Fresh drops and recently launched catalog additions.'],
+            ['name' => 'Editor Pick', 'slug' => 'editor-pick', 'description' => 'Manual highlights for strong merchandising placements.'],
+            ['name' => 'Occasionwear', 'slug' => 'occasionwear', 'description' => 'Products suited for events, elevated styling, and dressier moments.'],
+            ['name' => 'Giftable', 'slug' => 'giftable', 'description' => 'Easy gifting candidates across fashion, beauty, and home.'],
+            ['name' => 'Workday', 'slug' => 'workday', 'description' => 'Products that fit office, commute, and weekday routines.'],
+            ['name' => 'Weekend Ready', 'slug' => 'weekend-ready', 'description' => 'Relaxed lifestyle picks for weekends and casual shopping.'],
+            ['name' => 'Family Essentials', 'slug' => 'family-essentials', 'description' => 'Practical staples for repeat household and family buying.'],
+        ])->mapWithKeys(fn (array $definition) => [
+            $definition['slug'] => Tag::query()->updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'name' => $definition['name'],
+                    'description' => $definition['description'],
+                    'is_active' => true,
+                ],
+            ),
+        ])->all();
+
+        $collections = collect([
+            ['name' => 'New Arrivals', 'slug' => 'new-arrivals', 'description' => 'Recently launched products across the storefront.', 'sort_order' => 10],
+            ['name' => 'Weekend Edit', 'slug' => 'weekend-edit', 'description' => 'Relaxed fashion and accessories for off-duty shopping.', 'sort_order' => 20],
+            ['name' => 'Workday Rotation', 'slug' => 'workday-rotation', 'description' => 'Sharper wardrobe and commute-ready accessories.', 'sort_order' => 30],
+            ['name' => 'Home Refresh', 'slug' => 'home-refresh', 'description' => 'Curated home and self-care products for quick store upgrades.', 'sort_order' => 40],
+            ['name' => 'Top Picks', 'slug' => 'top-picks', 'description' => 'Manual highlights spanning the strongest seeded products.', 'sort_order' => 50],
+        ])->mapWithKeys(fn (array $definition) => [
+            $definition['slug'] => Collection::query()->updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'name' => $definition['name'],
+                    'description' => $definition['description'],
+                    'is_active' => true,
+                    'sort_order' => $definition['sort_order'],
+                ],
+            ),
+        ])->all();
+
         $products = [
             [
                 'sku' => 'LAS-SNK-001',
@@ -64,6 +103,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 30,
                 'quantity_reserved' => 4,
                 'reorder_level' => 8,
+                'tag_slugs' => ['new-season', 'editor-pick', 'weekend-ready'],
+                'collection_slugs' => ['new-arrivals', 'weekend-edit', 'top-picks'],
             ],
             [
                 'sku' => 'LAS-SND-002',
@@ -83,6 +124,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 12,
                 'quantity_reserved' => 1,
                 'reorder_level' => 5,
+                'tag_slugs' => ['weekend-ready'],
+                'collection_slugs' => ['weekend-edit'],
             ],
             [
                 'sku' => 'LAS-BAG-003',
@@ -102,6 +145,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 18,
                 'quantity_reserved' => 2,
                 'reorder_level' => 6,
+                'tag_slugs' => ['workday', 'giftable', 'editor-pick'],
+                'collection_slugs' => ['workday-rotation', 'top-picks'],
             ],
             [
                 'sku' => 'LAS-CAP-004',
@@ -121,6 +166,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 40,
                 'quantity_reserved' => 3,
                 'reorder_level' => 10,
+                'tag_slugs' => ['weekend-ready'],
+                'collection_slugs' => ['weekend-edit'],
             ],
             [
                 'sku' => 'LAS-WLT-005',
@@ -140,6 +187,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 6,
                 'quantity_reserved' => 2,
                 'reorder_level' => 5,
+                'tag_slugs' => ['giftable', 'editor-pick'],
+                'collection_slugs' => ['top-picks'],
             ],
             [
                 'sku' => 'ADM-DRS-006',
@@ -159,6 +208,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 14,
                 'quantity_reserved' => 2,
                 'reorder_level' => 4,
+                'tag_slugs' => ['occasionwear', 'editor-pick', 'new-season'],
+                'collection_slugs' => ['new-arrivals', 'top-picks'],
             ],
             [
                 'sku' => 'ADM-TOP-007',
@@ -178,6 +229,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 22,
                 'quantity_reserved' => 1,
                 'reorder_level' => 6,
+                'tag_slugs' => ['new-season'],
+                'collection_slugs' => ['new-arrivals'],
             ],
             [
                 'sku' => 'ADB-SHT-008',
@@ -197,6 +250,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 19,
                 'quantity_reserved' => 2,
                 'reorder_level' => 5,
+                'tag_slugs' => ['workday'],
+                'collection_slugs' => ['workday-rotation'],
             ],
             [
                 'sku' => 'ADB-TRS-009',
@@ -216,6 +271,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 16,
                 'quantity_reserved' => 3,
                 'reorder_level' => 5,
+                'tag_slugs' => ['workday', 'editor-pick'],
+                'collection_slugs' => ['workday-rotation', 'top-picks'],
             ],
             [
                 'sku' => 'KID-UNI-010',
@@ -235,6 +292,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 24,
                 'quantity_reserved' => 4,
                 'reorder_level' => 8,
+                'tag_slugs' => ['family-essentials'],
+                'collection_slugs' => ['top-picks'],
             ],
             [
                 'sku' => 'KID-PLY-011',
@@ -254,6 +313,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 28,
                 'quantity_reserved' => 2,
                 'reorder_level' => 10,
+                'tag_slugs' => ['family-essentials', 'weekend-ready'],
+                'collection_slugs' => ['weekend-edit'],
             ],
             [
                 'sku' => 'LAS-XBD-012',
@@ -273,6 +334,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 20,
                 'quantity_reserved' => 2,
                 'reorder_level' => 6,
+                'tag_slugs' => ['giftable', 'weekend-ready'],
+                'collection_slugs' => ['weekend-edit'],
             ],
             [
                 'sku' => 'GCC-FRG-013',
@@ -292,6 +355,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 25,
                 'quantity_reserved' => 1,
                 'reorder_level' => 7,
+                'tag_slugs' => ['giftable', 'editor-pick'],
+                'collection_slugs' => ['home-refresh', 'top-picks'],
             ],
             [
                 'sku' => 'GCC-SKN-014',
@@ -311,6 +376,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 21,
                 'quantity_reserved' => 2,
                 'reorder_level' => 6,
+                'tag_slugs' => ['giftable'],
+                'collection_slugs' => ['home-refresh'],
             ],
             [
                 'sku' => 'NHL-DEC-015',
@@ -330,6 +397,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 17,
                 'quantity_reserved' => 1,
                 'reorder_level' => 5,
+                'tag_slugs' => ['giftable'],
+                'collection_slugs' => ['home-refresh'],
             ],
             [
                 'sku' => 'NHL-BTH-016',
@@ -349,6 +418,8 @@ class DemoCatalogSeeder extends Seeder
                 'quantity_on_hand' => 13,
                 'quantity_reserved' => 2,
                 'reorder_level' => 4,
+                'tag_slugs' => ['giftable', 'editor-pick', 'new-season'],
+                'collection_slugs' => ['new-arrivals', 'home-refresh', 'top-picks'],
             ],
         ];
 
@@ -396,6 +467,29 @@ class DemoCatalogSeeder extends Seeder
                     'created_by' => $actor?->getKey(),
                 ]
             );
+
+            $product->tags()->sync(
+                collect($definition['tag_slugs'] ?? [])
+                    ->map(fn (string $slug) => $tags[$slug]?->getKey())
+                    ->filter()
+                    ->values()
+                    ->all(),
+            );
+
+            $collectionSyncData = [];
+            foreach (collect($definition['collection_slugs'] ?? [])->values() as $index => $slug) {
+                $collectionId = $collections[$slug]?->getKey();
+
+                if ($collectionId === null) {
+                    continue;
+                }
+
+                $collectionSyncData[$collectionId] = [
+                    'sort_order' => ($index + 1) * 10,
+                ];
+            }
+
+            $product->collections()->sync($collectionSyncData);
         }
     }
 }

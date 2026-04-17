@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Catalog;
 
+use App\Domain\Catalog\Services\ProductBadgeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,6 +20,7 @@ class ProductListResource extends JsonResource
             'base_price'        => $this->base_price,
             'compare_at_price'  => $this->compare_at_price,
             'is_featured'       => $this->is_featured,
+            'badges'            => app(ProductBadgeService::class)->resolve($this->resource),
             'primary_image_url' => $primaryMedia?->getUrl() ?? null,
             'category'          => $this->when(
                 $this->relationLoaded('category') && $this->category !== null,
@@ -35,6 +37,22 @@ class ProductListResource extends JsonResource
                     'name' => $this->brand->name,
                     'slug' => $this->brand->slug,
                 ],
+            ),
+            'tags' => $this->when(
+                $this->relationLoaded('tags'),
+                fn () => $this->tags->map(fn ($tag) => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                ])->values(),
+            ),
+            'collections' => $this->when(
+                $this->relationLoaded('collections'),
+                fn () => $this->collections->map(fn ($collection) => [
+                    'id' => $collection->id,
+                    'name' => $collection->name,
+                    'slug' => $collection->slug,
+                ])->values(),
             ),
         ];
     }
