@@ -8,9 +8,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libicu-dev \
     libonig-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev \
-    libfreetype6-dev \
     nginx \
     supervisor \
     && docker-php-ext-install \
@@ -22,6 +19,9 @@ RUN apt-get update && apt-get install -y \
     bcmath \
     opcache \
     exif \
+    && rm -f /etc/nginx/sites-enabled/default \
+    && rm -f /etc/nginx/sites-available/default \
+    && rm -f /var/www/html/index.nginx-debian.html \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
