@@ -11,6 +11,7 @@ use App\Models\StockMovement;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DemoCatalogSeeder extends Seeder
 {
@@ -55,16 +56,16 @@ class DemoCatalogSeeder extends Seeder
             ['name' => 'Workday', 'slug' => 'workday', 'description' => 'Products that fit office, commute, and weekday routines.'],
             ['name' => 'Weekend Ready', 'slug' => 'weekend-ready', 'description' => 'Relaxed lifestyle picks for weekends and casual shopping.'],
             ['name' => 'Family Essentials', 'slug' => 'family-essentials', 'description' => 'Practical staples for repeat household and family buying.'],
-        ])->mapWithKeys(fn (array $definition) => [
-            $definition['slug'] => Tag::query()->updateOrCreate(
-                ['slug' => $definition['slug']],
-                [
-                    'name' => $definition['name'],
-                    'description' => $definition['description'],
-                    'is_active' => true,
-                ],
-            ),
-        ])->all();
+        ])->mapWithKeys(fn(array $definition) => [
+                $definition['slug'] => Tag::query()->updateOrCreate(
+                    ['slug' => $definition['slug']],
+                    [
+                        'name' => $definition['name'],
+                        'description' => $definition['description'],
+                        'is_active' => true,
+                    ],
+                ),
+            ])->all();
 
         $collections = collect([
             ['name' => 'New Arrivals', 'slug' => 'new-arrivals', 'description' => 'Recently launched products across the storefront.', 'sort_order' => 10],
@@ -72,17 +73,17 @@ class DemoCatalogSeeder extends Seeder
             ['name' => 'Workday Rotation', 'slug' => 'workday-rotation', 'description' => 'Sharper wardrobe and commute-ready accessories.', 'sort_order' => 30],
             ['name' => 'Home Refresh', 'slug' => 'home-refresh', 'description' => 'Curated home and self-care products for quick store upgrades.', 'sort_order' => 40],
             ['name' => 'Top Picks', 'slug' => 'top-picks', 'description' => 'Manual highlights spanning the strongest seeded products.', 'sort_order' => 50],
-        ])->mapWithKeys(fn (array $definition) => [
-            $definition['slug'] => Collection::query()->updateOrCreate(
-                ['slug' => $definition['slug']],
-                [
-                    'name' => $definition['name'],
-                    'description' => $definition['description'],
-                    'is_active' => true,
-                    'sort_order' => $definition['sort_order'],
-                ],
-            ),
-        ])->all();
+        ])->mapWithKeys(fn(array $definition) => [
+                $definition['slug'] => Collection::query()->updateOrCreate(
+                    ['slug' => $definition['slug']],
+                    [
+                        'name' => $definition['name'],
+                        'description' => $definition['description'],
+                        'is_active' => true,
+                        'sort_order' => $definition['sort_order'],
+                    ],
+                ),
+            ])->all();
 
         $products = [
             [
@@ -470,7 +471,7 @@ class DemoCatalogSeeder extends Seeder
 
             $product->tags()->sync(
                 collect($definition['tag_slugs'] ?? [])
-                    ->map(fn (string $slug) => $tags[$slug]?->getKey())
+                    ->map(fn(string $slug) => $tags[$slug]?->getKey())
                     ->filter()
                     ->values()
                     ->all(),
@@ -490,6 +491,91 @@ class DemoCatalogSeeder extends Seeder
             }
 
             $product->collections()->sync($collectionSyncData);
+
+            $this->syncProductImages($product, $definition);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $definition
+     */
+    private function syncProductImages(Product $product, array $definition): void
+    {
+        $product->clearMediaCollection('images');
+
+        foreach (['Front View', 'Detail View'] as $index => $label) {
+            $svg = $this->buildProductImageSvg($definition, $label, $index);
+
+            $product
+                ->addMediaFromString($svg)
+                ->usingFileName(sprintf('%s-%s.svg', Str::slug($product->sku), Str::slug($label)))
+                ->usingName(sprintf('%s %s', $product->name, $label))
+                ->withCustomProperties([
+                    'seeded' => true,
+                    'position' => $index + 1,
+                    'label' => $label,
+                ])
+                ->toMediaCollection('images');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $definition
+     */
+    private function buildProductImageSvg(array $definition, string $label, int $index): string
+    {
+        [$primary, $secondary, $accent] = $this->paletteForCategory((string) $definition['category_slug']);
+
+        $name = $this->escapeSvgText((string) $definition['name']);
+        $category = strtoupper(str_replace('-', ' ', (string) $definition['category_slug']));
+        $price = number_format(((int) $definition['base_price']) / 100, 2);
+        $safeLabel = $this->escapeSvgText($label);
+
+        $circleX = $index === 0 ? '630' : '160';
+        $circleY = $index === 0 ? '120' : '520';
+        $shapeOpacity = $index === 0 ? '0.18' : '0.24';
+
+        return <<<SVG
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1060" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop stop-color="{$primary}"/>
+      <stop offset="1" stop-color="{$secondary}"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="72" fill="url(#bg)"/>
+  <circle cx="{$circleX}" cy="{$circleY}" r="220" fill="#FFFFFF" fill-opacity="{$shapeOpacity}"/>
+  <circle cx="940" cy="940" r="180" fill="{$accent}" fill-opacity="0.14"/>
+  <rect x="92" y="92" width="1016" height="1016" rx="56" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="4"/>
+  <text x="110" y="160" fill="#FFFFFF" fill-opacity="0.72" font-size="34" font-family="Arial, Helvetica, sans-serif" letter-spacing="6">{$category}</text>
+  <text x="110" y="272" fill="#FFFFFF" font-size="74" font-weight="700" font-family="Arial, Helvetica, sans-serif">{$name}</text>
+  <text x="110" y="350" fill="#FFFFFF" fill-opacity="0.82" font-size="38" font-family="Arial, Helvetica, sans-serif">{$safeLabel}</text>
+  <rect x="110" y="826" width="238" height="88" rx="44" fill="#FFFFFF" fill-opacity="0.16"/>
+  <text x="150" y="883" fill="#FFFFFF" font-size="40" font-weight="700" font-family="Arial, Helvetica, sans-serif">GH₵ {$price}</text>
+  <text x="110" y="1004" fill="#FFFFFF" fill-opacity="0.68" font-size="28" font-family="Arial, Helvetica, sans-serif">Demo catalog seed image</text>
+  <text x="110" y="1048" fill="#FFFFFF" fill-opacity="0.52" font-size="24" font-family="Arial, Helvetica, sans-serif">SKU {$definition['sku']}</text>
+</svg>
+SVG;
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function paletteForCategory(string $categorySlug): array
+    {
+        return match ($categorySlug) {
+            'sneakers', 'sandals', 'footwear' => ['#102542', '#1F5A85', '#7FDBFF'],
+            'work-bags', 'crossbody-bags', 'bags', 'accessories' => ['#3B1F2B', '#7D3C5B', '#F6B8C8'],
+            'dresses', 'tops', 'shirts', 'trousers' => ['#243B2E', '#496A55', '#D9F0E4'],
+            'school-wear', 'play-wear' => ['#6A2C70', '#B83B5E', '#F08A5D'],
+            'fragrance', 'skin-care' => ['#7A4E1D', '#D08C3F', '#FFF0C9'],
+            'decor', 'bed-bath' => ['#264653', '#2A9D8F', '#E9F5DB'],
+            default => ['#1F2937', '#4B5563', '#E5E7EB'],
+        };
+    }
+
+    private function escapeSvgText(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
     }
 }

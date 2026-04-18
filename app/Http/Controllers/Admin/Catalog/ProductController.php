@@ -40,24 +40,24 @@ class ProductController extends Controller
     public function index(Request $request): InertiaResponse
     {
         $filters = [
-            'search'      => $request->query('search') ?: null,
-            'status'      => $request->query('status') ?: null,
+            'search' => $request->query('search') ?: null,
+            'status' => $request->query('status') ?: null,
             'category_id' => $request->query('category_id') ?: null,
-            'brand_id'    => $request->query('brand_id') ?: null,
-            'tag_id'      => $request->query('tag_id') ?: null,
+            'brand_id' => $request->query('brand_id') ?: null,
+            'tag_id' => $request->query('tag_id') ?: null,
             'collection_id' => $request->query('collection_id') ?: null,
         ];
 
         $products = $this->listQuery->withFilters($filters)->paginate();
-        $products->getCollection()->transform(fn (Product $product) => $this->formatProduct($product));
+        $products->getCollection()->transform(fn(Product $product) => $this->formatProduct($product));
 
         return Inertia::render('admin/catalog/products/index', [
-            'products'   => $products,
-            'filters'    => $filters,
+            'products' => $products,
+            'filters' => $filters,
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'brands'     => Brand::orderBy('name')->get(['id', 'name']),
-            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
-            'collections'=> Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
+            'brands' => Brand::orderBy('name')->get(['id', 'name']),
+            'tags' => Tag::orderBy('name')->get(['id', 'name']),
+            'collections' => Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -65,9 +65,9 @@ class ProductController extends Controller
     {
         return Inertia::render('admin/catalog/products/create', [
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'brands'     => Brand::orderBy('name')->get(['id', 'name']),
-            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
-            'collections'=> Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
+            'brands' => Brand::orderBy('name')->get(['id', 'name']),
+            'tags' => Tag::orderBy('name')->get(['id', 'name']),
+            'collections' => Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -100,11 +100,11 @@ class ProductController extends Controller
         $product->load(['category', 'brand', 'tags', 'collections']);
 
         return Inertia::render('admin/catalog/products/edit', [
-            'product'    => $this->formatProduct($product, withImages: true),
+            'product' => $this->formatProduct($product, withImages: true),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'brands'     => Brand::orderBy('name')->get(['id', 'name']),
-            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
-            'collections'=> Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
+            'brands' => Brand::orderBy('name')->get(['id', 'name']),
+            'tags' => Tag::orderBy('name')->get(['id', 'name']),
+            'collections' => Collection::orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -146,51 +146,53 @@ class ProductController extends Controller
 
     private function formatProduct(Product $product, bool $withImages = false): array
     {
+        $includeImages = $withImages || $product->relationLoaded('media');
+
         return [
-            'id'               => $product->id,
-            'name'             => $product->name,
-            'slug'             => $product->slug,
-            'sku'              => $product->sku,
-            'status'           => $product->status,
-            'product_type'     => $product->product_type,
-            'base_price'       => $product->base_price,
+            'id' => $product->id,
+            'name' => $product->name,
+            'slug' => $product->slug,
+            'sku' => $product->sku,
+            'status' => $product->status,
+            'product_type' => $product->product_type,
+            'base_price' => $product->base_price,
             'compare_at_price' => $product->compare_at_price,
-            'cost_price'       => $product->cost_price,
-            'is_featured'      => $product->is_featured,
-            'track_inventory'  => $product->track_inventory,
+            'cost_price' => $product->cost_price,
+            'is_featured' => $product->is_featured,
+            'track_inventory' => $product->track_inventory,
             'allow_backorders' => $product->allow_backorders,
-            'published_at'     => $product->published_at?->toISOString(),
-            'short_description'=> $product->short_description,
-            'description'      => $product->description,
-            'category_id'      => $product->category_id,
-            'category_name'    => $product->category?->name,
-            'brand_id'         => $product->brand_id,
-            'brand_name'       => $product->brand?->name,
-            'tags'             => $product->relationLoaded('tags')
-                ? $product->tags->map(fn (Tag $tag) => [
+            'published_at' => $product->published_at?->toISOString(),
+            'short_description' => $product->short_description,
+            'description' => $product->description,
+            'category_id' => $product->category_id,
+            'category_name' => $product->category?->name,
+            'brand_id' => $product->brand_id,
+            'brand_name' => $product->brand?->name,
+            'tags' => $product->relationLoaded('tags')
+                ? $product->tags->map(fn(Tag $tag) => [
                     'id' => $tag->id,
                     'name' => $tag->name,
                     'slug' => $tag->slug,
                 ])->values()->all()
                 : [],
-            'collections'      => $product->relationLoaded('collections')
-                ? $product->collections->map(fn (Collection $collection) => [
+            'collections' => $product->relationLoaded('collections')
+                ? $product->collections->map(fn(Collection $collection) => [
                     'id' => $collection->id,
                     'name' => $collection->name,
                     'slug' => $collection->slug,
                     'pivot_sort_order' => (int) ($collection->pivot?->sort_order ?? 0),
                 ])->values()->all()
                 : [],
-            'badges'           => $this->badgeService->resolve($product),
-            'variants_count'   => $product->variants_count ?? 0,
-            'images'           => $withImages
-                ? $product->getMedia('images')->map(fn ($media, $index) => [
-                    'id'         => $media->id,
-                    'url'        => $media->getUrl(),
+            'badges' => $this->badgeService->resolve($product),
+            'variants_count' => $product->variants_count ?? 0,
+            'images' => $includeImages
+                ? $product->getMedia('images')->map(fn($media, $index) => [
+                    'id' => $media->id,
+                    'url' => $media->getUrl(),
                     'is_primary' => $index === 0,
                 ])->values()->toArray()
                 : [],
-            'created_at'       => $product->created_at?->toISOString(),
+            'created_at' => $product->created_at?->toISOString(),
         ];
     }
 }
