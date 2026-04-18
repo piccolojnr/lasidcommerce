@@ -1,5 +1,11 @@
 <?php
 
+$mailFromName = env('MAIL_FROM_NAME');
+
+if (! is_string($mailFromName) || trim($mailFromName) === '' || preg_match('/^\$\{[A-Z0-9_]+\}$/', trim($mailFromName)) === 1) {
+    $mailFromName = env('APP_NAME', 'Laravel');
+}
+
 return [
 
     /*
@@ -112,7 +118,7 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'name' => $mailFromName,
     ],
 
 ];
