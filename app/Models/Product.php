@@ -5,16 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SoftDeletes;
+
+    public const IMAGE_COLLECTION = 'images';
+
+    public const IMAGE_CONVERSION_THUMB = 'thumb';
+
+    public const IMAGE_CONVERSION_CARD = 'card';
+
+    public const IMAGE_CONVERSION_GALLERY = 'gallery';
 
     protected $fillable = [
         'category_id',
@@ -139,6 +149,27 @@ class Product extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('images');
+        $this->addMediaCollection(self::IMAGE_COLLECTION);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion(self::IMAGE_CONVERSION_THUMB)
+            ->performOnCollections(self::IMAGE_COLLECTION)
+            ->fit(Fit::Crop, 160, 160)
+            ->optimize()
+            ->queued();
+
+        $this->addMediaConversion(self::IMAGE_CONVERSION_CARD)
+            ->performOnCollections(self::IMAGE_COLLECTION)
+            ->fit(Fit::Crop, 640, 640)
+            ->optimize()
+            ->queued();
+
+        $this->addMediaConversion(self::IMAGE_CONVERSION_GALLERY)
+            ->performOnCollections(self::IMAGE_COLLECTION)
+            ->fit(Fit::Max, 1400, 1400)
+            ->optimize()
+            ->queued();
     }
 }

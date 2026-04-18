@@ -57,7 +57,10 @@ export function ProductTable({ products }: ProductTableProps) {
                                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border bg-muted/30">
                                             {product.images[0] ? (
                                                 <img
-                                                    src={product.images[0].url}
+                                                    src={
+                                                        product.images[0]
+                                                            .thumb_url
+                                                    }
                                                     alt=""
                                                     className="h-full w-full object-cover"
                                                 />

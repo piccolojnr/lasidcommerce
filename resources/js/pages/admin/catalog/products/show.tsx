@@ -391,7 +391,7 @@ export default function ProductShowPage({ product }: Props) {
                                 <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-muted/50">
                                     {primaryImage ? (
                                         <img
-                                            src={primaryImage.url}
+                                            src={primaryImage.card_url}
                                             alt={product.name}
                                             className="aspect-[4/3] w-full object-cover"
                                         />
@@ -413,7 +413,7 @@ export default function ProductShowPage({ product }: Props) {
                                                     className="overflow-hidden rounded-2xl border border-border/70 bg-background/80"
                                                 >
                                                     <img
-                                                        src={image.url}
+                                                        src={image.thumb_url}
                                                         alt={product.name}
                                                         className="aspect-square w-full object-cover"
                                                     />

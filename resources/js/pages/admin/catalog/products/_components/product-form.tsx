@@ -305,6 +305,7 @@ export function ProductForm({ product, categories, brands, tags: tagOptions, col
                                         <div className="grid gap-2 rounded-2xl border border-border/70 p-4">
                                             {tagOptions.map((tag) => {
                                                 const checked = selectedTagIds.includes(String(tag.id));
+
                                                 return (
                                                     <label key={tag.id} className="flex items-center gap-3 text-sm">
                                                         <Checkbox
@@ -332,6 +333,7 @@ export function ProductForm({ product, categories, brands, tags: tagOptions, col
                                         <div className="grid gap-2 rounded-2xl border border-border/70 p-4">
                                             {collectionOptions.map((collection) => {
                                                 const checked = selectedCollectionIds.includes(String(collection.id));
+
                                                 return (
                                                     <label key={collection.id} className="flex items-center gap-3 text-sm">
                                                         <Checkbox
@@ -384,7 +386,12 @@ export function ProductForm({ product, categories, brands, tags: tagOptions, col
                                     id="images"
                                     name="images[]"
                                     label={isEdit ? 'Refresh or extend the gallery' : 'Upload product images'}
-                                    existingImages={product?.images ?? []}
+                                    existingImages={
+                                        product?.images.map((image) => ({
+                                            ...image,
+                                            preview_url: image.card_url,
+                                        })) ?? []
+                                    }
                                     helperText="Accepted: JPG, PNG, or WebP. Keep the first retained image strong enough to carry the listing."
                                     error={errors['images.0'] ?? errors.images}
                                 />

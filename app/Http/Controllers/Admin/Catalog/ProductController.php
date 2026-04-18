@@ -22,6 +22,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProductController extends Controller
 {
@@ -186,13 +187,38 @@ class ProductController extends Controller
             'badges' => $this->badgeService->resolve($product),
             'variants_count' => $product->variants_count ?? 0,
             'images' => $includeImages
-                ? $product->getMedia('images')->map(fn($media, $index) => [
-                    'id' => $media->id,
-                    'url' => $media->getUrl(),
-                    'is_primary' => $index === 0,
-                ])->values()->toArray()
+                ? $product->getMedia(Product::IMAGE_COLLECTION)->map(
+                    fn(Media $media, int $index) => $this->formatProductImage($media, $index)
+                )->values()->toArray()
                 : [],
             'created_at' => $product->created_at?->toISOString(),
         ];
+    }
+
+    private function formatProductImage(Media $media, int $index): array
+    {
+        $originalUrl = $media->getUrl();
+
+        return [
+            'id' => $media->id,
+            'url' => $originalUrl,
+            'thumb_url' => $this->safeConversionUrl($media, Product::IMAGE_CONVERSION_THUMB, $originalUrl),
+            'card_url' => $this->safeConversionUrl($media, Product::IMAGE_CONVERSION_CARD, $originalUrl),
+            'gallery_url' => $this->safeConversionUrl($media, Product::IMAGE_CONVERSION_GALLERY, $originalUrl),
+            'is_primary' => $index === 0,
+        ];
+    }
+
+    private function safeConversionUrl(Media $media, string $conversionName, string $fallbackUrl): string
+    {
+        if (empty($media->conversions_disk)) {
+            return $fallbackUrl;
+        }
+
+        try {
+            return $media->getAvailableUrl([$conversionName]);
+        } catch (\Throwable) {
+            return $fallbackUrl;
+        }
     }
 }

@@ -1,10 +1,10 @@
 import { Link } from '@inertiajs/react';
 import * as CollectionController from '@/actions/App/Http/Controllers/Admin/Catalog/CollectionController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
+import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
-import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import type { AdminCollection } from '@/types/admin/catalog';
 
 export default function CollectionShowPage({ collection }: { collection: AdminCollection }) {

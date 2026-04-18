@@ -1,5 +1,5 @@
 import { ImagePlus, Sparkles, Trash2, Upload } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FieldError } from '@/components/shared/forms/field-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 interface ExistingImage {
     id: number;
     url: string;
+    preview_url?: string;
     is_primary?: boolean;
 }
 
@@ -36,6 +37,7 @@ export function ImageUploadField({
     helperText,
     error,
 }: ImageUploadFieldProps) {
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [removedIds, setRemovedIds] = useState<number[]>([]);
 
@@ -53,6 +55,20 @@ export function ImageUploadField({
             selectedPreviews.forEach((image) => URL.revokeObjectURL(image.url));
         };
     }, [selectedPreviews]);
+
+    useEffect(() => {
+        if (!inputRef.current) {
+            return;
+        }
+
+        const dataTransfer = new DataTransfer();
+
+        selectedFiles.forEach((file) => {
+            dataTransfer.items.add(file);
+        });
+
+        inputRef.current.files = dataTransfer.files;
+    }, [selectedFiles]);
 
     const visibleExistingImages = existingImages.filter(
         (image) => !removedIds.includes(image.id),
@@ -99,6 +115,7 @@ export function ImageUploadField({
                     </div>
                 </label>
                 <Input
+                    ref={inputRef}
                     id={id}
                     name={name}
                     type="file"
@@ -149,7 +166,7 @@ export function ImageUploadField({
                                 className="overflow-hidden rounded-2xl border border-border/70 bg-background"
                             >
                                 <img
-                                    src={image.url}
+                                    src={image.preview_url ?? image.url}
                                     alt=""
                                     className="aspect-4/3 w-full object-cover"
                                 />

@@ -493,7 +493,9 @@ class DemoCatalogSeeder extends Seeder
             $product->collections()->sync($collectionSyncData);
 
             $this->syncProductImages($product, $definition);
+
         }
+
     }
 
     /**

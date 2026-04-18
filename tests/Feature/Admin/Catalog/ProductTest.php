@@ -10,7 +10,9 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\Conversions\Jobs\PerformConversionsJob;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -207,6 +209,37 @@ class ProductTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page->component('admin/catalog/products/show'));
+    }
+
+    public function test_index_and_show_include_admin_product_image_conversion_urls(): void
+    {
+        Storage::fake('media');
+        $this->actingAs($this->admin);
+
+        $product = Product::factory()->create();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+
+        $indexResponse = $this->get(route('admin.catalog.products.index'));
+
+        $indexResponse->assertInertia(fn ($page) => $page
+            ->component('admin/catalog/products/index')
+            ->where('products.data.0.id', $product->id)
+            ->where('products.data.0.images.0.thumb_url', $media->getAvailableUrl([Product::IMAGE_CONVERSION_THUMB]))
+            ->where('products.data.0.images.0.card_url', $media->getAvailableUrl([Product::IMAGE_CONVERSION_CARD]))
+            ->where('products.data.0.images.0.gallery_url', $media->getAvailableUrl([Product::IMAGE_CONVERSION_GALLERY]))
+        );
+
+        $showResponse = $this->get(route('admin.catalog.products.show', $product));
+
+        $showResponse->assertInertia(fn ($page) => $page
+            ->component('admin/catalog/products/show')
+            ->where('product.images.0.thumb_url', $media->getAvailableUrl([Product::IMAGE_CONVERSION_THUMB]))
+            ->where('product.images.0.card_url', $media->getAvailableUrl([Product::IMAGE_CONVERSION_CARD]))
+            ->where('product.images.0.gallery_url', $media->getAvailableUrl([Product::IMAGE_CONVERSION_GALLERY]))
+        );
     }
 
     public function test_admin_can_soft_delete_product(): void
@@ -460,6 +493,43 @@ class ProductTest extends TestCase
 
         $product = Product::where('sku', 'IMG-001')->first();
         $this->assertCount(1, $product->getMedia('images'));
+    }
+
+    public function test_store_queues_product_image_conversions(): void
+    {
+        Storage::fake('media');
+        Queue::fake();
+        $this->actingAs($this->admin);
+
+        $this->post(route('admin.catalog.products.store'), [
+            'name' => 'Queued Image Product',
+            'sku' => 'IMG-QUEUED-001',
+            'status' => 'draft',
+            'product_type' => 'physical',
+            'base_price' => 1000,
+            'images' => [UploadedFile::fake()->image('photo.jpg', 1600, 1200)],
+        ])->assertRedirect(route('admin.catalog.products.index'));
+
+        Queue::assertPushed(PerformConversionsJob::class);
+    }
+
+    public function test_product_images_register_expected_conversion_names(): void
+    {
+        Storage::fake('media');
+        $product = Product::factory()->create();
+
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+
+        $this->assertSame(
+            [
+                Product::IMAGE_CONVERSION_THUMB,
+                Product::IMAGE_CONVERSION_CARD,
+                Product::IMAGE_CONVERSION_GALLERY,
+            ],
+            $media->getMediaConversionNames(),
+        );
     }
 
     public function test_update_removes_specified_images(): void

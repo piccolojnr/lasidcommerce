@@ -13,7 +13,7 @@ class SyncProductMediaAction
      */
     public function execute(Product $product, array $newImages = [], array $removeImageIds = []): void
     {
-        $ownedIds = $product->getMedia('images')->pluck('id')->toArray();
+        $ownedIds = $product->getMedia(Product::IMAGE_COLLECTION)->pluck('id')->toArray();
 
         foreach ($removeImageIds as $mediaId) {
             if (in_array((int) $mediaId, $ownedIds, true)) {
@@ -22,7 +22,7 @@ class SyncProductMediaAction
         }
 
         foreach ($newImages as $image) {
-            $product->addMedia($image)->toMediaCollection('images');
+            $product->addMedia($image)->toMediaCollection(Product::IMAGE_COLLECTION);
         }
     }
 }

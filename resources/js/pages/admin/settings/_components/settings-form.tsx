@@ -1,10 +1,10 @@
 import { useForm } from '@inertiajs/react';
 import * as SettingController from '@/actions/App/Http/Controllers/Admin/Settings/SettingController';
+import { FieldError } from '@/components/shared/forms/field-error';
 import { FormActions } from '@/components/shared/forms/form-actions';
 import { FormSection } from '@/components/shared/forms/form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FieldError } from '@/components/shared/forms/field-error';
 
 interface Props {
     catalogSettings: {

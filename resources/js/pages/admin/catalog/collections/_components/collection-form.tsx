@@ -117,11 +117,13 @@ export function CollectionForm({ collection, products }: { collection?: AdminCol
                                                     const nextChecked = Boolean(value);
                                                     setSelectedProducts((current) => {
                                                         const next = { ...current };
+
                                                         if (nextChecked) {
                                                             next[String(product.id)] = current[String(product.id)] ?? String((Object.keys(current).length + 1) * 10);
                                                         } else {
                                                             delete next[String(product.id)];
                                                         }
+
                                                         return next;
                                                     });
                                                 }}

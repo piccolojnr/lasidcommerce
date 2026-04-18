@@ -80,6 +80,9 @@ export interface AdminProductCollectionSummary {
 export interface ProductImage {
     id: number;
     url: string;
+    thumb_url: string;
+    card_url: string;
+    gallery_url: string;
     is_primary: boolean;
 }
 
