@@ -47,7 +47,7 @@ class CartItemController extends Controller
         }
 
         $this->totals->recalculate($cart);
-        $cart->load('cartItems');
+        $cart->load('cartItems.product.media');
 
         return ApiResponse::created(new CartResource($cart));
     }
@@ -65,7 +65,7 @@ class CartItemController extends Controller
 
         $this->updateItem->execute($cartItem, (int) $request->quantity);
         $this->totals->recalculate($cart);
-        $cart->load('cartItems');
+        $cart->load('cartItems.product.media');
 
         return ApiResponse::success(new CartResource($cart));
     }
@@ -83,7 +83,7 @@ class CartItemController extends Controller
 
         $this->removeItem->execute($cartItem);
         $this->totals->recalculate($cart);
-        $cart->load('cartItems');
+        $cart->load('cartItems.product.media');
 
         return ApiResponse::success(new CartResource($cart));
     }

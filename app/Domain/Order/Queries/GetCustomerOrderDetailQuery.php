@@ -9,7 +9,7 @@ class GetCustomerOrderDetailQuery
     public function execute(Order $order): Order
     {
         return $order->load([
-            'orderItems',
+            'orderItems.product.media',
             'orderAddresses',
             'shipments',
         ]);

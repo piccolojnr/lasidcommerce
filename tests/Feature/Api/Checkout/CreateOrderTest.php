@@ -13,7 +13,9 @@ use App\Models\User;
 use App\Notifications\InternalOrderPlacedNotification;
 use App\Notifications\OrderPlacedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CreateOrderTest extends TestCase
@@ -184,6 +186,34 @@ class CreateOrderTest extends TestCase
         ]);
         $this->assertCount(1, $response->json('data.items'));
         $this->assertSame(2, $response->json('data.items.0.quantity'));
+    }
+
+    public function test_created_order_items_include_conversion_aware_primary_image_fields(): void
+    {
+        Storage::fake('media');
+        $user = $this->user();
+        $product = $this->activeProduct();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+        $this->cartWithItem($user, $product);
+        $zone = $this->zone();
+        $method = $this->method($zone);
+        $address = $this->address($user);
+
+        $response = $this->actingAsCustomer($user)->postJson(
+            '/api/v1/checkout/orders',
+            $this->payload($address, $method),
+        );
+
+        $response->assertCreated()
+            ->assertJsonPath('data.items.0.primary_image_url', $media->getUrl());
+
+        $item = $response->json('data.items.0');
+        $this->assertArrayHasKey('primary_image_thumb_url', $item);
+        $this->assertArrayHasKey('primary_image_card_url', $item);
+        $this->assertArrayHasKey('primary_image_gallery_url', $item);
     }
 
     public function test_creates_address_snapshot(): void

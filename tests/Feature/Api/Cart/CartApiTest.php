@@ -6,6 +6,8 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CartApiTest extends TestCase
@@ -65,6 +67,29 @@ class CartApiTest extends TestCase
         $items = $response->json('data.items');
         $this->assertCount(1, $items);
         $this->assertSame(2, $items[0]['quantity']);
+    }
+
+    public function test_cart_items_include_conversion_aware_primary_image_fields(): void
+    {
+        Storage::fake('media');
+        $product = $this->activeProduct();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+
+        $response = $this->postJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.items.0.primary_image_url', $media->getUrl());
+
+        $item = $response->json('data.items.0');
+        $this->assertArrayHasKey('primary_image_thumb_url', $item);
+        $this->assertArrayHasKey('primary_image_card_url', $item);
+        $this->assertArrayHasKey('primary_image_gallery_url', $item);
     }
 
     public function test_adding_same_product_increments_quantity(): void

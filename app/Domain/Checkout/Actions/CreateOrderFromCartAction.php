@@ -111,7 +111,7 @@ class CreateOrderFromCartAction
 
             $cart->update(['status' => 'converted']);
 
-            return $order->load('orderItems', 'orderAddresses', 'orderStatusHistories');
+            return $order->load('orderItems.product.media', 'orderAddresses', 'orderStatusHistories');
         });
 
         $this->notificationService->sendOrderPlaced($order);

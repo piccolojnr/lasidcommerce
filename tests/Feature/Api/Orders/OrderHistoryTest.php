@@ -5,9 +5,12 @@ namespace Tests\Feature\Api\Orders;
 use App\Models\Order;
 use App\Models\OrderAddress;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class OrderHistoryTest extends TestCase
@@ -133,6 +136,35 @@ class OrderHistoryTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data.items');
+    }
+
+    public function test_order_detail_items_include_conversion_aware_primary_image_fields(): void
+    {
+        Storage::fake('media');
+        $user = $this->user();
+        $order = $this->orderFor($user);
+        $product = Product::factory()->create();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'sku' => $product->sku,
+        ]);
+
+        $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
+
+        $response->assertOk()
+            ->assertJsonPath('data.items.0.primary_image_url', $media->getUrl());
+
+        $item = $response->json('data.items.0');
+        $this->assertArrayHasKey('primary_image_thumb_url', $item);
+        $this->assertArrayHasKey('primary_image_card_url', $item);
+        $this->assertArrayHasKey('primary_image_gallery_url', $item);
     }
 
     public function test_order_detail_includes_totals(): void

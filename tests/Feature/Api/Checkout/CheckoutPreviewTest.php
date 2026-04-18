@@ -11,6 +11,8 @@ use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CheckoutPreviewTest extends TestCase
@@ -219,6 +221,34 @@ class CheckoutPreviewTest extends TestCase
         $this->assertCount(2, $response->json('data.cart.items'));
         $this->assertSame(3000, $response->json('data.totals.subtotal_amount'));
         $this->assertSame(3500, $response->json('data.totals.total_amount'));
+    }
+
+    public function test_preview_cart_items_include_conversion_aware_primary_image_fields(): void
+    {
+        Storage::fake('media');
+        $user = $this->user();
+        $product = $this->activeProduct();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+        $this->cartWithItem($user, $product);
+        $zone = $this->zone('Ghana');
+        $method = $this->method($zone, 1500);
+        $address = $this->address($user, 'Ghana');
+
+        $response = $this->actingAsCustomer($user)->postJson('/api/v1/checkout/preview', [
+            'address_id' => $address->id,
+            'shipping_method_id' => $method->id,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.cart.items.0.primary_image_url', $media->getUrl());
+
+        $item = $response->json('data.cart.items.0');
+        $this->assertArrayHasKey('primary_image_thumb_url', $item);
+        $this->assertArrayHasKey('primary_image_card_url', $item);
+        $this->assertArrayHasKey('primary_image_gallery_url', $item);
     }
 
     public function test_preview_requires_authentication(): void
