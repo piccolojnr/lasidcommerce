@@ -545,14 +545,14 @@ class DemoCatalogSeeder extends Seeder
       <stop offset="1" stop-color="{$secondary}"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="1200" rx="72" fill="url(#bg)"/>
+  <rect width="1200" height="1200" rx="0" fill="url(#bg)"/>
   <circle cx="{$circleX}" cy="{$circleY}" r="220" fill="#FFFFFF" fill-opacity="{$shapeOpacity}"/>
   <circle cx="940" cy="940" r="180" fill="{$accent}" fill-opacity="0.14"/>
   <rect x="92" y="92" width="1016" height="1016" rx="56" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="4"/>
   <text x="110" y="160" fill="#FFFFFF" fill-opacity="0.72" font-size="34" font-family="Arial, Helvetica, sans-serif" letter-spacing="6">{$category}</text>
   <text x="110" y="272" fill="#FFFFFF" font-size="74" font-weight="700" font-family="Arial, Helvetica, sans-serif">{$name}</text>
   <text x="110" y="350" fill="#FFFFFF" fill-opacity="0.82" font-size="38" font-family="Arial, Helvetica, sans-serif">{$safeLabel}</text>
-  <rect x="110" y="826" width="238" height="88" rx="44" fill="#FFFFFF" fill-opacity="0.16"/>
+  <rect x="110" y="826" width="300" height="88" rx="44" fill="#FFFFFF" fill-opacity="0.16"/>
   <text x="150" y="883" fill="#FFFFFF" font-size="40" font-weight="700" font-family="Arial, Helvetica, sans-serif">GH₵ {$price}</text>
   <text x="110" y="1004" fill="#FFFFFF" fill-opacity="0.68" font-size="28" font-family="Arial, Helvetica, sans-serif">Demo catalog seed image</text>
   <text x="110" y="1048" fill="#FFFFFF" fill-opacity="0.52" font-size="24" font-family="Arial, Helvetica, sans-serif">SKU {$definition['sku']}</text>
