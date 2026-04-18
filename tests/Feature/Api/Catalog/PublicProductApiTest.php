@@ -8,6 +8,8 @@ use App\Models\Collection;
 use App\Models\Product;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PublicProductApiTest extends TestCase
@@ -229,7 +231,18 @@ class PublicProductApiTest extends TestCase
         $response->assertOk()->assertJsonStructure([
             'success',
             'data' => [
-                '*' => ['id', 'name', 'slug', 'sku', 'base_price', 'is_featured', 'primary_image_url'],
+                '*' => [
+                    'id',
+                    'name',
+                    'slug',
+                    'sku',
+                    'base_price',
+                    'is_featured',
+                    'primary_image_url',
+                    'primary_image_thumb_url',
+                    'primary_image_card_url',
+                    'primary_image_gallery_url',
+                ],
             ],
             'meta',
         ]);
@@ -255,6 +268,25 @@ class PublicProductApiTest extends TestCase
         $this->assertSame('top-picks', $item['collections'][0]['slug']);
         $this->assertContains('new_arrival', collect($item['badges'])->pluck('key')->all());
         $this->assertContains('on_sale', collect($item['badges'])->pluck('key')->all());
+    }
+
+    public function test_index_includes_primary_image_conversion_urls(): void
+    {
+        Storage::fake('media');
+        $product = $this->visibleProduct();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+
+        $response = $this->getJson('/api/v1/catalog/products');
+
+        $item = collect($response->json('data'))->firstWhere('id', $product->id);
+        $this->assertNotNull($item);
+        $this->assertSame($media->getUrl(), $item['primary_image_url']);
+        $this->assertArrayHasKey('primary_image_thumb_url', $item);
+        $this->assertArrayHasKey('primary_image_card_url', $item);
+        $this->assertArrayHasKey('primary_image_gallery_url', $item);
     }
 
     // --- show ---
@@ -306,6 +338,27 @@ class PublicProductApiTest extends TestCase
         $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
 
         $response->assertOk()->assertJsonPath('data.images', []);
+    }
+
+    public function test_show_includes_image_conversion_urls(): void
+    {
+        Storage::fake('media');
+        $product = $this->visibleProduct();
+        $media = $product
+            ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
+            ->toMediaCollection(Product::IMAGE_COLLECTION);
+        $media = $media->fresh();
+
+        $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.images.0.id', $media->id)
+            ->assertJsonPath('data.images.0.url', $media->getUrl());
+
+        $image = $response->json('data.images.0');
+        $this->assertArrayHasKey('thumb_url', $image);
+        $this->assertArrayHasKey('card_url', $image);
+        $this->assertArrayHasKey('gallery_url', $image);
     }
 
     public function test_show_includes_category_when_present(): void
@@ -376,6 +429,14 @@ class PublicProductApiTest extends TestCase
                 'base_price', 'compare_at_price',
                 'is_featured', 'badges', 'tags', 'collections', 'track_inventory', 'allow_backorders',
                 'published_at', 'images', 'related_products',
+            ],
+        ]);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'images' => [
+                    '*' => ['id', 'url', 'thumb_url', 'card_url', 'gallery_url', 'is_primary'],
+                ],
             ],
         ]);
     }

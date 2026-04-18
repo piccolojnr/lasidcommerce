@@ -3,12 +3,15 @@
 namespace App\Http\Resources\Api\Catalog;
 
 use App\Domain\Catalog\Services\ProductBadgeService;
+use App\Http\Resources\Api\Catalog\Concerns\ResolvesProductImageUrls;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductDetailResource extends JsonResource
 {
+    use ResolvesProductImageUrls;
+
     private ?Collection $relatedProducts = null;
 
     public function withRelated(Collection $products): static
@@ -35,11 +38,9 @@ class ProductDetailResource extends JsonResource
             'track_inventory'  => $this->track_inventory,
             'allow_backorders' => $this->allow_backorders,
             'published_at'     => $this->published_at?->toISOString(),
-            'images'           => $this->getMedia('images')->map(fn ($media, $index) => [
-                'id'         => $media->id,
-                'url'        => $media->getUrl(),
-                'is_primary' => $index === 0,
-            ])->values(),
+            'images'           => $this->getMedia('images')->map(
+                fn ($media, $index) => $this->formatProductImage($media, $index)
+            )->values(),
             'category' => $this->when(
                 $this->category !== null,
                 fn () => [

@@ -2,15 +2,21 @@
 
 namespace App\Http\Resources\Api\Catalog;
 
+use App\Http\Resources\Api\Catalog\Concerns\ResolvesProductImageUrls;
 use App\Domain\Catalog\Services\ProductBadgeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductListResource extends JsonResource
 {
+    use ResolvesProductImageUrls;
+
     public function toArray(Request $request): array
     {
         $primaryMedia = $this->getFirstMedia('images');
+        $primaryImage = $primaryMedia !== null
+            ? $this->formatProductImage($primaryMedia, 0)
+            : null;
 
         return [
             'id'                => $this->id,
@@ -21,7 +27,10 @@ class ProductListResource extends JsonResource
             'compare_at_price'  => $this->compare_at_price,
             'is_featured'       => $this->is_featured,
             'badges'            => app(ProductBadgeService::class)->resolve($this->resource),
-            'primary_image_url' => $primaryMedia?->getUrl() ?? null,
+            'primary_image_url' => $primaryImage['url'] ?? null,
+            'primary_image_thumb_url' => $primaryImage['thumb_url'] ?? null,
+            'primary_image_card_url' => $primaryImage['card_url'] ?? null,
+            'primary_image_gallery_url' => $primaryImage['gallery_url'] ?? null,
             'category'          => $this->when(
                 $this->relationLoaded('category') && $this->category !== null,
                 fn () => [
