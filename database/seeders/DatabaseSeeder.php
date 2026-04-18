@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             ShippingSetupSeeder::class,
             CatalogSetupSeeder::class,
-            // DemoStoreSeeder::class,
+            DemoStoreSeeder::class,
         ]);
     }
 }
