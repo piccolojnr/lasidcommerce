@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\StockItem;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -238,6 +239,7 @@ class PublicProductApiTest extends TestCase
                     'sku',
                     'base_price',
                     'is_featured',
+                    'stock',
                     'primary_image_url',
                     'primary_image_thumb_url',
                     'primary_image_card_url',
@@ -385,6 +387,65 @@ class PublicProductApiTest extends TestCase
             ->assertJsonPath('data.brand.slug', $brand->slug);
     }
 
+    public function test_show_includes_low_stock_summary(): void
+    {
+        $product = $this->visibleProduct();
+
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 5,
+            'quantity_reserved' => 2,
+            'reorder_level' => 3,
+        ]);
+
+        $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.stock.quantity', 3)
+            ->assertJsonPath('data.stock.status', 'low_stock')
+            ->assertJsonPath('data.stock.is_backorderable', false);
+    }
+
+    public function test_show_includes_out_of_stock_summary_when_inventory_is_depleted(): void
+    {
+        $product = $this->visibleProduct();
+
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 1,
+            'quantity_reserved' => 1,
+            'reorder_level' => 1,
+        ]);
+
+        $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.stock.quantity', 0)
+            ->assertJsonPath('data.stock.status', 'out_of_stock')
+            ->assertJsonPath('data.stock.is_backorderable', false);
+    }
+
+    public function test_show_includes_backorderable_stock_summary(): void
+    {
+        $product = $this->visibleProduct([
+            'allow_backorders' => true,
+        ]);
+
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 0,
+            'quantity_reserved' => 0,
+            'reorder_level' => 1,
+        ]);
+
+        $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.stock.quantity', 0)
+            ->assertJsonPath('data.stock.status', 'in_stock')
+            ->assertJsonPath('data.stock.is_backorderable', true);
+    }
+
     public function test_show_includes_related_products_from_same_category(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
@@ -427,7 +488,7 @@ class PublicProductApiTest extends TestCase
                 'id', 'name', 'slug', 'sku', 'product_type',
                 'short_description', 'description',
                 'base_price', 'compare_at_price',
-                'is_featured', 'badges', 'tags', 'collections', 'track_inventory', 'allow_backorders',
+                'is_featured', 'badges', 'stock', 'tags', 'collections', 'track_inventory', 'allow_backorders',
                 'published_at', 'images', 'related_products',
             ],
         ]);

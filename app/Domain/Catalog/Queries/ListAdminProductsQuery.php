@@ -29,7 +29,7 @@ class ListAdminProductsQuery
     public function paginate(): LengthAwarePaginator
     {
         return Product::withCount('variants')
-            ->with(['media', 'category', 'brand', 'tags', 'collections'])
+            ->with(['media', 'category', 'brand', 'tags', 'collections', 'stockItems'])
             ->when($this->search, fn ($q, $s) => $q->where(
                 fn ($q2) => $q2->where('name', 'like', "%{$s}%")
                                ->orWhere('sku', 'like', "%{$s}%")

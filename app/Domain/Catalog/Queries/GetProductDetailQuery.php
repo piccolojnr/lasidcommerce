@@ -15,6 +15,7 @@ class GetProductDetailQuery
             'brand.media',
             'tags',
             'collections',
+            'stockItems',
             'variants'   => fn ($q) => $q->where('is_active', true)->orderBy('price'),
             'optionTypes.optionValues',
         ])
@@ -29,7 +30,7 @@ class GetProductDetailQuery
             return new EloquentCollection();
         }
 
-        return Product::with(['media', 'category', 'brand', 'tags', 'collections'])
+        return Product::with(['media', 'category', 'brand', 'tags', 'collections', 'stockItems'])
             ->visibleOnStorefront()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)

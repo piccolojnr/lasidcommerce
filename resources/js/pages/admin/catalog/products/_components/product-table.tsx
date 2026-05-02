@@ -1,5 +1,6 @@
 import { Form, Link } from '@inertiajs/react';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
+import * as StockItemController from '@/actions/App/Http/Controllers/Admin/Inventory/StockItemController';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
 import { formatMoney } from '@/lib/formatters/money';
@@ -40,6 +41,9 @@ export function ProductTable({ products }: ProductTableProps) {
                             </th>
                             <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Price
+                            </th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                Inventory
                             </th>
                             <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                 Category
@@ -127,6 +131,28 @@ export function ProductTable({ products }: ProductTableProps) {
                                                     product.compare_at_price,
                                                 )}
                                             </div>
+                                        ) : null}
+                                    </div>
+                                </td>
+                                <td className="px-4 py-3 align-middle">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <StatusBadge status={product.inventory.status} />
+                                            <span className="text-xs text-muted-foreground">
+                                                {product.track_inventory ? `${product.inventory.available_quantity} available` : 'Not tracked'}
+                                            </span>
+                                        </div>
+                                        {product.track_inventory ? (
+                                            <Link
+                                                href={
+                                                    product.inventory.primary_stock_item_id
+                                                        ? StockItemController.show.url(product.inventory.primary_stock_item_id)
+                                                        : `${StockItemController.index.url()}?search=${encodeURIComponent(product.sku)}`
+                                                }
+                                                className="text-xs font-medium text-primary transition hover:text-primary/80"
+                                            >
+                                                Open inventory
+                                            </Link>
                                         ) : null}
                                     </div>
                                 </td>

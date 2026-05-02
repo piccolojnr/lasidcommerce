@@ -46,7 +46,7 @@ class ListPublicProductsQuery
             ? '%'.mb_strtolower($this->search).'%'
             : null;
 
-        return Product::with(['media', 'category', 'brand', 'tags', 'collections'])
+        return Product::with(['media', 'category', 'brand', 'tags', 'collections', 'stockItems'])
             ->visibleOnStorefront()
             ->when($searchTerm, fn ($q, $term) => $q->whereRaw('LOWER(name) LIKE ?', [$term]))
             ->when($categoryIds !== null, fn ($q) => $q->whereHas(

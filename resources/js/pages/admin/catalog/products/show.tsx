@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
+import * as StockItemController from '@/actions/App/Http/Controllers/Admin/Inventory/StockItemController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,17 @@ export default function ProductShowPage({ product }: Props) {
                                     href={ProductController.edit.url(product)}
                                 >
                                     Edit
+                                </Link>
+                            </Button>
+                            <Button variant="outline" asChild>
+                                <Link
+                                    href={
+                                        product.inventory.primary_stock_item_id
+                                            ? StockItemController.show.url(product.inventory.primary_stock_item_id)
+                                            : `${StockItemController.index.url()}?search=${encodeURIComponent(product.sku)}`
+                                    }
+                                >
+                                    Inventory
                                 </Link>
                             </Button>
                         </div>
@@ -194,6 +206,20 @@ export default function ProductShowPage({ product }: Props) {
                                     {product.allow_backorders
                                         ? 'Allowed'
                                         : 'Blocked'}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                    Stock status
+                                </span>
+                                <StatusBadge status={product.inventory.status} />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                    Available now
+                                </span>
+                                <span className="font-medium">
+                                    {product.inventory.available_quantity}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
@@ -426,7 +452,7 @@ export default function ProductShowPage({ product }: Props) {
 
                         <Card className="overflow-hidden border-border/70 pt-0">
                             <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
-                                <CardTitle>Operational flags</CardTitle>
+                                <CardTitle>Operational flags and inventory</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4 p-6 text-sm">
                                 <div className="flex items-center justify-between">
@@ -453,6 +479,46 @@ export default function ProductShowPage({ product }: Props) {
                                         {product.allow_backorders
                                             ? 'Yes'
                                             : 'No'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">
+                                        On hand
+                                    </span>
+                                    <span className="font-medium">
+                                        {product.inventory.quantity_on_hand}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">
+                                        Reserved
+                                    </span>
+                                    <span className="font-medium">
+                                        {product.inventory.quantity_reserved}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">
+                                        Available
+                                    </span>
+                                    <span className="font-medium">
+                                        {product.inventory.available_quantity}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">
+                                        Stock items
+                                    </span>
+                                    <span className="font-medium">
+                                        {product.inventory.stock_item_count}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">
+                                        Reorder threshold
+                                    </span>
+                                    <span className="font-medium">
+                                        {product.inventory.reorder_level}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">

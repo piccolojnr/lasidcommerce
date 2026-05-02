@@ -77,6 +77,17 @@ export interface AdminProductCollectionSummary {
     pivot_sort_order: number;
 }
 
+export interface AdminProductInventorySummary {
+    stock_item_count: number;
+    primary_stock_item_id: number | null;
+    quantity_on_hand: number;
+    quantity_reserved: number;
+    available_quantity: number;
+    reorder_level: number;
+    status: string;
+    is_backorderable: boolean;
+}
+
 export interface ProductImage {
     id: number;
     url: string;
@@ -109,6 +120,7 @@ export interface AdminProduct {
     tags: AdminProductTagSummary[];
     collections: AdminProductCollectionSummary[];
     badges: AdminMerchandisingBadge[];
+    inventory: AdminProductInventorySummary;
     variants_count: number;
     images: ProductImage[];
     created_at: string;

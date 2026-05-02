@@ -4,6 +4,7 @@ import {
     ContactRound,
     LayoutGrid,
     MapPinned,
+    Package,
     Settings,
     ShieldCheck,
     ShoppingCart,
@@ -41,6 +42,11 @@ export const adminHeaderNavItems: NavItem[] = [
         title: 'Shipments',
         href: '/admin/shipments',
         icon: Truck,
+    },
+    {
+        title: 'Inventory',
+        href: '/admin/inventory/stock-items',
+        icon: Package,
     },
     {
         title: 'Platform Users',
@@ -97,6 +103,26 @@ export const adminSidebarGroups: SidebarNavGroup[] = [
                     {
                         title: 'Collections',
                         href: '/admin/catalog/collections',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        label: 'Inventory',
+        items: [
+            {
+                title: 'Inventory',
+                href: '/admin/inventory/stock-items',
+                icon: Package,
+                items: [
+                    {
+                        title: 'Stock Items',
+                        href: '/admin/inventory/stock-items',
+                    },
+                    {
+                        title: 'Movement Ledger',
+                        href: '/admin/inventory/stock-movements',
                     },
                 ],
             },

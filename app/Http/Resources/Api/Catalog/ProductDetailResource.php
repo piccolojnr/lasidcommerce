@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Catalog;
 
 use App\Domain\Catalog\Services\ProductBadgeService;
+use App\Domain\Catalog\Services\ProductStockResolver;
 use App\Http\Resources\Api\Catalog\Concerns\ResolvesProductImageUrls;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -23,6 +24,8 @@ class ProductDetailResource extends JsonResource
 
     public function toArray(Request $request): array
     {
+        $stock = app(ProductStockResolver::class)->resolve($this->resource);
+
         return [
             'id'               => $this->id,
             'name'             => $this->name,
@@ -35,6 +38,7 @@ class ProductDetailResource extends JsonResource
             'compare_at_price' => $this->compare_at_price,
             'is_featured'      => $this->is_featured,
             'badges'           => app(ProductBadgeService::class)->resolve($this->resource),
+            'stock'            => $stock,
             'track_inventory'  => $this->track_inventory,
             'allow_backorders' => $this->allow_backorders,
             'published_at'     => $this->published_at?->toISOString(),

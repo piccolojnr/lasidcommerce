@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\Catalog;
 
 use App\Http\Resources\Api\Catalog\Concerns\ResolvesProductImageUrls;
 use App\Domain\Catalog\Services\ProductBadgeService;
+use App\Domain\Catalog\Services\ProductStockResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,6 +18,7 @@ class ProductListResource extends JsonResource
         $primaryImage = $primaryMedia !== null
             ? $this->formatProductImage($primaryMedia, 0)
             : null;
+        $stock = app(ProductStockResolver::class)->resolve($this->resource);
 
         return [
             'id'                => $this->id,
@@ -27,6 +29,7 @@ class ProductListResource extends JsonResource
             'compare_at_price'  => $this->compare_at_price,
             'is_featured'       => $this->is_featured,
             'badges'            => app(ProductBadgeService::class)->resolve($this->resource),
+            'stock'             => $stock,
             'primary_image_url' => $primaryImage['url'] ?? null,
             'primary_image_thumb_url' => $primaryImage['thumb_url'] ?? null,
             'primary_image_card_url' => $primaryImage['card_url'] ?? null,

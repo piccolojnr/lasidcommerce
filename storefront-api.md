@@ -254,6 +254,11 @@ Example response:
           "label": "On sale"
         }
       ],
+      "stock": {
+        "quantity": 3,
+        "status": "low_stock",
+        "is_backorderable": false
+      },
       "primary_image_url": "https://cdn.example.test/products/sp-001.jpg",
       "primary_image_thumb_url": "https://cdn.example.test/products/conversions/sp-001-thumb.jpg",
       "primary_image_card_url": "https://cdn.example.test/products/conversions/sp-001-card.jpg",
@@ -307,6 +312,12 @@ Image behavior:
 
 Returns a single product with related products.
 
+The response includes a computed `stock` object with:
+
+- `quantity`: summed available quantity across the product's loaded stock items
+- `status`: one of `in_stock`, `low_stock`, or `out_of_stock`
+- `is_backorderable`: whether the product currently allows purchases beyond on-hand stock
+
 Example response:
 
 ```json
@@ -334,6 +345,11 @@ Example response:
         "label": "On sale"
       }
     ],
+    "stock": {
+      "quantity": 3,
+      "status": "low_stock",
+      "is_backorderable": false
+    },
     "track_inventory": true,
     "allow_backorders": false,
     "published_at": "2026-04-01T08:00:00.000000Z",
@@ -461,6 +477,7 @@ Example response:
 
 The `products` array in this response uses the same product-list shape as `GET /api/v1/catalog/products`, including:
 
+- `stock`
 - `primary_image_url`
 - `primary_image_thumb_url`
 - `primary_image_card_url`
@@ -526,6 +543,7 @@ Example response:
 
 The `products` array in this response uses the same product-list shape as `GET /api/v1/catalog/products`, including:
 
+- `stock`
 - `primary_image_url`
 - `primary_image_thumb_url`
 - `primary_image_card_url`

@@ -9,7 +9,8 @@ class AdjustStockAction
     public function execute(StockItem $stockItem, int $quantity): StockItem
     {
         $stockItem->quantity_on_hand += $quantity;
+        $stockItem->save();
 
-        return $stockItem;
+        return $stockItem->fresh();
     }
 }

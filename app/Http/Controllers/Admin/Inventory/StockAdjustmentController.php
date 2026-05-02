@@ -2,17 +2,30 @@
 
 namespace App\Http\Controllers\Admin\Inventory;
 
+use App\Domain\Inventory\Actions\CreateStockAdjustmentAction;
+use App\Domain\Inventory\DTOs\StockAdjustmentData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdjustStockRequest;
 use App\Models\StockItem;
-use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
 
 class StockAdjustmentController extends Controller
 {
-    public function store(AdjustStockRequest $request, StockItem $stockItem): Response
+    public function __construct(
+        private CreateStockAdjustmentAction $createStockAdjustmentAction,
+    ) {}
+
+    public function store(AdjustStockRequest $request, StockItem $stockItem): RedirectResponse
     {
         $this->authorize('update', $stockItem);
 
-        return response("Admin stock adjustment placeholder: {$stockItem->getKey()}", Response::HTTP_CREATED);
+        $this->createStockAdjustmentAction->execute(
+            $stockItem,
+            StockAdjustmentData::fromArray($request->validated(), $request->user()?->getKey()),
+        );
+
+        return redirect()
+            ->route('admin.inventory.stock-items.show', $stockItem)
+            ->with('success', 'Stock adjustment recorded successfully.');
     }
 }

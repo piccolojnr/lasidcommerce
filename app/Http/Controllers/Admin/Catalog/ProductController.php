@@ -8,6 +8,7 @@ use App\Domain\Catalog\Actions\SyncProductMediaAction;
 use App\Domain\Catalog\Actions\ToggleProductStatusAction;
 use App\Domain\Catalog\Actions\UpdateProductAction;
 use App\Domain\Catalog\Services\ProductBadgeService;
+use App\Domain\Catalog\Services\ProductStockResolver;
 use App\Domain\Catalog\Exceptions\CannotDeleteProductException;
 use App\Domain\Catalog\Queries\ListAdminProductsQuery;
 use App\Http\Controllers\Controller;
@@ -34,6 +35,7 @@ class ProductController extends Controller
         private SyncProductMediaAction $syncMediaAction,
         private DeleteProductAction $deleteAction,
         private ProductBadgeService $badgeService,
+        private ProductStockResolver $productStockResolver,
     ) {
         $this->authorizeResource(Product::class, 'product');
     }
@@ -87,7 +89,7 @@ class ProductController extends Controller
     {
         $product->loadMedia('images');
         $product->loadCount('variants');
-        $product->load(['category', 'brand', 'tags', 'collections']);
+        $product->load(['category', 'brand', 'tags', 'collections', 'stockItems']);
 
         return Inertia::render('admin/catalog/products/show', [
             'product' => $this->formatProduct($product, withImages: true),
@@ -98,7 +100,7 @@ class ProductController extends Controller
     {
         $product->loadMedia('images');
         $product->loadCount('variants');
-        $product->load(['category', 'brand', 'tags', 'collections']);
+        $product->load(['category', 'brand', 'tags', 'collections', 'stockItems']);
 
         return Inertia::render('admin/catalog/products/edit', [
             'product' => $this->formatProduct($product, withImages: true),
@@ -148,6 +150,7 @@ class ProductController extends Controller
     private function formatProduct(Product $product, bool $withImages = false): array
     {
         $includeImages = $withImages || $product->relationLoaded('media');
+        $inventory = $this->formatInventorySummary($product);
 
         return [
             'id' => $product->id,
@@ -185,6 +188,7 @@ class ProductController extends Controller
                 ])->values()->all()
                 : [],
             'badges' => $this->badgeService->resolve($product),
+            'inventory' => $inventory,
             'variants_count' => $product->variants_count ?? 0,
             'images' => $includeImages
                 ? $product->getMedia(Product::IMAGE_COLLECTION)->map(
@@ -192,6 +196,24 @@ class ProductController extends Controller
                 )->values()->toArray()
                 : [],
             'created_at' => $product->created_at?->toISOString(),
+        ];
+    }
+
+    private function formatInventorySummary(Product $product): array
+    {
+        $stockItems = $product->relationLoaded('stockItems') ? $product->stockItems : $product->stockItems()->get();
+        $stock = $this->productStockResolver->resolve($product);
+        $primaryStockItemId = $stockItems->count() === 1 ? $stockItems->first()?->getKey() : null;
+
+        return [
+            'stock_item_count' => $stockItems->count(),
+            'primary_stock_item_id' => $primaryStockItemId,
+            'quantity_on_hand' => (int) $stockItems->sum('quantity_on_hand'),
+            'quantity_reserved' => (int) $stockItems->sum('quantity_reserved'),
+            'available_quantity' => (int) $stock['quantity'],
+            'reorder_level' => (int) $stockItems->sum('reorder_level'),
+            'status' => $stock['status'],
+            'is_backorderable' => (bool) $stock['is_backorderable'],
         ];
     }
 

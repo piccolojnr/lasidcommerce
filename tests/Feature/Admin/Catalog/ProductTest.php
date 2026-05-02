@@ -204,11 +204,21 @@ class ProductTest extends TestCase
     {
         $this->actingAs($this->admin);
         $product = Product::factory()->create();
+        \App\Models\StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 7,
+            'quantity_reserved' => 2,
+            'reorder_level' => 4,
+        ]);
 
         $response = $this->get(route('admin.catalog.products.show', $product));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('admin/catalog/products/show'));
+        $response->assertInertia(fn ($page) => $page
+            ->component('admin/catalog/products/show')
+            ->where('product.inventory.available_quantity', 5)
+            ->where('product.inventory.status', 'in_stock')
+        );
     }
 
     public function test_index_and_show_include_admin_product_image_conversion_urls(): void
