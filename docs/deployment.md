@@ -6,8 +6,8 @@ This app is deployed as Docker images published to GitHub Container Registry by 
 
 The workflow at `.github/workflows/publish.yml` builds and pushes:
 
-- `ghcr.io/piccolojnr/lasidcommerce/app:latest`
-- `ghcr.io/piccolojnr/lasidcommerce/web:latest`
+- `ghcr.io/piccolojnr/backthred/app:latest`
+- `ghcr.io/piccolojnr/backthred/web:latest`
 - SHA tags for both images, using the short commit SHA
 
 The `app` image runs PHP-FPM and Artisan commands. The `web` image runs nginx and serves the built public assets.
@@ -28,25 +28,25 @@ Install Docker Engine and the Docker Compose plugin on the VPS, then authenticat
 echo "$GITHUB_TOKEN" | docker login ghcr.io -u piccolojnr --password-stdin
 ```
 
-The token needs package read access for `ghcr.io/piccolojnr/lasidcommerce`.
+The token needs package read access for `ghcr.io/piccolojnr/backthred`.
 
 Create the persistent volumes expected by `docker/compose.yaml`:
 
 ```bash
-docker volume create docker_lasidcommerce_database
-docker volume create docker_lasidcommerce_redis
-docker volume create docker_lasidcommerce_storage
+docker volume create docker_backthred_database
+docker volume create docker_backthred_redis
+docker volume create docker_backthred_storage
 ```
 
 Copy the deployment files to the VPS:
 
 ```bash
-mkdir -p /opt/lasidcommerce
-cp docker/compose.yaml /opt/lasidcommerce/compose.yaml
-cp docker/.env.example /opt/lasidcommerce/.env
+mkdir -p /opt/backthred
+cp docker/compose.yaml /opt/backthred/compose.yaml
+cp docker/.env.example /opt/backthred/.env
 ```
 
-Edit `/opt/lasidcommerce/.env` and set production values, especially:
+Edit `/opt/backthred/.env` and set production values, especially:
 
 - `APP_KEY`
 - `APP_URL`
@@ -61,12 +61,12 @@ Edit `/opt/lasidcommerce/.env` and set production values, especially:
 Generate `APP_KEY` locally or on the server:
 
 ```bash
-docker run --rm ghcr.io/piccolojnr/lasidcommerce/app:latest php artisan key:generate --show
+docker run --rm ghcr.io/piccolojnr/backthred/app:latest php artisan key:generate --show
 ```
 
 ## Deploy
 
-From `/opt/lasidcommerce`:
+From `/opt/backthred`:
 
 ```bash
 docker compose pull
@@ -77,7 +77,7 @@ docker compose exec app php artisan migrate --force
 To let the app container run migrations during startup, set:
 
 ```bash
-LASIDCOMMERCE_RUN_MIGRATIONS=true
+BACKTHRED_RUN_MIGRATIONS=true
 ```
 
 ## Update
@@ -85,7 +85,7 @@ LASIDCOMMERCE_RUN_MIGRATIONS=true
 After a push to `main` completes the GitHub Actions image build:
 
 ```bash
-cd /opt/lasidcommerce
+cd /opt/backthred
 docker compose pull
 docker compose up -d
 docker image prune -f
@@ -94,7 +94,7 @@ docker image prune -f
 Use a SHA tag for pinned deployments:
 
 ```bash
-LASIDCOMMERCE_IMAGE_TAG=<short-sha> docker compose up -d
+BACKTHRED_IMAGE_TAG=<short-sha> docker compose up -d
 ```
 
 ## Logs

@@ -63,28 +63,28 @@ RUN apk add --no-cache \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apk del .build-deps \
-    && addgroup -g "${GID}" lasidcommerce \
-    && adduser -D -G lasidcommerce -u "${UID}" lasidcommerce \
-    && sed -i 's/^user = .*/user = lasidcommerce/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/^group = .*/group = lasidcommerce/' /usr/local/etc/php-fpm.d/www.conf
+    && addgroup -g "${GID}" backthred \
+    && adduser -D -G backthred -u "${UID}" backthred \
+    && sed -i 's/^user = .*/user = backthred/' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/^group = .*/group = backthred/' /usr/local/etc/php-fpm.d/www.conf
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-COPY --chown=lasidcommerce:lasidcommerce . .
-COPY --from=vendor --chown=lasidcommerce:lasidcommerce /app/vendor ./vendor
-COPY --from=frontend --chown=lasidcommerce:lasidcommerce /app/public/build ./public/build
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/lasidcommerce.ini
-COPY docker/entrypoint.sh /usr/local/bin/lasidcommerce-entrypoint
+COPY --chown=backthred:backthred . .
+COPY --from=vendor --chown=backthred:backthred /app/vendor ./vendor
+COPY --from=frontend --chown=backthred:backthred /app/public/build ./public/build
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/backthred.ini
+COPY docker/entrypoint.sh /usr/local/bin/backthred-entrypoint
 
-RUN chmod +x /usr/local/bin/lasidcommerce-entrypoint \
+RUN chmod +x /usr/local/bin/backthred-entrypoint \
     && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && rm -f bootstrap/cache/*.php \
     && composer dump-autoload --no-dev --optimize \
     && php artisan package:discover --ansi \
-    && chown -R lasidcommerce:lasidcommerce storage bootstrap/cache
+    && chown -R backthred:backthred storage bootstrap/cache
 
 EXPOSE 9000
 
-ENTRYPOINT ["lasidcommerce-entrypoint"]
+ENTRYPOINT ["backthred-entrypoint"]
 CMD ["php-fpm"]
 
 FROM nginx:1.27-alpine AS web

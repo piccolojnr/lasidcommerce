@@ -24,14 +24,14 @@ class CorsConfigTest extends TestCase
 
     public function test_cors_config_filters_invalid_and_duplicate_origins(): void
     {
-        $this->withEnv('APP_URL', 'http://lasidcommerce.test');
-        $this->withEnv('STOREFRONT_URL', 'http://lasidcommerce.test');
-        $this->withEnv('CORS_ALLOWED_ORIGINS', ' ,not-a-url,http://lasidcommerce.test/,http://lasidcommerce.test ');
+        $this->withEnv('APP_URL', 'http://backthred.test');
+        $this->withEnv('STOREFRONT_URL', 'http://backthred.test');
+        $this->withEnv('CORS_ALLOWED_ORIGINS', ' ,not-a-url,http://backthred.test/,http://backthred.test ');
 
         $config = require config_path('cors.php');
 
         $this->assertSame([
-            'http://lasidcommerce.test',
+            'http://backthred.test',
         ], $config['allowed_origins']);
     }
 

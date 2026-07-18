@@ -3,7 +3,7 @@
 $mailFromName = env('MAIL_FROM_NAME');
 
 if (! is_string($mailFromName) || trim($mailFromName) === '' || preg_match('/^\$\{[A-Z0-9_]+\}$/', trim($mailFromName)) === 1) {
-    $mailFromName = env('APP_NAME', 'Laravel');
+    $mailFromName = env('APP_NAME', 'Backthred');
 }
 
 return [

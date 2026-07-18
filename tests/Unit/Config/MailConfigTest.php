@@ -8,17 +8,17 @@ class MailConfigTest extends TestCase
 {
     public function test_mail_from_name_falls_back_to_app_name_when_mail_from_name_is_an_unresolved_placeholder(): void
     {
-        $this->withEnv('APP_NAME', 'Lasid Commerce');
+        $this->withEnv('APP_NAME', 'Backthred');
         $this->withEnv('MAIL_FROM_NAME', '${APP_NAME}');
 
         $config = require config_path('mail.php');
 
-        $this->assertSame('Lasid Commerce', $config['from']['name']);
+        $this->assertSame('Backthred', $config['from']['name']);
     }
 
     public function test_mail_from_name_uses_explicit_value_when_provided(): void
     {
-        $this->withEnv('APP_NAME', 'Lasid Commerce');
+        $this->withEnv('APP_NAME', 'Backthred');
         $this->withEnv('MAIL_FROM_NAME', 'Support Desk');
 
         $config = require config_path('mail.php');

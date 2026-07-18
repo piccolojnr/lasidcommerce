@@ -1,20 +1,20 @@
-name: lasidcommerce
+name: backthred
 
 services:
   app:
-    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/app:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    image: ${BACKTHRED_IMAGE_PREFIX:-ghcr.io/piccolojnr/backthred}/app:${BACKTHRED_IMAGE_TAG:-latest}
     restart: unless-stopped
     env_file:
-      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+      - ${BACKTHRED_COMPOSE_ENV_FILE:-.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
       DB_CONNECTION: ${DB_CONNECTION:-pgsql}
-      DB_HOST: ${LASIDCOMMERCE_DOCKER_DB_HOST:-database}
+      DB_HOST: ${BACKTHRED_DOCKER_DB_HOST:-database}
       DB_PORT: ${DB_PORT:-5432}
-      DB_DATABASE: ${DB_DATABASE:-lasidcommerce}
-      DB_USERNAME: ${DB_USERNAME:-lasidcommerce}
-      DB_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      DB_DATABASE: ${DB_DATABASE:-backthred}
+      DB_USERNAME: ${DB_USERNAME:-backthred}
+      DB_PASSWORD: ${DB_PASSWORD:-backthred}
       CACHE_STORE: ${CACHE_STORE:-redis}
       SESSION_DRIVER: ${SESSION_DRIVER:-redis}
       SESSION_CONNECTION: ${SESSION_CONNECTION:-default}
@@ -28,12 +28,12 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - lasidcommerce_storage:/var/www/html/storage
+      - backthred_storage:/var/www/html/storage
     networks:
-      - lasidcommerce
+      - backthred
 
   web:
-    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/web:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    image: ${BACKTHRED_IMAGE_PREFIX:-ghcr.io/piccolojnr/backthred}/web:${BACKTHRED_IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       - app
@@ -42,24 +42,24 @@ services:
     ports:
       - "${APP_PORT:-8080}:80"
     volumes:
-      - lasidcommerce_storage:/var/www/html/storage:ro
+      - backthred_storage:/var/www/html/storage:ro
     networks:
-      - lasidcommerce
+      - backthred
 
   queue:
-    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/app:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    image: ${BACKTHRED_IMAGE_PREFIX:-ghcr.io/piccolojnr/backthred}/app:${BACKTHRED_IMAGE_TAG:-latest}
     restart: unless-stopped
     env_file:
-      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+      - ${BACKTHRED_COMPOSE_ENV_FILE:-.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
       DB_CONNECTION: ${DB_CONNECTION:-pgsql}
-      DB_HOST: ${LASIDCOMMERCE_DOCKER_DB_HOST:-database}
+      DB_HOST: ${BACKTHRED_DOCKER_DB_HOST:-database}
       DB_PORT: ${DB_PORT:-5432}
-      DB_DATABASE: ${DB_DATABASE:-lasidcommerce}
-      DB_USERNAME: ${DB_USERNAME:-lasidcommerce}
-      DB_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      DB_DATABASE: ${DB_DATABASE:-backthred}
+      DB_USERNAME: ${DB_USERNAME:-backthred}
+      DB_PASSWORD: ${DB_PASSWORD:-backthred}
       CACHE_STORE: ${CACHE_STORE:-redis}
       SESSION_DRIVER: ${SESSION_DRIVER:-redis}
       SESSION_CONNECTION: ${SESSION_CONNECTION:-default}
@@ -76,24 +76,24 @@ services:
       app:
         condition: service_started
     volumes:
-      - lasidcommerce_storage:/var/www/html/storage
+      - backthred_storage:/var/www/html/storage
     networks:
-      - lasidcommerce
+      - backthred
 
   scheduler:
-    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/app:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    image: ${BACKTHRED_IMAGE_PREFIX:-ghcr.io/piccolojnr/backthred}/app:${BACKTHRED_IMAGE_TAG:-latest}
     restart: unless-stopped
     env_file:
-      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+      - ${BACKTHRED_COMPOSE_ENV_FILE:-.env}
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
       DB_CONNECTION: ${DB_CONNECTION:-pgsql}
-      DB_HOST: ${LASIDCOMMERCE_DOCKER_DB_HOST:-database}
+      DB_HOST: ${BACKTHRED_DOCKER_DB_HOST:-database}
       DB_PORT: ${DB_PORT:-5432}
-      DB_DATABASE: ${DB_DATABASE:-lasidcommerce}
-      DB_USERNAME: ${DB_USERNAME:-lasidcommerce}
-      DB_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      DB_DATABASE: ${DB_DATABASE:-backthred}
+      DB_USERNAME: ${DB_USERNAME:-backthred}
+      DB_PASSWORD: ${DB_PASSWORD:-backthred}
       CACHE_STORE: ${CACHE_STORE:-redis}
       SESSION_DRIVER: ${SESSION_DRIVER:-redis}
       SESSION_CONNECTION: ${SESSION_CONNECTION:-default}
@@ -110,32 +110,32 @@ services:
       app:
         condition: service_started
     volumes:
-      - lasidcommerce_storage:/var/www/html/storage
+      - backthred_storage:/var/www/html/storage
     networks:
-      - lasidcommerce
+      - backthred
 
   database:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-lasidcommerce}
-      POSTGRES_USER: ${DB_USERNAME:-lasidcommerce}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      POSTGRES_DB: ${DB_DATABASE:-backthred}
+      POSTGRES_USER: ${DB_USERNAME:-backthred}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-backthred}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lasidcommerce} -d ${DB_DATABASE:-lasidcommerce}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-backthred} -d ${DB_DATABASE:-backthred}"]
       interval: 10s
       timeout: 5s
       retries: 10
     volumes:
-      - lasidcommerce_database:/var/lib/postgresql/data
+      - backthred_database:/var/lib/postgresql/data
     networks:
-      - lasidcommerce
+      - backthred
 
   redis:
     image: redis:8-alpine
     restart: unless-stopped
     env_file:
-      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+      - ${BACKTHRED_COMPOSE_ENV_FILE:-.env}
     command: >
       sh -c 'if [ -n "$$REDIS_PASSWORD" ] && [ "$$REDIS_PASSWORD" != "null" ]; then
       redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD";
@@ -146,21 +146,21 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - lasidcommerce_redis:/data
+      - backthred_redis:/data
     networks:
-      - lasidcommerce
+      - backthred
 
 volumes:
-  lasidcommerce_database:
+  backthred_database:
     external: true
-    name: docker_lasidcommerce_database
-  lasidcommerce_redis:
+    name: docker_backthred_database
+  backthred_redis:
     external: true
-    name: docker_lasidcommerce_redis
-  lasidcommerce_storage:
+    name: docker_backthred_redis
+  backthred_storage:
     external: true
-    name: docker_lasidcommerce_storage
+    name: docker_backthred_storage
 
 networks:
-  lasidcommerce:
+  backthred:
     driver: bridge
