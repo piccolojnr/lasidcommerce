@@ -4,6 +4,8 @@ namespace App\Domain\Checkout\Actions;
 
 use App\Domain\Cart\Services\CartItemValidator;
 use App\Domain\Checkout\Exceptions\CheckoutException;
+use App\Domain\Inventory\Exceptions\InsufficientStockException;
+use App\Domain\Inventory\Services\StockReservationService;
 use App\Domain\Shipping\DTOs\ShippingAddressData;
 use App\Domain\Shipping\Services\ShippingFeeCalculator;
 use App\Domain\Shipping\Services\ShippingZoneResolver;
@@ -18,6 +20,7 @@ class PreviewCheckoutAction
         private ShippingZoneResolver $zoneResolver,
         private ShippingFeeCalculator $feeCalculator,
         private CartItemValidator $itemValidator,
+        private StockReservationService $stockReservationService,
     ) {}
 
     /**
@@ -51,6 +54,9 @@ class PreviewCheckoutAction
         foreach ($cart->cartItems as $item) {
             try {
                 $this->itemValidator->validate($item->product, $item->productVariant ?? null);
+                $this->stockReservationService->assertAvailable($item->product, $item->productVariant ?? null, $item->quantity);
+            } catch (InsufficientStockException $e) {
+                throw new CheckoutException($e->getMessage());
             } catch (\RuntimeException $e) {
                 throw new CheckoutException("Cart item \"{$item->product_name_snapshot}\" is no longer available: {$e->getMessage()}");
             }

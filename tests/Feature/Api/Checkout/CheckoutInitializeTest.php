@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
+use App\Models\StockItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -48,6 +49,17 @@ class CheckoutInitializeTest extends TestCase
 
     private function cartWithItem(User $user, Product $product, int $qty = 1): Cart
     {
+        StockItem::query()->firstOrCreate(
+            [
+                'product_id' => $product->id,
+                'product_variant_id' => null,
+            ],
+            [
+                'quantity_on_hand' => max($qty, 20),
+                'quantity_reserved' => 0,
+            ],
+        );
+
         $cart = Cart::factory()->create([
             'user_id' => $user->id,
             'session_id' => null,

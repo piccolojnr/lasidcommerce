@@ -82,7 +82,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn(): ?Password => app()->isProduction()
+            fn (): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()
@@ -109,25 +109,25 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(Refund::class, RefundPolicy::class);
         Gate::policy(PaymentWebhookLog::class, PaymentWebhookLogPolicy::class);
-        Gate::define('viewAdminDashboard', fn(User $user): bool => $user->can('view admin dashboard'));
+        Gate::define('viewAdminDashboard', fn (User $user): bool => $user->can('view admin dashboard'));
 
         RateLimiter::for('storefront-magic-links', function (Request $request) {
             $email = Str::lower((string) $request->input('email'));
-            $key = Str::transliterate($email . '|' . $request->ip());
+            $key = Str::transliterate($email.'|'.$request->ip());
 
             return Limit::perMinute(5)->by($key);
         });
 
         RateLimiter::for('storefront-password-logins', function (Request $request) {
             $email = Str::lower((string) $request->input('email'));
-            $key = Str::transliterate($email . '|' . $request->ip());
+            $key = Str::transliterate($email.'|'.$request->ip());
 
             return Limit::perMinute(5)->by($key);
         });
 
         RateLimiter::for('storefront-password-resets', function (Request $request) {
             $email = Str::lower((string) $request->input('email'));
-            $key = Str::transliterate($email . '|' . $request->ip());
+            $key = Str::transliterate($email.'|'.$request->ip());
 
             return Limit::perMinute(5)->by($key);
         });

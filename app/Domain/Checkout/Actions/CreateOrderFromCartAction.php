@@ -4,6 +4,8 @@ namespace App\Domain\Checkout\Actions;
 
 use App\Domain\Checkout\Exceptions\CheckoutException;
 use App\Domain\Checkout\Services\OrderNumberGenerator;
+use App\Domain\Inventory\Exceptions\InsufficientStockException;
+use App\Domain\Inventory\Services\StockReservationService;
 use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Domain\Notification\Services\InternalNotificationService;
 use App\Models\Address;
@@ -23,6 +25,7 @@ class CreateOrderFromCartAction
         private OrderNumberGenerator $numberGenerator,
         private CustomerNotificationService $notificationService,
         private InternalNotificationService $internalNotificationService,
+        private StockReservationService $stockReservationService,
     ) {}
 
     /**
@@ -39,80 +42,86 @@ class CreateOrderFromCartAction
         // Reuse preview for validation + totals
         $preview = $this->previewAction->execute($cart, $address, $shippingMethod);
 
-        $order = DB::transaction(function () use ($preview, $cart, $address, $shippingMethod, $user, $notes, $deliveryNotes) {
-            $zone = $preview['shipping_zone'];
+        try {
+            $order = DB::transaction(function () use ($preview, $cart, $address, $shippingMethod, $user, $notes, $deliveryNotes) {
+                $this->stockReservationService->reserveCart($cart);
 
-            $order = Order::create([
-                'order_number' => $this->numberGenerator->generate(),
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'phone' => $user->phone ?? null,
-                'status' => 'pending',
-                'payment_status' => 'unpaid',
-                'fulfillment_status' => 'unfulfilled',
-                'currency_code' => $cart->currency_code,
-                'subtotal_amount' => $preview['subtotal_amount'],
-                'discount_amount' => $preview['discount_amount'],
-                'tax_amount' => $preview['tax_amount'],
-                'shipping_amount' => $preview['shipping_amount'],
-                'total_amount' => $preview['total_amount'],
-                'shipping_zone_id' => $zone->id,
-                'shipping_method_id' => $shippingMethod->id,
-                'shipping_zone_name' => $zone->name,
-                'shipping_method_name' => $shippingMethod->name,
-                'notes' => $notes,
-                'delivery_notes' => $deliveryNotes,
-                'placed_at' => now(),
-            ]);
+                $zone = $preview['shipping_zone'];
 
-            foreach ($cart->cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'product_variant_id' => $item->product_variant_id,
-                    'product_name' => $item->product_name_snapshot,
-                    'variant_name' => $item->variant_name_snapshot,
-                    'sku' => $item->sku_snapshot,
-                    'unit_price' => $item->unit_price,
-                    'quantity' => $item->quantity,
-                    'discount_amount' => 0,
-                    'tax_amount' => 0,
-                    'line_total' => $item->line_total,
-                    'product_snapshot_json' => [
-                        'id' => $item->product_id,
-                        'name' => $item->product_name_snapshot,
-                        'sku' => $item->sku_snapshot,
-                    ],
+                $order = Order::create([
+                    'order_number' => $this->numberGenerator->generate(),
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'phone' => $user->phone ?? null,
+                    'status' => 'pending',
+                    'payment_status' => 'unpaid',
+                    'fulfillment_status' => 'unfulfilled',
+                    'currency_code' => $cart->currency_code,
+                    'subtotal_amount' => $preview['subtotal_amount'],
+                    'discount_amount' => $preview['discount_amount'],
+                    'tax_amount' => $preview['tax_amount'],
+                    'shipping_amount' => $preview['shipping_amount'],
+                    'total_amount' => $preview['total_amount'],
+                    'shipping_zone_id' => $zone->id,
+                    'shipping_method_id' => $shippingMethod->id,
+                    'shipping_zone_name' => $zone->name,
+                    'shipping_method_name' => $shippingMethod->name,
+                    'notes' => $notes,
+                    'delivery_notes' => $deliveryNotes,
+                    'placed_at' => now(),
                 ]);
-            }
 
-            OrderAddress::create([
-                'order_id' => $order->id,
-                'type' => $address->type,
-                'name' => $address->name,
-                'phone' => $address->phone,
-                'country' => $address->country,
-                'region' => $address->region,
-                'city' => $address->city,
-                'district' => $address->district,
-                'address_line_1' => $address->address_line_1,
-                'address_line_2' => $address->address_line_2,
-                'landmark' => $address->landmark,
-                'postal_code' => $address->postal_code,
-            ]);
+                foreach ($cart->cartItems as $item) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'product_name' => $item->product_name_snapshot,
+                        'variant_name' => $item->variant_name_snapshot,
+                        'sku' => $item->sku_snapshot,
+                        'unit_price' => $item->unit_price,
+                        'quantity' => $item->quantity,
+                        'discount_amount' => 0,
+                        'tax_amount' => 0,
+                        'line_total' => $item->line_total,
+                        'product_snapshot_json' => [
+                            'id' => $item->product_id,
+                            'name' => $item->product_name_snapshot,
+                            'sku' => $item->sku_snapshot,
+                        ],
+                    ]);
+                }
 
-            OrderStatusHistory::create([
-                'order_id' => $order->id,
-                'from_status' => null,
-                'to_status' => 'pending',
-                'note' => 'Order placed.',
-                'changed_by' => $user->id,
-            ]);
+                OrderAddress::create([
+                    'order_id' => $order->id,
+                    'type' => $address->type,
+                    'name' => $address->name,
+                    'phone' => $address->phone,
+                    'country' => $address->country,
+                    'region' => $address->region,
+                    'city' => $address->city,
+                    'district' => $address->district,
+                    'address_line_1' => $address->address_line_1,
+                    'address_line_2' => $address->address_line_2,
+                    'landmark' => $address->landmark,
+                    'postal_code' => $address->postal_code,
+                ]);
 
-            $cart->update(['status' => 'converted']);
+                OrderStatusHistory::create([
+                    'order_id' => $order->id,
+                    'from_status' => null,
+                    'to_status' => 'pending',
+                    'note' => 'Order placed.',
+                    'changed_by' => $user->id,
+                ]);
 
-            return $order->load('orderItems.product.media', 'orderAddresses', 'orderStatusHistories');
-        });
+                $cart->update(['status' => 'converted']);
+
+                return $order->load('orderItems.product.media', 'orderAddresses', 'orderStatusHistories');
+            });
+        } catch (InsufficientStockException $e) {
+            throw new CheckoutException($e->getMessage());
+        }
 
         $this->notificationService->sendOrderPlaced($order);
         $this->internalNotificationService->sendOrderPlaced($order);

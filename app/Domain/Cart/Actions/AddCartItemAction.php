@@ -2,7 +2,10 @@
 
 namespace App\Domain\Cart\Actions;
 
+use App\Domain\Cart\Exceptions\CartException;
 use App\Domain\Cart\Services\CartItemValidator;
+use App\Domain\Inventory\Exceptions\InsufficientStockException;
+use App\Domain\Inventory\Services\StockReservationService;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -12,6 +15,7 @@ class AddCartItemAction
 {
     public function __construct(
         private CartItemValidator $validator,
+        private StockReservationService $stockReservationService,
     ) {}
 
     public function execute(Cart $cart, int $productId, ?int $variantId, int $quantity): CartItem
@@ -33,11 +37,23 @@ class AddCartItemAction
             ->first();
 
         if ($existing !== null) {
+            try {
+                $this->stockReservationService->assertAvailable($product, $variant, $existing->quantity + $quantity);
+            } catch (InsufficientStockException $e) {
+                throw new CartException($e->getMessage());
+            }
+
             $existing->quantity += $quantity;
             $existing->line_total = $existing->unit_price * $existing->quantity;
             $existing->save();
 
             return $existing;
+        }
+
+        try {
+            $this->stockReservationService->assertAvailable($product, $variant, $quantity);
+        } catch (InsufficientStockException $e) {
+            throw new CartException($e->getMessage());
         }
 
         return CartItem::create([

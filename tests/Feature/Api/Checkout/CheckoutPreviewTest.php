@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
+use App\Models\StockItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -37,6 +38,8 @@ class CheckoutPreviewTest extends TestCase
 
     private function cartWithItem(User $user, Product $product, int $qty = 1): Cart
     {
+        $this->ensureStock($product, $qty);
+
         $cart = Cart::factory()->create([
             'user_id' => $user->id,
             'session_id' => null,
@@ -54,6 +57,20 @@ class CheckoutPreviewTest extends TestCase
         ]);
 
         return $cart;
+    }
+
+    private function ensureStock(Product $product, int $minimumQuantity = 20): void
+    {
+        StockItem::query()->firstOrCreate(
+            [
+                'product_id' => $product->id,
+                'product_variant_id' => null,
+            ],
+            [
+                'quantity_on_hand' => max($minimumQuantity, 20),
+                'quantity_reserved' => 0,
+            ],
+        );
     }
 
     private function zone(string $countryName = 'Ghana'): ShippingZone
@@ -199,6 +216,7 @@ class CheckoutPreviewTest extends TestCase
         $product1 = $this->activeProduct(['base_price' => 1000]);
         $product2 = $this->activeProduct(['base_price' => 2000]);
         $cart = $this->cartWithItem($user, $product1, 1);
+        $this->ensureStock($product2);
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product2->id,

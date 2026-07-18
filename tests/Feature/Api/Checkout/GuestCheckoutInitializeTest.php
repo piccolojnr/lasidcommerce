@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
+use App\Models\StockItem;
 use App\Models\User;
 use App\Notifications\CustomerMagicLinkNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,6 +46,8 @@ class GuestCheckoutInitializeTest extends TestCase
 
     private function guestCartWithItem(Product $product, int $qty = 1, ?string $token = null): Cart
     {
+        $this->ensureStock($product, $qty);
+
         $cart = Cart::factory()->create([
             'user_id' => null,
             'session_id' => $token ?? 'guest-checkout-token',
@@ -66,6 +69,8 @@ class GuestCheckoutInitializeTest extends TestCase
 
     private function userCartWithItem(User $user, Product $product, int $qty = 1): Cart
     {
+        $this->ensureStock($product, $qty);
+
         $cart = Cart::factory()->create([
             'user_id' => $user->id,
             'session_id' => null,
@@ -83,6 +88,20 @@ class GuestCheckoutInitializeTest extends TestCase
         ]);
 
         return $cart;
+    }
+
+    private function ensureStock(Product $product, int $minimumQuantity = 20): void
+    {
+        StockItem::query()->firstOrCreate(
+            [
+                'product_id' => $product->id,
+                'product_variant_id' => null,
+            ],
+            [
+                'quantity_on_hand' => max($minimumQuantity, 20),
+                'quantity_reserved' => 0,
+            ],
+        );
     }
 
     private function zone(string $countryName = 'Ghana'): ShippingZone

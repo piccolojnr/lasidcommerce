@@ -63,7 +63,12 @@ class CartItemController extends Controller
             return ApiResponse::error('Cart item not found', [], Response::HTTP_NOT_FOUND);
         }
 
-        $this->updateItem->execute($cartItem, (int) $request->quantity);
+        try {
+            $this->updateItem->execute($cartItem, (int) $request->quantity);
+        } catch (CartException $e) {
+            return ApiResponse::error($e->getMessage(), [], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $this->totals->recalculate($cart);
         $cart->load('cartItems.product.media');
 

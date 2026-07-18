@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneArea;
+use App\Models\StockItem;
 use App\Models\User;
 use App\Notifications\InternalOrderPlacedNotification;
 use App\Notifications\OrderPlacedNotification;
@@ -40,6 +41,8 @@ class CreateOrderTest extends TestCase
 
     private function cartWithItem(User $user, Product $product, int $qty = 1): Cart
     {
+        $this->ensureStock($product, $qty);
+
         $cart = Cart::factory()->create([
             'user_id' => $user->id,
             'session_id' => null,
@@ -57,6 +60,20 @@ class CreateOrderTest extends TestCase
         ]);
 
         return $cart;
+    }
+
+    private function ensureStock(Product $product, int $minimumQuantity = 20): void
+    {
+        StockItem::query()->firstOrCreate(
+            [
+                'product_id' => $product->id,
+                'product_variant_id' => null,
+            ],
+            [
+                'quantity_on_hand' => max($minimumQuantity, 20),
+                'quantity_reserved' => 0,
+            ],
+        );
     }
 
     private function zone(string $countryName = 'Ghana'): ShippingZone
@@ -284,6 +301,56 @@ class CreateOrderTest extends TestCase
             'id' => $cart->id,
             'status' => 'converted',
         ]);
+    }
+
+    public function test_order_creation_reserves_available_stock(): void
+    {
+        $user = $this->user();
+        $product = $this->activeProduct();
+        $stockItem = StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 5,
+            'quantity_reserved' => 1,
+        ]);
+        $this->cartWithItem($user, $product, 2);
+        $zone = $this->zone();
+        $method = $this->method($zone);
+        $address = $this->address($user);
+
+        $this->actingAsCustomer($user)->postJson(
+            '/api/v1/checkout/orders',
+            $this->payload($address, $method),
+        )->assertCreated();
+
+        $stockItem->refresh();
+        $this->assertSame(5, $stockItem->quantity_on_hand);
+        $this->assertSame(3, $stockItem->quantity_reserved);
+        $this->assertSame(2, $stockItem->availableQuantity());
+    }
+
+    public function test_order_creation_fails_when_cart_quantity_exceeds_available_stock(): void
+    {
+        $user = $this->user();
+        $product = $this->activeProduct();
+        $stockItem = StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 2,
+            'quantity_reserved' => 0,
+        ]);
+        $this->cartWithItem($user, $product, 3);
+        $zone = $this->zone();
+        $method = $this->method($zone);
+        $address = $this->address($user);
+
+        $response = $this->actingAsCustomer($user)->postJson(
+            '/api/v1/checkout/orders',
+            $this->payload($address, $method),
+        );
+
+        $response->assertUnprocessable()
+            ->assertJsonPath('success', false);
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertSame(0, $stockItem->fresh()->quantity_reserved);
     }
 
     public function test_fails_when_cart_is_empty(): void

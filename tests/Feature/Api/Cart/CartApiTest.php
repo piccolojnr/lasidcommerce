@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\Cart;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\StockItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +21,19 @@ class CartApiTest extends TestCase
             'status' => 'active',
             'published_at' => now()->subDay(),
         ], $attrs));
+    }
+
+    private function stockedProduct(array $attrs = [], int $quantity = 20): Product
+    {
+        $product = $this->activeProduct($attrs);
+
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => $quantity,
+            'quantity_reserved' => 0,
+        ]);
+
+        return $product;
     }
 
     // --- GET /api/v1/cart ---
@@ -54,7 +68,7 @@ class CartApiTest extends TestCase
 
     public function test_guest_can_add_item(): void
     {
-        $product = $this->activeProduct();
+        $product = $this->stockedProduct();
 
         $response = $this->postJson('/api/v1/cart/items', [
             'product_id' => $product->id,
@@ -72,7 +86,7 @@ class CartApiTest extends TestCase
     public function test_cart_items_include_conversion_aware_primary_image_fields(): void
     {
         Storage::fake('media');
-        $product = $this->activeProduct();
+        $product = $this->stockedProduct();
         $media = $product
             ->addMedia(UploadedFile::fake()->image('photo.jpg', 1600, 1200))
             ->toMediaCollection(Product::IMAGE_COLLECTION);
@@ -94,7 +108,7 @@ class CartApiTest extends TestCase
 
     public function test_adding_same_product_increments_quantity(): void
     {
-        $product = $this->activeProduct();
+        $product = $this->stockedProduct();
         $first = $this->getJson('/api/v1/cart');
         $token = $first->json('data.cart_token');
 
@@ -111,7 +125,7 @@ class CartApiTest extends TestCase
 
     public function test_update_quantity_works(): void
     {
-        $product = $this->activeProduct();
+        $product = $this->stockedProduct();
         $cartInit = $this->getJson('/api/v1/cart');
         $token = $cartInit->json('data.cart_token');
 
@@ -134,7 +148,7 @@ class CartApiTest extends TestCase
 
     public function test_remove_item_works(): void
     {
-        $product = $this->activeProduct();
+        $product = $this->stockedProduct();
         $cartInit = $this->getJson('/api/v1/cart');
         $token = $cartInit->json('data.cart_token');
 
@@ -157,7 +171,7 @@ class CartApiTest extends TestCase
 
     public function test_totals_recalculate_after_add(): void
     {
-        $product = $this->activeProduct(['base_price' => 2000]);
+        $product = $this->stockedProduct(['base_price' => 2000]);
 
         $response = $this->postJson('/api/v1/cart/items', [
             'product_id' => $product->id,
@@ -170,7 +184,7 @@ class CartApiTest extends TestCase
 
     public function test_totals_recalculate_after_update(): void
     {
-        $product = $this->activeProduct(['base_price' => 1000]);
+        $product = $this->stockedProduct(['base_price' => 1000]);
         $cartInit = $this->getJson('/api/v1/cart');
         $token = $cartInit->json('data.cart_token');
 
@@ -191,7 +205,7 @@ class CartApiTest extends TestCase
 
     public function test_totals_recalculate_after_remove(): void
     {
-        $product = $this->activeProduct(['base_price' => 500]);
+        $product = $this->stockedProduct(['base_price' => 500]);
         $cartInit = $this->getJson('/api/v1/cart');
         $token = $cartInit->json('data.cart_token');
 
@@ -237,6 +251,94 @@ class CartApiTest extends TestCase
         ]);
 
         $response->assertUnprocessable();
+    }
+
+    public function test_cannot_add_more_than_available_stock(): void
+    {
+        $product = $this->activeProduct();
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 2,
+            'quantity_reserved' => 0,
+        ]);
+
+        $response = $this->postJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 3,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonPath('success', false);
+    }
+
+    public function test_cannot_increment_existing_cart_line_past_available_stock(): void
+    {
+        $product = $this->activeProduct();
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 2,
+            'quantity_reserved' => 0,
+        ]);
+        $cartInit = $this->getJson('/api/v1/cart');
+        $token = $cartInit->json('data.cart_token');
+
+        $this->postJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ], ['X-Cart-Token' => $token])->assertCreated();
+
+        $response = $this->postJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ], ['X-Cart-Token' => $token]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_cannot_update_cart_line_past_available_stock(): void
+    {
+        $product = $this->activeProduct();
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 2,
+            'quantity_reserved' => 0,
+        ]);
+        $cartInit = $this->getJson('/api/v1/cart');
+        $token = $cartInit->json('data.cart_token');
+
+        $this->postJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ], ['X-Cart-Token' => $token])->assertCreated();
+
+        $cart = Cart::where('session_id', $token)->first();
+        $cartItem = $cart->cartItems()->first();
+
+        $response = $this->patchJson(
+            "/api/v1/cart/items/{$cartItem->id}",
+            ['quantity' => 3],
+            ['X-Cart-Token' => $token],
+        );
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_backorderable_product_can_exceed_available_stock(): void
+    {
+        $product = $this->activeProduct(['allow_backorders' => true]);
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 0,
+            'quantity_reserved' => 0,
+        ]);
+
+        $response = $this->postJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 3,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.items.0.quantity', 3);
     }
 
     // --- ownership ---

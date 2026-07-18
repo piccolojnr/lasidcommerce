@@ -22,6 +22,8 @@ class StockMovement extends Model
 
     public const TYPE_CORRECTION_REMOVE = 'correction_remove';
 
+    public const TYPE_SALE = 'sale';
+
     public const UPDATED_AT = null;
 
     protected $fillable = [
@@ -66,7 +68,8 @@ class StockMovement extends Model
             self::TYPE_CORRECTION_ADD => $quantity,
             self::TYPE_DAMAGE,
             self::TYPE_SHRINKAGE,
-            self::TYPE_CORRECTION_REMOVE => -$quantity,
+            self::TYPE_CORRECTION_REMOVE,
+            self::TYPE_SALE => -$quantity,
             default => 0,
         };
     }

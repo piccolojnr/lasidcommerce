@@ -3,6 +3,10 @@
 namespace Tests\Feature\Admin\Orders;
 
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\StockItem;
+use App\Models\StockMovement;
 use App\Models\User;
 use App\Notifications\InternalOrderStatusUpdatedNotification;
 use App\Notifications\OrderStatusUpdatedNotification;
@@ -120,6 +124,66 @@ class OrderStatusTest extends TestCase
         $order = $this->order('processing');
         $this->updateStatus($order, ['status' => 'cancelled']);
         $this->assertSame('cancelled', $order->fresh()->status);
+    }
+
+    public function test_cancelling_order_releases_reserved_stock(): void
+    {
+        $product = Product::factory()->create();
+        $stockItem = StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 5,
+            'quantity_reserved' => 2,
+        ]);
+        $order = $this->order('confirmed');
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+            'unit_price' => 1000,
+            'line_total' => 2000,
+        ]);
+
+        $this->updateStatus($order, ['status' => 'cancelled']);
+
+        $stockItem->refresh();
+        $this->assertSame(5, $stockItem->quantity_on_hand);
+        $this->assertSame(0, $stockItem->quantity_reserved);
+    }
+
+    public function test_completing_order_commits_reserved_stock(): void
+    {
+        $product = Product::factory()->create();
+        $stockItem = StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 5,
+            'quantity_reserved' => 2,
+        ]);
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'fulfillment_status' => 'fulfilled',
+        ]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+            'unit_price' => 1000,
+            'line_total' => 2000,
+        ]);
+
+        $this->updateStatus($order, ['status' => 'completed']);
+
+        $stockItem->refresh();
+        $this->assertSame(3, $stockItem->quantity_on_hand);
+        $this->assertSame(0, $stockItem->quantity_reserved);
+
+        $this->assertDatabaseHas('stock_movements', [
+            'stock_item_id' => $stockItem->id,
+            'type' => StockMovement::TYPE_SALE,
+            'quantity' => 2,
+            'reference_type' => Order::class,
+            'reference_id' => $order->id,
+            'note' => 'Order completed.',
+        ]);
     }
 
     // --- invalid transitions ---
