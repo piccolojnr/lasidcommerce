@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\Catalog\BrandController;
 use App\Http\Controllers\Admin\Catalog\CategoryController;
 use App\Http\Controllers\Admin\Catalog\CollectionController;
+use App\Http\Controllers\Admin\Catalog\ProductBulkCatalogController;
 use App\Http\Controllers\Admin\Catalog\ProductController;
 use App\Http\Controllers\Admin\Catalog\ProductOptionTypeController;
 use App\Http\Controllers\Admin\Catalog\ProductOptionValueController;
@@ -56,6 +57,12 @@ Route::middleware(['auth', 'verified'])
             Route::resource('collections', CollectionController::class);
             Route::patch('collections/{collection}/toggle-status', [CollectionController::class, 'toggleStatus'])
                 ->name('collections.toggle-status');
+            Route::get('products-bulk/export', [ProductBulkCatalogController::class, 'export'])
+                ->name('products.bulk.export');
+            Route::get('products-bulk/template', [ProductBulkCatalogController::class, 'template'])
+                ->name('products.bulk.template');
+            Route::post('products-bulk/import', [ProductBulkCatalogController::class, 'import'])
+                ->name('products.bulk.import');
             Route::resource('products', ProductController::class);
             Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])
                 ->name('products.toggle-status');

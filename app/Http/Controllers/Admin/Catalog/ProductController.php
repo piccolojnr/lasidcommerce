@@ -60,6 +60,7 @@ class ProductController extends Controller
         return Inertia::render('admin/catalog/products/index', [
             'products' => $products,
             'filters' => $filters,
+            'importResult' => $request->session()->get('catalogImport'),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'brands' => Brand::orderBy('name')->get(['id', 'name']),
             'tags' => Tag::orderBy('name')->get(['id', 'name']),

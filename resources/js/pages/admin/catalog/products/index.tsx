@@ -1,6 +1,11 @@
-import { Link } from '@inertiajs/react';
+import { Form, Link } from '@inertiajs/react';
+import { Download, FileSpreadsheet, Upload } from 'lucide-react';
+import * as ProductBulkCatalogController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductBulkCatalogController';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
+import { FieldError } from '@/components/shared/forms/field-error';
 import { PageHeader } from '@/components/shared/page-header/page-header';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -36,6 +41,14 @@ interface ProductFilters {
 interface Props {
     products: AdminCatalogListPage<AdminProduct>;
     filters: ProductFilters;
+    importResult: {
+        processed: number;
+        created: number;
+        updated: number;
+        skipped: number;
+        failed: number;
+        errors: Array<{ row: number; message: string }>;
+    } | null;
     categories: SelectOption[];
     brands: SelectOption[];
     tags: SelectOption[];
@@ -45,6 +58,7 @@ interface Props {
 export default function ProductIndexPage({
     products,
     filters,
+    importResult,
     categories,
     brands,
     tags,
@@ -123,6 +137,124 @@ export default function ProductIndexPage({
                         </CardContent>
                     </Card>
                 </div>
+                <Card className="border-border/70">
+                    <CardHeader>
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <FileSpreadsheet data-icon="inline-start" />
+                                    <span>Bulk catalog operations</span>
+                                </div>
+                                <CardTitle>
+                                    Import and export products
+                                </CardTitle>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" asChild>
+                                    <a
+                                        href={ProductBulkCatalogController.template.url()}
+                                    >
+                                        <Download data-icon="inline-start" />
+                                        Template
+                                    </a>
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <a
+                                        href={ProductBulkCatalogController.exportMethod.url()}
+                                    >
+                                        <Download data-icon="inline-start" />
+                                        Export CSV
+                                    </a>
+                                </Button>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-4">
+                        <Form
+                            {...ProductBulkCatalogController.importMethod.form.post()}
+                            encType="multipart/form-data"
+                            options={{ preserveScroll: true }}
+                            className="flex flex-col gap-3 rounded-lg border border-dashed border-border/70 p-4 md:flex-row md:items-end"
+                        >
+                            {({ errors, processing }) => (
+                                <>
+                                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                                        <label
+                                            htmlFor="catalog_csv"
+                                            className="text-sm font-medium"
+                                        >
+                                            Upload CSV
+                                        </label>
+                                        <Input
+                                            id="catalog_csv"
+                                            name="catalog_csv"
+                                            type="file"
+                                            accept=".csv,text/csv,text/plain"
+                                        />
+                                        <FieldError
+                                            message={errors.catalog_csv}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="md:self-end"
+                                    >
+                                        <Upload data-icon="inline-start" />
+                                        {processing ? 'Importing' : 'Import'}
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
+                        {importResult ? (
+                            <Alert>
+                                <AlertTitle>Last import result</AlertTitle>
+                                <AlertDescription>
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex flex-wrap gap-2">
+                                            <Badge variant="secondary">
+                                                {importResult.processed}{' '}
+                                                processed
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                {importResult.created} created
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                {importResult.updated} updated
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                {importResult.skipped} skipped
+                                            </Badge>
+                                            <Badge
+                                                variant={
+                                                    importResult.failed > 0
+                                                        ? 'destructive'
+                                                        : 'secondary'
+                                                }
+                                            >
+                                                {importResult.failed} failed
+                                            </Badge>
+                                        </div>
+                                        {importResult.errors.length > 0 ? (
+                                            <div className="flex flex-col gap-2">
+                                                {importResult.errors.map(
+                                                    (error) => (
+                                                        <p
+                                                            key={`${error.row}-${error.message}`}
+                                                        >
+                                                            Row {error.row}:{' '}
+                                                            {error.message}
+                                                        </p>
+                                                    ),
+                                                )}
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </AlertDescription>
+                            </Alert>
+                        ) : null}
+                    </CardContent>
+                </Card>
                 <div className="flex flex-wrap items-center gap-3">
                     <Input
                         placeholder="Search name or SKU…"
