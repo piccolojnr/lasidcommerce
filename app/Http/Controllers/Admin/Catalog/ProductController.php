@@ -82,11 +82,11 @@ class ProductController extends Controller
     {
         $data = $request->safe()->except(['images', 'remove_image_ids']);
 
-        $product = $this->createAction->execute($data);
+        $product = $this->createAction->execute($data, $request->user());
         $this->syncMediaAction->execute($product, $request->file('images') ?? []);
 
-        return redirect()->route('admin.catalog.products.index')
-            ->with('success', 'Product created successfully.');
+        return redirect()->route('admin.catalog.products.edit', $product)
+            ->with('success', 'Product created successfully. Continue with variants, options, and inventory.');
     }
 
     public function show(Product $product): InertiaResponse

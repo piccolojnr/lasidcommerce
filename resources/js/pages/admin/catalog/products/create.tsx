@@ -3,7 +3,7 @@ import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
 import { AdminLayout } from '@/layouts/app/admin-layout';
-import { ProductForm } from '@/pages/admin/catalog/products/_components/product-form';
+import { ProductCreateWizard } from '@/pages/admin/catalog/products/_components/product-create-wizard';
 
 interface SelectOption {
     id: number;
@@ -37,7 +37,7 @@ export default function ProductCreatePage({
                         </Button>
                     }
                 />
-                <ProductForm
+                <ProductCreateWizard
                     categories={categories}
                     brands={brands}
                     tags={tags}

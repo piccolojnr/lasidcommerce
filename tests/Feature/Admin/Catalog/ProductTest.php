@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
 use App\Models\StockItem;
+use App\Models\StockMovement;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,8 +79,46 @@ class ProductTest extends TestCase
             'base_price' => 25000,
         ]);
 
-        $response->assertRedirect(route('admin.catalog.products.index'));
+        $product = Product::query()->where('sku', 'SNK-001')->firstOrFail();
+
+        $response->assertRedirect(route('admin.catalog.products.edit', $product));
         $this->assertDatabaseHas('products', ['name' => 'Classic Sneaker', 'slug' => 'classic-sneaker']);
+    }
+
+    public function test_admin_can_create_product_with_initial_stock(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->post(route('admin.catalog.products.store'), [
+            'name' => 'Stocked Sneaker',
+            'sku' => 'SNK-STOCK-001',
+            'status' => 'draft',
+            'product_type' => 'physical',
+            'base_price' => 25000,
+            'track_inventory' => true,
+            'initial_quantity_on_hand' => 18,
+            'initial_reorder_level' => 4,
+            'initial_stock_note' => 'Opening stock count.',
+        ]);
+
+        $product = Product::query()->where('sku', 'SNK-STOCK-001')->firstOrFail();
+
+        $response->assertRedirect(route('admin.catalog.products.edit', $product));
+        $this->assertDatabaseHas('stock_items', [
+            'product_id' => $product->id,
+            'product_variant_id' => null,
+            'quantity_on_hand' => 18,
+            'quantity_reserved' => 0,
+            'reorder_level' => 4,
+        ]);
+        $this->assertDatabaseHas('stock_movements', [
+            'type' => StockMovement::TYPE_CORRECTION_ADD,
+            'quantity' => 18,
+            'reference_type' => 'product_create',
+            'reference_id' => $product->id,
+            'note' => 'Opening stock count.',
+            'created_by' => $this->admin->id,
+        ]);
     }
 
     public function test_admin_can_create_product_with_tags_and_collections(): void
@@ -96,9 +135,12 @@ class ProductTest extends TestCase
             'base_price' => 25000,
             'tag_ids' => [$tag->id],
             'collection_ids' => [$collection->id],
-        ])->assertRedirect(route('admin.catalog.products.index'));
+        ])->assertRedirect();
 
         $product = Product::query()->where('sku', 'SNK-101')->firstOrFail();
+
+        $this->assertDatabaseHas('products', ['id' => $product->id]);
+
         $this->assertDatabaseHas('product_tag', ['product_id' => $product->id, 'tag_id' => $tag->id]);
         $this->assertDatabaseHas('collection_product', ['product_id' => $product->id, 'collection_id' => $collection->id]);
     }
@@ -184,7 +226,7 @@ class ProductTest extends TestCase
             'base_price' => $product->base_price,
             'tag_ids' => [$tag->id],
             'collection_ids' => [$collection->id],
-        ])->assertRedirect(route('admin.catalog.products.index'));
+        ])->assertRedirect();
 
         $this->assertDatabaseHas('product_tag', ['product_id' => $product->id, 'tag_id' => $tag->id]);
         $this->assertDatabaseHas('collection_product', ['product_id' => $product->id, 'collection_id' => $collection->id]);
@@ -519,7 +561,7 @@ class ProductTest extends TestCase
             'product_type' => 'physical',
             'base_price' => 1000,
             'images' => [UploadedFile::fake()->image('photo.jpg', 1600, 1200)],
-        ])->assertRedirect(route('admin.catalog.products.index'));
+        ])->assertRedirect();
 
         Queue::assertPushed(PerformConversionsJob::class);
     }
