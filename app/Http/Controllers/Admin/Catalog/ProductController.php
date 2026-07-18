@@ -18,6 +18,9 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\ProductOptionType;
+use App\Models\ProductOptionValue;
+use App\Models\ProductVariant;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -89,7 +92,16 @@ class ProductController extends Controller
     {
         $product->loadMedia('images');
         $product->loadCount('variants');
-        $product->load(['category', 'brand', 'tags', 'collections', 'stockItems']);
+        $product->load([
+            'category',
+            'brand',
+            'tags',
+            'collections',
+            'stockItems',
+            'optionTypes.optionValues',
+            'variants.optionValues.optionType',
+            'variants.stockItems',
+        ]);
 
         return Inertia::render('admin/catalog/products/show', [
             'product' => $this->formatProduct($product, withImages: true),
@@ -100,7 +112,16 @@ class ProductController extends Controller
     {
         $product->loadMedia('images');
         $product->loadCount('variants');
-        $product->load(['category', 'brand', 'tags', 'collections', 'stockItems']);
+        $product->load([
+            'category',
+            'brand',
+            'tags',
+            'collections',
+            'stockItems',
+            'optionTypes.optionValues',
+            'variants.optionValues.optionType',
+            'variants.stockItems',
+        ]);
 
         return Inertia::render('admin/catalog/products/edit', [
             'product' => $this->formatProduct($product, withImages: true),
@@ -190,6 +211,12 @@ class ProductController extends Controller
             'badges' => $this->badgeService->resolve($product),
             'inventory' => $inventory,
             'variants_count' => $product->variants_count ?? 0,
+            'option_types' => $product->relationLoaded('optionTypes')
+                ? $product->optionTypes->map(fn (ProductOptionType $optionType) => $this->formatOptionType($optionType))->values()->all()
+                : [],
+            'variants' => $product->relationLoaded('variants')
+                ? $product->variants->map(fn (ProductVariant $variant) => $this->formatVariant($variant))->values()->all()
+                : [],
             'images' => $includeImages
                 ? $product->getMedia(Product::IMAGE_COLLECTION)->map(
                     fn (Media $media, int $index) => $this->formatProductImage($media, $index)
@@ -214,6 +241,56 @@ class ProductController extends Controller
             'reorder_level' => (int) $stockItems->sum('reorder_level'),
             'status' => $stock['status'],
             'is_backorderable' => (bool) $stock['is_backorderable'],
+        ];
+    }
+
+    private function formatOptionType(ProductOptionType $optionType): array
+    {
+        return [
+            'id' => $optionType->id,
+            'name' => $optionType->name,
+            'values' => $optionType->relationLoaded('optionValues')
+                ? $optionType->optionValues->map(fn (ProductOptionValue $value) => [
+                    'id' => $value->id,
+                    'value' => $value->value,
+                ])->values()->all()
+                : [],
+        ];
+    }
+
+    private function formatVariant(ProductVariant $variant): array
+    {
+        $stockItems = $variant->relationLoaded('stockItems') ? $variant->stockItems : $variant->stockItems()->get();
+
+        return [
+            'id' => $variant->id,
+            'name' => $variant->name,
+            'sku' => $variant->sku,
+            'price' => $variant->price,
+            'compare_at_price' => $variant->compare_at_price,
+            'cost_price' => $variant->cost_price,
+            'barcode' => $variant->barcode,
+            'weight' => $variant->weight,
+            'is_active' => $variant->is_active,
+            'option_value_ids' => $variant->relationLoaded('optionValues')
+                ? $variant->optionValues->pluck('id')->map(fn ($id) => (int) $id)->values()->all()
+                : [],
+            'option_values' => $variant->relationLoaded('optionValues')
+                ? $variant->optionValues->map(fn (ProductOptionValue $value) => [
+                    'id' => $value->id,
+                    'value' => $value->value,
+                    'option_type_id' => $value->option_type_id,
+                    'option_type_name' => $value->optionType?->name,
+                ])->values()->all()
+                : [],
+            'inventory' => [
+                'stock_item_count' => $stockItems->count(),
+                'primary_stock_item_id' => $stockItems->count() === 1 ? $stockItems->first()?->getKey() : null,
+                'quantity_on_hand' => (int) $stockItems->sum('quantity_on_hand'),
+                'quantity_reserved' => (int) $stockItems->sum('quantity_reserved'),
+                'available_quantity' => (int) $stockItems->sum(fn ($stockItem) => $stockItem->availableQuantity()),
+                'reorder_level' => (int) $stockItems->sum('reorder_level'),
+            ],
         ];
     }
 

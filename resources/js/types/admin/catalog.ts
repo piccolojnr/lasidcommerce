@@ -88,6 +88,39 @@ export interface AdminProductInventorySummary {
     is_backorderable: boolean;
 }
 
+export interface AdminProductOptionValue {
+    id: number;
+    value: string;
+}
+
+export interface AdminProductOptionType {
+    id: number;
+    name: string;
+    values: AdminProductOptionValue[];
+}
+
+export interface AdminProductVariantOptionValue {
+    id: number;
+    value: string;
+    option_type_id: number;
+    option_type_name: string | null;
+}
+
+export interface AdminProductVariant {
+    id: number;
+    name: string;
+    sku: string;
+    price: number | null;
+    compare_at_price: number | null;
+    cost_price: number | null;
+    barcode: string | null;
+    weight: string | null;
+    is_active: boolean;
+    option_value_ids: number[];
+    option_values: AdminProductVariantOptionValue[];
+    inventory: AdminProductInventorySummary;
+}
+
 export interface ProductImage {
     id: number;
     url: string;
@@ -122,6 +155,8 @@ export interface AdminProduct {
     badges: AdminMerchandisingBadge[];
     inventory: AdminProductInventorySummary;
     variants_count: number;
+    option_types: AdminProductOptionType[];
+    variants: AdminProductVariant[];
     images: ProductImage[];
     created_at: string;
 }

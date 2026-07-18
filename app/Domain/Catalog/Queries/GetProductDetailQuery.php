@@ -16,7 +16,10 @@ class GetProductDetailQuery
             'tags',
             'collections',
             'stockItems',
-            'variants' => fn ($q) => $q->where('is_active', true)->orderBy('price'),
+            'variants' => fn ($q) => $q
+                ->with(['optionValues.optionType', 'stockItems'])
+                ->where('is_active', true)
+                ->orderBy('price'),
             'optionTypes.optionValues',
         ])
             ->visibleOnStorefront()

@@ -6,6 +6,9 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\ProductOptionType;
+use App\Models\ProductOptionValue;
+use App\Models\ProductVariant;
 use App\Models\StockItem;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -446,6 +449,44 @@ class PublicProductApiTest extends TestCase
             ->assertJsonPath('data.stock.is_backorderable', true);
     }
 
+    public function test_show_includes_option_types_and_variant_option_matrix(): void
+    {
+        $product = $this->visibleProduct();
+        $size = ProductOptionType::factory()->create([
+            'product_id' => $product->id,
+            'name' => 'Size',
+        ]);
+        $medium = ProductOptionValue::factory()->create([
+            'option_type_id' => $size->id,
+            'value' => 'Medium',
+        ]);
+        $variant = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'name' => 'Medium',
+            'sku' => 'PUBLIC-MED',
+            'price' => 3500,
+            'is_active' => true,
+        ]);
+        $variant->optionValues()->attach($medium);
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
+            'quantity_on_hand' => 4,
+            'quantity_reserved' => 1,
+            'reorder_level' => 1,
+        ]);
+
+        $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.option_types.0.name', 'Size')
+            ->assertJsonPath('data.option_types.0.values.0.value', 'Medium')
+            ->assertJsonPath('data.variants.0.sku', 'PUBLIC-MED')
+            ->assertJsonPath('data.variants.0.option_values.0.option_type_name', 'Size')
+            ->assertJsonPath('data.variants.0.stock.quantity', 3)
+            ->assertJsonPath('data.variants.0.stock.status', 'in_stock');
+    }
+
     public function test_show_includes_related_products_from_same_category(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
@@ -489,7 +530,7 @@ class PublicProductApiTest extends TestCase
                 'short_description', 'description',
                 'base_price', 'compare_at_price',
                 'is_featured', 'badges', 'stock', 'tags', 'collections', 'track_inventory', 'allow_backorders',
-                'published_at', 'images', 'related_products',
+                'published_at', 'images', 'option_types', 'variants', 'related_products',
             ],
         ]);
 

@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { ProductForm } from '@/pages/admin/catalog/products/_components/product-form';
+import { ProductVariantManager } from '@/pages/admin/catalog/products/_components/product-variant-manager';
 import type { AdminProduct } from '@/types/admin/catalog';
 
 interface SelectOption {
@@ -47,6 +48,7 @@ export default function ProductEditPage({
                     tags={tags}
                     collections={collections}
                 />
+                <ProductVariantManager product={product} />
             </div>
         </AdminLayout>
     );

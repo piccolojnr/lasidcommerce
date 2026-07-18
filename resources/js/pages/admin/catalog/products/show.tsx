@@ -3,6 +3,7 @@ import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog
 import * as StockItemController from '@/actions/App/Http/Controllers/Admin/Inventory/StockItemController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
@@ -451,6 +452,123 @@ export default function ProductShowPage({ product }: Props) {
                                 </CardContent>
                             </Card>
                         )}
+
+                        <Card className="overflow-hidden border-border/70 pt-0">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
+                                <CardTitle>Options and variants</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-col gap-5 p-6">
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    {product.option_types.length > 0 ? (
+                                        product.option_types.map(
+                                            (optionType) => (
+                                                <div
+                                                    key={optionType.id}
+                                                    className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/80 p-4"
+                                                >
+                                                    <p className="text-sm font-semibold">
+                                                        {optionType.name}
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {optionType.values.map(
+                                                            (value) => (
+                                                                <Badge
+                                                                    key={
+                                                                        value.id
+                                                                    }
+                                                                    variant="secondary"
+                                                                >
+                                                                    {
+                                                                        value.value
+                                                                    }
+                                                                </Badge>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ),
+                                        )
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">
+                                            No product options have been
+                                            created.
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-3">
+                                    {product.variants.length > 0 ? (
+                                        product.variants.map((variant) => (
+                                            <div
+                                                key={variant.id}
+                                                className="grid gap-3 rounded-2xl border border-border/70 bg-background/80 p-4 md:grid-cols-[1fr_auto]"
+                                            >
+                                                <div className="flex min-w-0 flex-col gap-2">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <Badge
+                                                            variant={
+                                                                variant.is_active
+                                                                    ? 'default'
+                                                                    : 'secondary'
+                                                            }
+                                                        >
+                                                            {variant.is_active
+                                                                ? 'Active'
+                                                                : 'Inactive'}
+                                                        </Badge>
+                                                        <p className="font-medium">
+                                                            {variant.name}
+                                                        </p>
+                                                        <span className="font-mono text-xs text-muted-foreground">
+                                                            {variant.sku}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {variant.option_values.map(
+                                                            (value) => (
+                                                                <Badge
+                                                                    key={
+                                                                        value.id
+                                                                    }
+                                                                    variant="outline"
+                                                                >
+                                                                    {
+                                                                        value.option_type_name
+                                                                    }
+                                                                    :{' '}
+                                                                    {
+                                                                        value.value
+                                                                    }
+                                                                </Badge>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm md:text-right">
+                                                    <p className="font-semibold">
+                                                        {formatMoney(
+                                                            variant.price ??
+                                                                product.base_price,
+                                                        )}
+                                                    </p>
+                                                    <p className="text-muted-foreground">
+                                                        {
+                                                            variant.inventory
+                                                                .available_quantity
+                                                        }{' '}
+                                                        available
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">
+                                            No variants have been created.
+                                        </p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     <div className="space-y-6">

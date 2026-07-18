@@ -9,6 +9,7 @@ class UpdateProductOptionValueAction
     public function execute(ProductOptionValue $optionValue, array $attributes): ProductOptionValue
     {
         $optionValue->fill($attributes);
+        $optionValue->save();
 
         return $optionValue;
     }

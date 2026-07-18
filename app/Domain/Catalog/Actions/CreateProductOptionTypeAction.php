@@ -9,7 +9,7 @@ class CreateProductOptionTypeAction
 {
     public function execute(Product $product, array $attributes): ProductOptionType
     {
-        return new ProductOptionType(array_merge($attributes, [
+        return ProductOptionType::query()->create(array_merge($attributes, [
             'product_id' => $product->getKey(),
         ]));
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreProductOptionTypeRequest extends FormRequest
 {
@@ -14,7 +15,13 @@ class StoreProductOptionTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('product_option_types', 'name')
+                    ->where('product_id', $this->route('product')?->getKey()),
+            ],
         ];
     }
 }

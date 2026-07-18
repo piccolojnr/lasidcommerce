@@ -9,6 +9,7 @@ class UpdateProductOptionTypeAction
     public function execute(ProductOptionType $optionType, array $attributes): ProductOptionType
     {
         $optionType->fill($attributes);
+        $optionType->save();
 
         return $optionType;
     }

@@ -82,6 +82,19 @@ class ProductDetailResource extends JsonResource
                     'sort_order' => (int) ($collection->pivot?->sort_order ?? 0),
                 ])->values(),
             ),
+            'option_types' => $this->when(
+                $this->relationLoaded('optionTypes'),
+                fn () => $this->optionTypes->map(fn ($optionType) => [
+                    'id' => $optionType->id,
+                    'name' => $optionType->name,
+                    'values' => $optionType->relationLoaded('optionValues')
+                        ? $optionType->optionValues->map(fn ($value) => [
+                            'id' => $value->id,
+                            'value' => $value->value,
+                        ])->values()
+                        : [],
+                ])->values(),
+            ),
             'variants' => $this->when(
                 $this->relationLoaded('variants'),
                 fn () => $this->variants->map(fn ($variant) => [
@@ -91,11 +104,52 @@ class ProductDetailResource extends JsonResource
                     'price' => $variant->price,
                     'compare_at_price' => $variant->compare_at_price,
                     'is_active' => $variant->is_active,
-                ]),
+                    'option_value_ids' => $variant->relationLoaded('optionValues')
+                        ? $variant->optionValues->pluck('id')->map(fn ($id) => (int) $id)->values()
+                        : [],
+                    'option_values' => $variant->relationLoaded('optionValues')
+                        ? $variant->optionValues->map(fn ($value) => [
+                            'id' => $value->id,
+                            'value' => $value->value,
+                            'option_type_id' => $value->option_type_id,
+                            'option_type_name' => $value->optionType?->name,
+                        ])->values()
+                        : [],
+                    'stock' => $this->variantStock($variant),
+                ])->values(),
             ),
             'related_products' => ProductListResource::collection(
                 $this->relatedProducts ?? new Collection,
             ),
+        ];
+    }
+
+    private function variantStock($variant): array
+    {
+        $stockItems = $variant->relationLoaded('stockItems') ? $variant->stockItems : $variant->stockItems()->get();
+        $quantity = (int) $stockItems->sum(fn ($stockItem) => $stockItem->availableQuantity());
+        $reorderLevel = (int) $stockItems->sum('reorder_level');
+
+        if (! $this->track_inventory) {
+            return [
+                'quantity' => $quantity,
+                'status' => 'in_stock',
+                'is_backorderable' => false,
+            ];
+        }
+
+        if ($quantity <= 0) {
+            return [
+                'quantity' => $quantity,
+                'status' => $this->allow_backorders ? 'in_stock' : 'out_of_stock',
+                'is_backorderable' => $this->allow_backorders,
+            ];
+        }
+
+        return [
+            'quantity' => $quantity,
+            'status' => $quantity <= $reorderLevel ? 'low_stock' : 'in_stock',
+            'is_backorderable' => $this->allow_backorders,
         ];
     }
 }
