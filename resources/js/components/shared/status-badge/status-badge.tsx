@@ -41,5 +41,9 @@ interface StatusBadgeProps {
 export function StatusBadge({ status }: StatusBadgeProps) {
     const normalized = status.toLowerCase();
 
-    return <Badge variant={toneMap[normalized] ?? 'outline'}>{formatStatus(status)}</Badge>;
+    return (
+        <Badge variant={toneMap[normalized] ?? 'outline'}>
+            {formatStatus(status)}
+        </Badge>
+    );
 }

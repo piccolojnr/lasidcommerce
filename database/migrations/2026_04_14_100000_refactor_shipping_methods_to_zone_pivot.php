@@ -42,7 +42,7 @@ return new class extends Migration
                 if ($rows !== []) {
                     DB::table('shipping_method_shipping_zone')->insertOrIgnore($rows);
                 }
-        });
+            });
 
         Schema::table('shipping_methods', function (Blueprint $table): void {
             $table->dropIndex('shipping_methods_shipping_zone_id_is_active_index');

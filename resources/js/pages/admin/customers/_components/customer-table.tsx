@@ -25,16 +25,29 @@ export function CustomerTable({ customers }: { customers: AdminCustomer[] }) {
                 <table className="min-w-full text-sm">
                     <thead className="bg-muted/35">
                         <tr>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Customer</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Status</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Commercial activity</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Created</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Action</th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Customer
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Status
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Commercial activity
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Created
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Action
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         {customers.map((customer) => (
-                            <tr key={customer.id} className="border-t border-border/60 align-top">
+                            <tr
+                                key={customer.id}
+                                className="border-t border-border/60 align-top"
+                            >
                                 <td className="px-5 py-4">
                                     <div className="space-y-1">
                                         <Link
@@ -43,7 +56,9 @@ export function CustomerTable({ customers }: { customers: AdminCustomer[] }) {
                                         >
                                             {customer.name}
                                         </Link>
-                                        <p className="text-xs text-muted-foreground">{customer.email}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {customer.email}
+                                        </p>
                                     </div>
                                 </td>
                                 <td className="px-5 py-4">
@@ -52,7 +67,9 @@ export function CustomerTable({ customers }: { customers: AdminCustomer[] }) {
                                 <td className="px-5 py-4 text-muted-foreground">
                                     <div className="space-y-1 text-xs">
                                         <p>{customer.orders_count} orders</p>
-                                        <p>{customer.payments_count} payments</p>
+                                        <p>
+                                            {customer.payments_count} payments
+                                        </p>
                                     </div>
                                 </td>
                                 <td className="px-5 py-4 text-muted-foreground">
@@ -60,7 +77,9 @@ export function CustomerTable({ customers }: { customers: AdminCustomer[] }) {
                                 </td>
                                 <td className="px-5 py-4">
                                     <Button variant="outline" size="sm" asChild>
-                                        <Link href={customerPath(customer.id)}>View customer</Link>
+                                        <Link href={customerPath(customer.id)}>
+                                            View customer
+                                        </Link>
                                     </Button>
                                 </td>
                             </tr>

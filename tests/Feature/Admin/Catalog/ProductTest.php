@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\StockItem;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -204,7 +205,7 @@ class ProductTest extends TestCase
     {
         $this->actingAs($this->admin);
         $product = Product::factory()->create();
-        \App\Models\StockItem::query()->create([
+        StockItem::query()->create([
             'product_id' => $product->id,
             'quantity_on_hand' => 7,
             'quantity_reserved' => 2,
@@ -271,20 +272,20 @@ class ProductTest extends TestCase
         // Insert a parent order first (required NOT NULL FK)
         $orderId = \DB::table('orders')->insertGetId([
             'order_number' => 'TEST-001',
-            'email'        => 'test@example.com',
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'email' => 'test@example.com',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         \DB::table('order_items')->insert([
-            'order_id'     => $orderId,
-            'product_id'   => $product->id,
+            'order_id' => $orderId,
+            'product_id' => $product->id,
             'product_name' => $product->name,
-            'sku'          => $product->sku,
-            'quantity'     => 1,
-            'unit_price'   => $product->base_price,
-            'line_total'   => $product->base_price,
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'sku' => $product->sku,
+            'quantity' => 1,
+            'unit_price' => $product->base_price,
+            'line_total' => $product->base_price,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $response = $this->delete(route('admin.catalog.products.destroy', $product));
@@ -363,7 +364,7 @@ class ProductTest extends TestCase
     {
         $this->actingAs($this->admin);
         $active = Product::factory()->create(['status' => 'active']);
-        $draft  = Product::factory()->create(['status' => 'draft']);
+        $draft = Product::factory()->create(['status' => 'draft']);
 
         $response = $this->get(route('admin.catalog.products.index', ['status' => 'active']));
 
@@ -377,8 +378,8 @@ class ProductTest extends TestCase
     {
         $this->actingAs($this->admin);
         $category = Category::factory()->create();
-        $match    = Product::factory()->create(['category_id' => $category->id]);
-        $other    = Product::factory()->create(['category_id' => null]);
+        $match = Product::factory()->create(['category_id' => $category->id]);
+        $other = Product::factory()->create(['category_id' => null]);
 
         $response = $this->get(route('admin.catalog.products.index', ['category_id' => $category->id]));
 
@@ -477,7 +478,7 @@ class ProductTest extends TestCase
 
     public function test_user_without_permission_cannot_delete_product(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $product = Product::factory()->create();
 
         $response = $this->actingAs($user)->delete(route('admin.catalog.products.destroy', $product));
@@ -493,12 +494,12 @@ class ProductTest extends TestCase
         $this->actingAs($this->admin);
 
         $this->post(route('admin.catalog.products.store'), [
-            'name'         => 'Image Product',
-            'sku'          => 'IMG-001',
-            'status'       => 'draft',
+            'name' => 'Image Product',
+            'sku' => 'IMG-001',
+            'status' => 'draft',
             'product_type' => 'physical',
-            'base_price'   => 1000,
-            'images'       => [UploadedFile::fake()->image('photo.jpg')],
+            'base_price' => 1000,
+            'images' => [UploadedFile::fake()->image('photo.jpg')],
         ]);
 
         $product = Product::where('sku', 'IMG-001')->first();
@@ -547,15 +548,15 @@ class ProductTest extends TestCase
         Storage::fake('media');
         $this->actingAs($this->admin);
         $product = Product::factory()->create();
-        $media   = $product->addMedia(UploadedFile::fake()->image('old.jpg'))
+        $media = $product->addMedia(UploadedFile::fake()->image('old.jpg'))
             ->toMediaCollection('images');
 
         $this->put(route('admin.catalog.products.update', $product), [
-            'name'             => $product->name,
-            'sku'              => $product->sku,
-            'status'           => 'draft',
-            'product_type'     => 'physical',
-            'base_price'       => $product->base_price,
+            'name' => $product->name,
+            'sku' => $product->sku,
+            'status' => 'draft',
+            'product_type' => 'physical',
+            'base_price' => $product->base_price,
             'remove_image_ids' => [$media->id],
         ]);
 
@@ -566,17 +567,17 @@ class ProductTest extends TestCase
     {
         Storage::fake('media');
         $this->actingAs($this->admin);
-        $target     = Product::factory()->create();
-        $other      = Product::factory()->create();
+        $target = Product::factory()->create();
+        $other = Product::factory()->create();
         $otherMedia = $other->addMedia(UploadedFile::fake()->image('other.jpg'))
             ->toMediaCollection('images');
 
         $this->put(route('admin.catalog.products.update', $target), [
-            'name'             => $target->name,
-            'sku'              => $target->sku,
-            'status'           => 'draft',
-            'product_type'     => 'physical',
-            'base_price'       => $target->base_price,
+            'name' => $target->name,
+            'sku' => $target->sku,
+            'status' => 'draft',
+            'product_type' => 'physical',
+            'base_price' => $target->base_price,
             'remove_image_ids' => [$otherMedia->id],
         ]);
 

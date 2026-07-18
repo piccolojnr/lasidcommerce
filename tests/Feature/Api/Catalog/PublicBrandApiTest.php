@@ -14,9 +14,9 @@ class PublicBrandApiTest extends TestCase
     private function visibleProduct(Brand $brand, array $attrs = []): Product
     {
         return Product::factory()->create(array_merge([
-            'brand_id'      => $brand->id,
-            'status'        => 'active',
-            'published_at'  => now()->subDay(),
+            'brand_id' => $brand->id,
+            'status' => 'active',
+            'published_at' => now()->subDay(),
         ], $attrs));
     }
 

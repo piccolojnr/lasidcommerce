@@ -6,9 +6,9 @@ use App\Domain\User\Services\UserSegmentService;
 use App\Notifications\CustomerResetPasswordNotification;
 use App\Notifications\CustomerVerifyEmailNotification;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,7 +22,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, TwoFactorAuthenticatable, MustVerifyEmail;
+    use HasFactory, HasRoles, MustVerifyEmail, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',
@@ -91,12 +91,12 @@ class User extends Authenticatable implements MustVerifyEmailContract
         $segmentService = app(UserSegmentService::class);
 
         if ($segmentService->isCustomer($this)) {
-            $this->notify(new CustomerVerifyEmailNotification());
+            $this->notify(new CustomerVerifyEmailNotification);
 
             return;
         }
 
-        $this->notify(new VerifyEmail());
+        $this->notify(new VerifyEmail);
     }
 
     public function sendPasswordResetNotification($token): void
@@ -115,7 +115,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn() => trim(implode(' ', array_filter([$this->name]))),
+            get: fn () => trim(implode(' ', array_filter([$this->name]))),
         );
     }
 }

@@ -29,12 +29,22 @@ interface Props {
 }
 
 export default function CustomerIndexPage({ customers, filters }: Props) {
-    const { search, setSearch, setFilter } = useFilters(adminRoutes.customers, filters);
-    const activeCustomers = customers.data.filter((customer) => customer.status === 'active').length;
-    const buyingCustomers = customers.data.filter((customer) => customer.orders_count > 0).length;
+    const { search, setSearch, setFilter } = useFilters(
+        adminRoutes.customers,
+        filters,
+    );
+    const activeCustomers = customers.data.filter(
+        (customer) => customer.status === 'active',
+    ).length;
+    const buyingCustomers = customers.data.filter(
+        (customer) => customer.orders_count > 0,
+    ).length;
 
     return (
-        <AdminLayout title="Customers" description="Review customer accounts and buying activity.">
+        <AdminLayout
+            title="Customers"
+            description="Review customer accounts and buying activity."
+        >
             <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title="Customers"
@@ -52,35 +62,55 @@ export default function CustomerIndexPage({ customers, filters }: Props) {
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Visible in this result</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                Visible in this result
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{customers.data.length}</div>
-                            <p className="text-sm text-muted-foreground">Customer accounts on the current page after filters.</p>
+                            <div className="text-3xl font-semibold">
+                                {customers.data.length}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Customer accounts on the current page after
+                                filters.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Active customers</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                Active customers
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{activeCustomers}</div>
-                            <p className="text-sm text-muted-foreground">Accounts still active and usable.</p>
+                            <div className="text-3xl font-semibold">
+                                {activeCustomers}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Accounts still active and usable.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">With order history</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                With order history
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{buyingCustomers}</div>
-                            <p className="text-sm text-muted-foreground">Customers who have already placed at least one order.</p>
+                            <div className="text-3xl font-semibold">
+                                {buyingCustomers}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Customers who have already placed at least one
+                                order.
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="rounded-[2rem] border border-border/70 bg-muted/25 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                    <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                         Customer filter
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -96,16 +126,23 @@ export default function CustomerIndexPage({ customers, filters }: Props) {
                         <Select
                             value={filters.status ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('status', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'status',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-44 bg-background">
                                 <SelectValue placeholder="All statuses" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All statuses</SelectItem>
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All statuses
+                                </SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="inactive">
+                                    Inactive
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -115,23 +152,30 @@ export default function CustomerIndexPage({ customers, filters }: Props) {
 
                 {customers.last_page > 1 && customers.links && (
                     <div className="flex items-center justify-center gap-1">
-                        {customers.links.map((link: PaginationLink, index: number) =>
-                            link.url ? (
-                                <Link
-                                    key={index}
-                                    href={link.url}
-                                    className={`rounded border px-3 py-1 text-sm ${
-                                        link.active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ) : (
-                                <span
-                                    key={index}
-                                    className="rounded border px-3 py-1 text-sm opacity-40"
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ),
+                        {customers.links.map(
+                            (link: PaginationLink, index: number) =>
+                                link.url ? (
+                                    <Link
+                                        key={index}
+                                        href={link.url}
+                                        className={`rounded border px-3 py-1 text-sm ${
+                                            link.active
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'hover:bg-muted'
+                                        }`}
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className="rounded border px-3 py-1 text-sm opacity-40"
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ),
                         )}
                     </div>
                 )}

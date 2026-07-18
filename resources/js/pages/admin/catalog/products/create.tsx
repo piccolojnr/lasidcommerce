@@ -17,7 +17,12 @@ interface Props {
     collections: SelectOption[];
 }
 
-export default function ProductCreatePage({ categories, brands, tags, collections }: Props) {
+export default function ProductCreatePage({
+    categories,
+    brands,
+    tags,
+    collections,
+}: Props) {
     return (
         <AdminLayout title="Create Product">
             <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -26,11 +31,18 @@ export default function ProductCreatePage({ categories, brands, tags, collection
                     description="Build a stronger catalog entry with better copy, imagery, and merchandising controls."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={ProductController.index.url()}>Back to list</Link>
+                            <Link href={ProductController.index.url()}>
+                                Back to list
+                            </Link>
                         </Button>
                     }
                 />
-                <ProductForm categories={categories} brands={brands} tags={tags} collections={collections} />
+                <ProductForm
+                    categories={categories}
+                    brands={brands}
+                    tags={tags}
+                    collections={collections}
+                />
             </div>
         </AdminLayout>
     );

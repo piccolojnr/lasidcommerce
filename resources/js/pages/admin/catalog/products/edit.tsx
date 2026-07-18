@@ -19,7 +19,13 @@ interface Props {
     collections: SelectOption[];
 }
 
-export default function ProductEditPage({ product, categories, brands, tags, collections }: Props) {
+export default function ProductEditPage({
+    product,
+    categories,
+    brands,
+    tags,
+    collections,
+}: Props) {
     return (
         <AdminLayout title="Edit Product">
             <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -28,11 +34,19 @@ export default function ProductEditPage({ product, categories, brands, tags, col
                     description="Refine the merchandising, media, and operational setup without digging through a dull form."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={ProductController.show.url(product)}>Back to product</Link>
+                            <Link href={ProductController.show.url(product)}>
+                                Back to product
+                            </Link>
                         </Button>
                     }
                 />
-                <ProductForm product={product} categories={categories} brands={brands} tags={tags} collections={collections} />
+                <ProductForm
+                    product={product}
+                    categories={categories}
+                    brands={brands}
+                    tags={tags}
+                    collections={collections}
+                />
             </div>
         </AdminLayout>
     );

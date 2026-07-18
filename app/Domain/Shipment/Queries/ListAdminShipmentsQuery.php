@@ -8,6 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ListAdminShipmentsQuery
 {
     private ?string $search = null;
+
     private ?string $status = null;
 
     public function withFilters(array $filters): static

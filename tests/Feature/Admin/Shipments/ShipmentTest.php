@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin\Shipments;
 
+use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
@@ -10,6 +11,7 @@ use App\Notifications\InternalShipmentStatusUpdatedNotification;
 use App\Notifications\ShipmentStatusUpdatedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -52,19 +54,19 @@ class ShipmentTest extends TestCase
         ]);
     }
 
-    private function storeShipment(array $data): \Illuminate\Testing\TestResponse
+    private function storeShipment(array $data): TestResponse
     {
         return $this->actingAs($this->admin)
             ->post(route('admin.shipments.store'), $data);
     }
 
-    private function updateStatus(Shipment $shipment, string $status): \Illuminate\Testing\TestResponse
+    private function updateStatus(Shipment $shipment, string $status): TestResponse
     {
         return $this->actingAs($this->admin)
             ->patch(route('admin.shipments.status.update', $shipment), ['status' => $status]);
     }
 
-    private function quickStoreShipment(Order $order): \Illuminate\Testing\TestResponse
+    private function quickStoreShipment(Order $order): TestResponse
     {
         return $this->actingAs($this->admin)
             ->post(route('admin.orders.shipments.quick-store', $order));
@@ -75,11 +77,11 @@ class ShipmentTest extends TestCase
     public function test_guest_cannot_create_shipment(): void
     {
         $order = $this->processingOrder();
-        $item  = $this->orderItemFor($order);
+        $item = $this->orderItemFor($order);
 
         $response = $this->post(route('admin.shipments.store'), [
             'order_id' => $order->id,
-            'items'    => [['order_item_id' => $item->id, 'quantity' => 1]],
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
         ]);
 
         $response->assertRedirect(route('login'));
@@ -87,14 +89,14 @@ class ShipmentTest extends TestCase
 
     public function test_unauthorized_user_cannot_create_shipment(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->processingOrder();
-        $item  = $this->orderItemFor($order);
+        $item = $this->orderItemFor($order);
 
         $response = $this->actingAs($user)
             ->post(route('admin.shipments.store'), [
                 'order_id' => $order->id,
-                'items'    => [['order_item_id' => $item->id, 'quantity' => 1]],
+                'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
             ]);
 
         $response->assertForbidden();
@@ -113,7 +115,7 @@ class ShipmentTest extends TestCase
 
     public function test_unauthorized_user_cannot_update_shipment_status(): void
     {
-        $user     = User::factory()->create();
+        $user = User::factory()->create();
         $shipment = Shipment::factory()->create();
 
         $response = $this->actingAs($user)
@@ -127,11 +129,11 @@ class ShipmentTest extends TestCase
     public function test_can_create_shipment_for_processing_order(): void
     {
         $order = $this->processingOrder();
-        $item  = $this->orderItemFor($order);
+        $item = $this->orderItemFor($order);
 
         $response = $this->storeShipment([
             'order_id' => $order->id,
-            'items'    => [['order_item_id' => $item->id, 'quantity' => 1]],
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
         ]);
 
         $response->assertRedirect();
@@ -141,7 +143,7 @@ class ShipmentTest extends TestCase
     public function test_shipment_items_are_created(): void
     {
         $order = $this->processingOrder();
-        $item  = OrderItem::factory()->create([
+        $item = OrderItem::factory()->create([
             'order_id' => $order->id,
             'quantity' => 2,
             'unit_price' => 1000,
@@ -150,12 +152,12 @@ class ShipmentTest extends TestCase
 
         $this->storeShipment([
             'order_id' => $order->id,
-            'items'    => [['order_item_id' => $item->id, 'quantity' => 2]],
+            'items' => [['order_item_id' => $item->id, 'quantity' => 2]],
         ]);
 
         $this->assertDatabaseHas('shipment_items', [
             'order_item_id' => $item->id,
-            'quantity'      => 2,
+            'quantity' => 2,
         ]);
     }
 
@@ -277,11 +279,11 @@ class ShipmentTest extends TestCase
     public function test_cannot_create_shipment_for_non_processing_order(): void
     {
         $order = Order::factory()->create(['status' => 'pending']);
-        $item  = $this->orderItemFor($order);
+        $item = $this->orderItemFor($order);
 
         $response = $this->storeShipment([
             'order_id' => $order->id,
-            'items'    => [['order_item_id' => $item->id, 'quantity' => 1]],
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
         ]);
 
         $response->assertSessionHasErrors('order_id');
@@ -291,11 +293,11 @@ class ShipmentTest extends TestCase
     public function test_cannot_create_shipment_for_confirmed_order(): void
     {
         $order = Order::factory()->create(['status' => 'confirmed']);
-        $item  = $this->orderItemFor($order);
+        $item = $this->orderItemFor($order);
 
         $response = $this->storeShipment([
             'order_id' => $order->id,
-            'items'    => [['order_item_id' => $item->id, 'quantity' => 1]],
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
         ]);
 
         $response->assertSessionHasErrors('order_id');
@@ -334,7 +336,7 @@ class ShipmentTest extends TestCase
 
         $response = $this->storeShipment([
             'order_id' => $order->id,
-            'items'    => [],
+            'items' => [],
         ]);
 
         $response->assertSessionHasErrors('items');
@@ -343,18 +345,18 @@ class ShipmentTest extends TestCase
     public function test_optional_carrier_fields_are_stored(): void
     {
         $order = $this->processingOrder();
-        $item  = $this->orderItemFor($order);
+        $item = $this->orderItemFor($order);
 
         $this->storeShipment([
-            'order_id'        => $order->id,
-            'items'           => [['order_item_id' => $item->id, 'quantity' => 1]],
-            'carrier_name'    => 'DHL',
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+            'carrier_name' => 'DHL',
             'tracking_number' => 'DHL12345',
         ]);
 
         $this->assertDatabaseHas('shipments', [
-            'order_id'        => $order->id,
-            'carrier_name'    => 'DHL',
+            'order_id' => $order->id,
+            'carrier_name' => 'DHL',
             'tracking_number' => 'DHL12345',
         ]);
     }
@@ -467,7 +469,7 @@ class ShipmentTest extends TestCase
     public function test_failed_shipment_cannot_be_transitioned(): void
     {
         $shipment = Shipment::factory()->create([
-            'status'    => 'failed',
+            'status' => 'failed',
             'failed_at' => now(),
         ]);
 
@@ -492,8 +494,8 @@ class ShipmentTest extends TestCase
 
     public function test_delivered_shipment_marks_order_fulfilled(): void
     {
-        $order    = Order::factory()->create([
-            'status'             => 'processing',
+        $order = Order::factory()->create([
+            'status' => 'processing',
             'fulfillment_status' => 'unfulfilled',
         ]);
         $shipment = Shipment::factory()->shipped()->create(['order_id' => $order->id]);
@@ -508,8 +510,8 @@ class ShipmentTest extends TestCase
 
     public function test_non_delivery_transition_does_not_change_fulfillment(): void
     {
-        $order    = Order::factory()->create([
-            'status'             => 'processing',
+        $order = Order::factory()->create([
+            'status' => 'processing',
             'fulfillment_status' => 'unfulfilled',
         ]);
         $shipment = Shipment::factory()->create(['order_id' => $order->id, 'status' => 'pending']);
@@ -559,7 +561,7 @@ class ShipmentTest extends TestCase
         ]);
 
         $this->assertSame('unfulfilled', $order->fulfillment_status);
-        $summary = app(\App\Domain\Order\Services\OrderFulfillmentService::class)->summarize($order);
+        $summary = app(OrderFulfillmentService::class)->summarize($order);
         $this->assertSame(2, $summary['total_remaining_quantity']);
         $this->assertSame('attention_required', $summary['shipping_summary']);
     }
@@ -587,7 +589,7 @@ class ShipmentTest extends TestCase
         ]);
 
         $this->assertSame('unfulfilled', $order->fulfillment_status);
-        $summary = app(\App\Domain\Order\Services\OrderFulfillmentService::class)->summarize($order);
+        $summary = app(OrderFulfillmentService::class)->summarize($order);
         $this->assertSame(2, $summary['total_remaining_quantity']);
         $this->assertSame('attention_required', $summary['shipping_summary']);
     }

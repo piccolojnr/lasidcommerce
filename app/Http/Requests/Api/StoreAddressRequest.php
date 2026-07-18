@@ -25,9 +25,9 @@ class StoreAddressRequest extends FormRequest
             'address_line_2' => ['nullable', 'string', 'max:255'],
             'landmark' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['nullable', 'string', 'max:50'],
-            'is_default'             => ['sometimes', 'boolean'],
-            'shipping_zone_id'       => ['nullable', 'integer', 'exists:shipping_zones,id'],
-            'shipping_zone_area_id'  => ['nullable', 'integer', 'exists:shipping_zone_areas,id'],
+            'is_default' => ['sometimes', 'boolean'],
+            'shipping_zone_id' => ['nullable', 'integer', 'exists:shipping_zones,id'],
+            'shipping_zone_area_id' => ['nullable', 'integer', 'exists:shipping_zone_areas,id'],
         ];
     }
 }

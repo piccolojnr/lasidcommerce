@@ -16,7 +16,7 @@ class BrandSlugGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->generator = new BrandSlugGenerator();
+        $this->generator = new BrandSlugGenerator;
     }
 
     public function test_generates_slug_from_name(): void

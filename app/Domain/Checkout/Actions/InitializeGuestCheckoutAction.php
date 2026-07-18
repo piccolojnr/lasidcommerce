@@ -3,14 +3,15 @@
 namespace App\Domain\Checkout\Actions;
 
 use App\Domain\Addresses\Actions\CreateAddressAction;
-use App\Domain\Auth\Actions\ResolveStorefrontCustomerFromEmailAction;
 use App\Domain\Auth\Actions\RequestCustomerMagicLinkAction;
+use App\Domain\Auth\Actions\ResolveStorefrontCustomerFromEmailAction;
 use App\Domain\Auth\DTOs\RequestCustomerMagicLinkData;
 use App\Domain\Cart\Actions\MergeGuestCartAction;
 use App\Domain\Checkout\Exceptions\CheckoutException;
 use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Domain\Notification\Services\InternalNotificationService;
 use App\Models\Cart;
+use App\Models\Order;
 use App\Models\ShippingMethod;
 use App\Models\User;
 
@@ -28,7 +29,7 @@ class InitializeGuestCheckoutAction
 
     /**
      * @param  array<string, mixed>  $payload
-     * @return array{user: User, was_created: bool, result: array{order: \App\Models\Order, payment: array|null, payment_error: string|null}}
+     * @return array{user: User, was_created: bool, result: array{order: Order, payment: array|null, payment_error: string|null}}
      *
      * @throws CheckoutException
      */
@@ -50,20 +51,20 @@ class InitializeGuestCheckoutAction
         }
 
         $address = $this->createAddressAction->execute($user, [
-            'type'                   => 'shipping',
-            'name'                   => $payload['name'],
-            'phone'                  => $payload['phone'] ?? null,
-            'country'                => $payload['country'] ?? 'GH',
-            'region'                 => $payload['region'] ?? null,
-            'city'                   => $payload['city'] ?? null,
-            'district'               => $payload['district'] ?? null,
-            'address_line_1'         => $payload['address_line_1'],
-            'address_line_2'         => $payload['address_line_2'] ?? null,
-            'landmark'               => $payload['landmark'] ?? null,
-            'postal_code'            => $payload['postal_code'] ?? null,
-            'is_default'             => true,
-            'shipping_zone_id'       => $payload['shipping_zone_id'] ?? null,
-            'shipping_zone_area_id'  => $payload['shipping_zone_area_id'] ?? null,
+            'type' => 'shipping',
+            'name' => $payload['name'],
+            'phone' => $payload['phone'] ?? null,
+            'country' => $payload['country'] ?? 'GH',
+            'region' => $payload['region'] ?? null,
+            'city' => $payload['city'] ?? null,
+            'district' => $payload['district'] ?? null,
+            'address_line_1' => $payload['address_line_1'],
+            'address_line_2' => $payload['address_line_2'] ?? null,
+            'landmark' => $payload['landmark'] ?? null,
+            'postal_code' => $payload['postal_code'] ?? null,
+            'is_default' => true,
+            'shipping_zone_id' => $payload['shipping_zone_id'] ?? null,
+            'shipping_zone_area_id' => $payload['shipping_zone_area_id'] ?? null,
         ]);
 
         $method = ShippingMethod::find($payload['shipping_method_id']);

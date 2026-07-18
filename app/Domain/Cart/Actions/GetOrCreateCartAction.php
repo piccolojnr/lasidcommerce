@@ -14,14 +14,14 @@ class GetOrCreateCartAction
             $cart = Cart::active()->where('user_id', $user->id)->latest()->first();
 
             return $cart ?? Cart::create([
-                'user_id'         => $user->id,
-                'status'          => 'active',
-                'currency_code'   => 'GHS',
+                'user_id' => $user->id,
+                'status' => 'active',
+                'currency_code' => 'GHS',
                 'subtotal_amount' => 0,
                 'discount_amount' => 0,
-                'tax_amount'      => 0,
+                'tax_amount' => 0,
                 'shipping_amount' => 0,
-                'total_amount'    => 0,
+                'total_amount' => 0,
             ]);
         }
 
@@ -34,14 +34,14 @@ class GetOrCreateCartAction
         }
 
         return Cart::create([
-            'session_id'      => (string) Str::uuid(),
-            'status'          => 'active',
-            'currency_code'   => 'GHS',
+            'session_id' => (string) Str::uuid(),
+            'status' => 'active',
+            'currency_code' => 'GHS',
             'subtotal_amount' => 0,
             'discount_amount' => 0,
-            'tax_amount'      => 0,
+            'tax_amount' => 0,
             'shipping_amount' => 0,
-            'total_amount'    => 0,
+            'total_amount' => 0,
         ]);
     }
 }

@@ -33,7 +33,7 @@ class AddCartItemAction
             ->first();
 
         if ($existing !== null) {
-            $existing->quantity  += $quantity;
+            $existing->quantity += $quantity;
             $existing->line_total = $existing->unit_price * $existing->quantity;
             $existing->save();
 
@@ -41,15 +41,15 @@ class AddCartItemAction
         }
 
         return CartItem::create([
-            'cart_id'               => $cart->id,
-            'product_id'            => $product->id,
-            'product_variant_id'    => $variant?->id,
+            'cart_id' => $cart->id,
+            'product_id' => $product->id,
+            'product_variant_id' => $variant?->id,
             'product_name_snapshot' => $product->name,
             'variant_name_snapshot' => $variant?->name,
-            'sku_snapshot'          => $variant?->sku ?? $product->sku,
-            'unit_price'            => $unitPrice,
-            'quantity'              => $quantity,
-            'line_total'            => $unitPrice * $quantity,
+            'sku_snapshot' => $variant?->sku ?? $product->sku,
+            'unit_price' => $unitPrice,
+            'quantity' => $quantity,
+            'line_total' => $unitPrice * $quantity,
         ]);
     }
 }

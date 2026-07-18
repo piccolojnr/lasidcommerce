@@ -7,10 +7,10 @@ use App\Domain\Catalog\Actions\DeleteProductAction;
 use App\Domain\Catalog\Actions\SyncProductMediaAction;
 use App\Domain\Catalog\Actions\ToggleProductStatusAction;
 use App\Domain\Catalog\Actions\UpdateProductAction;
-use App\Domain\Catalog\Services\ProductBadgeService;
-use App\Domain\Catalog\Services\ProductStockResolver;
 use App\Domain\Catalog\Exceptions\CannotDeleteProductException;
 use App\Domain\Catalog\Queries\ListAdminProductsQuery;
+use App\Domain\Catalog\Services\ProductBadgeService;
+use App\Domain\Catalog\Services\ProductStockResolver;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
@@ -52,7 +52,7 @@ class ProductController extends Controller
         ];
 
         $products = $this->listQuery->withFilters($filters)->paginate();
-        $products->getCollection()->transform(fn(Product $product) => $this->formatProduct($product));
+        $products->getCollection()->transform(fn (Product $product) => $this->formatProduct($product));
 
         return Inertia::render('admin/catalog/products/index', [
             'products' => $products,
@@ -173,14 +173,14 @@ class ProductController extends Controller
             'brand_id' => $product->brand_id,
             'brand_name' => $product->brand?->name,
             'tags' => $product->relationLoaded('tags')
-                ? $product->tags->map(fn(Tag $tag) => [
+                ? $product->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,
                     'name' => $tag->name,
                     'slug' => $tag->slug,
                 ])->values()->all()
                 : [],
             'collections' => $product->relationLoaded('collections')
-                ? $product->collections->map(fn(Collection $collection) => [
+                ? $product->collections->map(fn (Collection $collection) => [
                     'id' => $collection->id,
                     'name' => $collection->name,
                     'slug' => $collection->slug,
@@ -192,7 +192,7 @@ class ProductController extends Controller
             'variants_count' => $product->variants_count ?? 0,
             'images' => $includeImages
                 ? $product->getMedia(Product::IMAGE_COLLECTION)->map(
-                    fn(Media $media, int $index) => $this->formatProductImage($media, $index)
+                    fn (Media $media, int $index) => $this->formatProductImage($media, $index)
                 )->values()->toArray()
                 : [],
             'created_at' => $product->created_at?->toISOString(),

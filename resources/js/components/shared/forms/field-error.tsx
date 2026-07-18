@@ -10,5 +10,7 @@ export function FieldError({ message, className }: FieldErrorProps) {
         return null;
     }
 
-    return <p className={cn('text-sm text-destructive', className)}>{message}</p>;
+    return (
+        <p className={cn('text-sm text-destructive', className)}>{message}</p>
+    );
 }

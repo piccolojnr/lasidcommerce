@@ -15,7 +15,7 @@ class UpdateShipmentStatusRequest extends FormRequest
     {
         return [
             'status' => ['required', 'string', 'in:packed,shipped,in_transit,delivered,failed,returned,cancelled'],
-            'note'   => ['nullable', 'string'],
+            'note' => ['nullable', 'string'],
         ];
     }
 }

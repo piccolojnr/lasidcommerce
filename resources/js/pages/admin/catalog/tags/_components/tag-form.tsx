@@ -13,7 +13,12 @@ const textareaClassName =
     'flex min-h-[120px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50';
 
 function slugify(value: string): string {
-    return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
 }
 
 export function TagForm({ tag }: { tag?: AdminTag }) {
@@ -21,16 +26,31 @@ export function TagForm({ tag }: { tag?: AdminTag }) {
     const [slugManual, setSlugManual] = useState(isEdit);
     const [slugValue, setSlugValue] = useState(tag?.slug ?? '');
     const [isActive, setIsActive] = useState(tag?.is_active ?? true);
-    const formProps = isEdit ? TagController.update.form.patch(tag) : TagController.store.form.post();
+    const formProps = isEdit
+        ? TagController.update.form.patch(tag)
+        : TagController.store.form.post();
 
     return (
-        <Form {...formProps} options={{ preserveScroll: true }} className="space-y-8">
+        <Form
+            {...formProps}
+            options={{ preserveScroll: true }}
+            className="space-y-8"
+        >
             {({ errors }) => (
                 <>
                     <input type="hidden" name="slug" value={slugValue} />
-                    <input type="hidden" name="is_active" value={isActive ? '1' : '0'} />
+                    <input
+                        type="hidden"
+                        name="is_active"
+                        value={isActive ? '1' : '0'}
+                    />
 
-                    <FormSection title="Tag identity" description="Keep merchandising labels consistent and readable." badge="Foundation" contentClassName="space-y-6">
+                    <FormSection
+                        title="Tag identity"
+                        description="Keep merchandising labels consistent and readable."
+                        badge="Foundation"
+                        contentClassName="space-y-6"
+                    >
                         <div className="grid gap-5 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Tag name</Label>
@@ -42,7 +62,9 @@ export function TagForm({ tag }: { tag?: AdminTag }) {
                                     className="h-12 rounded-xl"
                                     onChange={(event) => {
                                         if (!slugManual) {
-                                            setSlugValue(slugify(event.target.value));
+                                            setSlugValue(
+                                                slugify(event.target.value),
+                                            );
                                         }
                                     }}
                                 />
@@ -51,8 +73,16 @@ export function TagForm({ tag }: { tag?: AdminTag }) {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="slug-display">Slug</Label>
-                                    <button type="button" className="text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setSlugManual((value) => !value)}>
-                                        {slugManual ? 'Manual mode' : 'Auto-generate'}
+                                    <button
+                                        type="button"
+                                        className="text-xs font-medium text-muted-foreground hover:text-foreground"
+                                        onClick={() =>
+                                            setSlugManual((value) => !value)
+                                        }
+                                    >
+                                        {slugManual
+                                            ? 'Manual mode'
+                                            : 'Auto-generate'}
                                     </button>
                                 </div>
                                 <Input
@@ -82,15 +112,28 @@ export function TagForm({ tag }: { tag?: AdminTag }) {
                             <FieldError message={errors.description} />
                         </div>
                         <label className="flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition">
-                            <Checkbox checked={isActive} onCheckedChange={(value) => setIsActive(Boolean(value))} />
+                            <Checkbox
+                                checked={isActive}
+                                onCheckedChange={(value) =>
+                                    setIsActive(Boolean(value))
+                                }
+                            />
                             <div className="space-y-1">
-                                <div className="font-medium">Active on storefront</div>
-                                <p className="text-sm text-muted-foreground">Inactive tags remain in admin history but should not appear in storefront discovery.</p>
+                                <div className="font-medium">
+                                    Active on storefront
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Inactive tags remain in admin history but
+                                    should not appear in storefront discovery.
+                                </p>
                             </div>
                         </label>
                     </FormSection>
 
-                    <FormActions submitLabel={isEdit ? 'Update tag' : 'Create tag'} onCancel={() => window.history.back()} />
+                    <FormActions
+                        submitLabel={isEdit ? 'Update tag' : 'Create tag'}
+                        onCancel={() => window.history.back()}
+                    />
                 </>
             )}
         </Form>

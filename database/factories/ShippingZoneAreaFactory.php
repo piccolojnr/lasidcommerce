@@ -11,8 +11,8 @@ class ShippingZoneAreaFactory extends Factory
     {
         return [
             'shipping_zone_id' => ShippingZone::factory(),
-            'area_type'        => 'country',
-            'area_name'        => 'Ghana',
+            'area_type' => 'country',
+            'area_name' => 'Ghana',
         ];
     }
 }

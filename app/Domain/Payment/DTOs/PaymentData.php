@@ -11,8 +11,7 @@ class PaymentData
         public readonly int $amount = 0,
         public readonly string $currencyCode = 'GHS',
         public readonly ?string $reference = null,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

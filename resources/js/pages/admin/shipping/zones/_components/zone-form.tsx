@@ -23,7 +23,9 @@ export function ZoneForm({ zone }: Props) {
 
     const submit = () => {
         if (isEdit && zone) {
-            form.put(`/admin/shipping/zones/${zone.id}`, { preserveScroll: true });
+            form.put(`/admin/shipping/zones/${zone.id}`, {
+                preserveScroll: true,
+            });
 
             return;
         }
@@ -41,25 +43,29 @@ export function ZoneForm({ zone }: Props) {
         >
             <div className="grid gap-4 lg:grid-cols-3">
                 <div className="rounded-[2rem] border border-border/70 bg-muted/30 p-6 lg:col-span-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                    <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                         Zone setup
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold tracking-tight">
                         {zone?.name ?? 'New shipping zone'}
                     </h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                        Define the commercial territory, the zone identifier, and whether it should participate in resolution logic.
+                        Define the commercial territory, the zone identifier,
+                        and whether it should participate in resolution logic.
                     </p>
                 </div>
                 <div className="rounded-[2rem] border border-border/70 bg-primary/5 p-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                    <p className="text-xs font-semibold tracking-[0.24em] text-primary uppercase">
                         Routing state
                     </p>
                     <p className="mt-2 text-xl font-semibold">
-                        {form.data.is_active ? 'Active for checkout' : 'Disabled'}
+                        {form.data.is_active
+                            ? 'Active for checkout'
+                            : 'Disabled'}
                     </p>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Disabled zones stay in the admin but should not be used for customer resolution.
+                        Disabled zones stay in the admin but should not be used
+                        for customer resolution.
                     </p>
                 </div>
             </div>
@@ -75,12 +81,25 @@ export function ZoneForm({ zone }: Props) {
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Zone name</Label>
-                                <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
+                                <Input
+                                    id="name"
+                                    value={form.data.name}
+                                    onChange={(e) =>
+                                        form.setData('name', e.target.value)
+                                    }
+                                />
                                 <FieldError message={form.errors.name} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="code">Zone code</Label>
-                                <Input id="code" value={form.data.code} onChange={(e) => form.setData('code', e.target.value)} className="font-mono uppercase" />
+                                <Input
+                                    id="code"
+                                    value={form.data.code}
+                                    onChange={(e) =>
+                                        form.setData('code', e.target.value)
+                                    }
+                                    className="font-mono uppercase"
+                                />
                                 <FieldError message={form.errors.code} />
                             </div>
                         </div>
@@ -94,15 +113,24 @@ export function ZoneForm({ zone }: Props) {
                     >
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="country_code">Country code</Label>
+                                <Label htmlFor="country_code">
+                                    Country code
+                                </Label>
                                 <Input
                                     id="country_code"
                                     value={form.data.country_code}
-                                    onChange={(e) => form.setData('country_code', e.target.value.toUpperCase())}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'country_code',
+                                            e.target.value.toUpperCase(),
+                                        )
+                                    }
                                     maxLength={2}
                                     className="font-mono uppercase"
                                 />
-                                <FieldError message={form.errors.country_code} />
+                                <FieldError
+                                    message={form.errors.country_code}
+                                />
                             </div>
                         </div>
                         <div className="space-y-2">
@@ -110,7 +138,9 @@ export function ZoneForm({ zone }: Props) {
                             <textarea
                                 id="description"
                                 value={form.data.description}
-                                onChange={(e) => form.setData('description', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('description', e.target.value)
+                                }
                                 className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                             />
                             <FieldError message={form.errors.description} />
@@ -129,15 +159,21 @@ export function ZoneForm({ zone }: Props) {
                             <Checkbox
                                 id="is_active"
                                 checked={form.data.is_active}
-                                onCheckedChange={(value) => form.setData('is_active', Boolean(value))}
+                                onCheckedChange={(value) =>
+                                    form.setData('is_active', Boolean(value))
+                                }
                                 className="mt-0.5"
                             />
                             <div className="space-y-1">
-                                <Label htmlFor="is_active" className="cursor-pointer">
+                                <Label
+                                    htmlFor="is_active"
+                                    className="cursor-pointer"
+                                >
                                     Zone is active
                                 </Label>
                                 <p className="text-sm text-muted-foreground">
-                                    Active zones can participate in shipping zone matching and pricing logic.
+                                    Active zones can participate in shipping
+                                    zone matching and pricing logic.
                                 </p>
                             </div>
                         </div>

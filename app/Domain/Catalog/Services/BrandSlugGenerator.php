@@ -14,7 +14,7 @@ class BrandSlugGenerator
         $counter = 2;
 
         while ($this->slugExists($slug, $excludeId)) {
-            $slug = $base . '-' . $counter;
+            $slug = $base.'-'.$counter;
             $counter++;
         }
 

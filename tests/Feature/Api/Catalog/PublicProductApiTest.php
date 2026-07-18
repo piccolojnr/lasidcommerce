@@ -20,7 +20,7 @@ class PublicProductApiTest extends TestCase
     private function visibleProduct(array $attrs = []): Product
     {
         return Product::factory()->create(array_merge([
-            'status'       => 'active',
+            'status' => 'active',
             'published_at' => now()->subDay(),
         ], $attrs));
     }
@@ -96,8 +96,8 @@ class PublicProductApiTest extends TestCase
     public function test_index_filters_by_category_slug(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
-        $match    = $this->visibleProduct(['category_id' => $category->id]);
-        $other    = $this->visibleProduct(['category_id' => null]);
+        $match = $this->visibleProduct(['category_id' => $category->id]);
+        $other = $this->visibleProduct(['category_id' => null]);
 
         $response = $this->getJson("/api/v1/catalog/products?category={$category->slug}");
 
@@ -147,7 +147,7 @@ class PublicProductApiTest extends TestCase
 
     public function test_index_filters_featured_products(): void
     {
-        $featured    = $this->visibleProduct(['is_featured' => true]);
+        $featured = $this->visibleProduct(['is_featured' => true]);
         $notFeatured = $this->visibleProduct(['is_featured' => false]);
 
         $response = $this->getJson('/api/v1/catalog/products?featured=1');
@@ -189,7 +189,7 @@ class PublicProductApiTest extends TestCase
 
     public function test_index_sort_by_price_asc(): void
     {
-        $cheap     = $this->visibleProduct(['base_price' => 1000]);
+        $cheap = $this->visibleProduct(['base_price' => 1000]);
         $expensive = $this->visibleProduct(['base_price' => 9000]);
 
         $response = $this->getJson('/api/v1/catalog/products?sort=price_asc');
@@ -201,7 +201,7 @@ class PublicProductApiTest extends TestCase
 
     public function test_index_sort_by_price_desc(): void
     {
-        $cheap     = $this->visibleProduct(['base_price' => 1000]);
+        $cheap = $this->visibleProduct(['base_price' => 1000]);
         $expensive = $this->visibleProduct(['base_price' => 9000]);
 
         $response = $this->getJson('/api/v1/catalog/products?sort=price_desc');
@@ -317,7 +317,7 @@ class PublicProductApiTest extends TestCase
     public function test_show_returns_404_for_future_published_product(): void
     {
         $future = Product::factory()->create([
-            'status'       => 'active',
+            'status' => 'active',
             'published_at' => now()->addDay(),
         ]);
 
@@ -366,7 +366,7 @@ class PublicProductApiTest extends TestCase
     public function test_show_includes_category_when_present(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
-        $product  = $this->visibleProduct(['category_id' => $category->id]);
+        $product = $this->visibleProduct(['category_id' => $category->id]);
 
         $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
 
@@ -377,7 +377,7 @@ class PublicProductApiTest extends TestCase
 
     public function test_show_includes_brand_when_present(): void
     {
-        $brand   = Brand::factory()->create(['is_active' => true]);
+        $brand = Brand::factory()->create(['is_active' => true]);
         $product = $this->visibleProduct(['brand_id' => $brand->id]);
 
         $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
@@ -449,8 +449,8 @@ class PublicProductApiTest extends TestCase
     public function test_show_includes_related_products_from_same_category(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
-        $product  = $this->visibleProduct(['category_id' => $category->id]);
-        $related  = $this->visibleProduct(['category_id' => $category->id]);
+        $product = $this->visibleProduct(['category_id' => $category->id]);
+        $related = $this->visibleProduct(['category_id' => $category->id]);
         $unrelated = $this->visibleProduct(['category_id' => null]);
 
         $response = $this->getJson("/api/v1/catalog/products/{$product->slug}");
@@ -465,9 +465,9 @@ class PublicProductApiTest extends TestCase
     public function test_show_related_products_excludes_inactive(): void
     {
         $category = Category::factory()->create(['is_active' => true]);
-        $product  = $this->visibleProduct(['category_id' => $category->id]);
-        $draft    = Product::factory()->create([
-            'status'      => 'draft',
+        $product = $this->visibleProduct(['category_id' => $category->id]);
+        $draft = Product::factory()->create([
+            'status' => 'draft',
             'category_id' => $category->id,
         ]);
 

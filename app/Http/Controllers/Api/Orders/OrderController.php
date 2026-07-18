@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     public function __construct(
-        private ListCustomerOrdersQuery     $listQuery,
+        private ListCustomerOrdersQuery $listQuery,
         private GetCustomerOrderDetailQuery $detailQuery,
         private GetCustomerOrderTimelineQuery $timelineQuery,
     ) {}

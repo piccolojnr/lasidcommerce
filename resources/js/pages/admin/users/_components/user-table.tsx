@@ -28,16 +28,29 @@ export function UserTable({ users }: UserTableProps) {
                 <table className="min-w-full text-sm">
                     <thead className="bg-muted/35">
                         <tr>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Platform user</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Access</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Activity</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Created</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Action</th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Platform user
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Access
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Activity
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Created
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Action
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map((user) => (
-                            <tr key={user.id} className="border-t border-border/60 align-top">
+                            <tr
+                                key={user.id}
+                                className="border-t border-border/60 align-top"
+                            >
                                 <td className="px-5 py-4">
                                     <div className="space-y-1">
                                         <Link
@@ -46,14 +59,18 @@ export function UserTable({ users }: UserTableProps) {
                                         >
                                             {user.name}
                                         </Link>
-                                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {user.email}
+                                        </p>
                                     </div>
                                 </td>
                                 <td className="px-5 py-4">
                                     <div className="space-y-2">
                                         <StatusBadge status={user.status} />
                                         <p className="text-xs text-muted-foreground">
-                                            {user.roles.length > 0 ? user.roles.join(', ') : 'No roles assigned'}
+                                            {user.roles.length > 0
+                                                ? user.roles.join(', ')
+                                                : 'No roles assigned'}
                                         </p>
                                     </div>
                                 </td>
@@ -67,7 +84,11 @@ export function UserTable({ users }: UserTableProps) {
                                 </td>
                                 <td className="px-5 py-4">
                                     <Button variant="outline" size="sm" asChild>
-                                        <Link href={UserController.show.url(user)}>View account</Link>
+                                        <Link
+                                            href={UserController.show.url(user)}
+                                        >
+                                            View account
+                                        </Link>
                                     </Button>
                                 </td>
                             </tr>

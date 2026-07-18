@@ -137,16 +137,26 @@ export function ProductTable({ products }: ProductTableProps) {
                                 <td className="px-4 py-3 align-middle">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <StatusBadge status={product.inventory.status} />
+                                            <StatusBadge
+                                                status={
+                                                    product.inventory.status
+                                                }
+                                            />
                                             <span className="text-xs text-muted-foreground">
-                                                {product.track_inventory ? `${product.inventory.available_quantity} available` : 'Not tracked'}
+                                                {product.track_inventory
+                                                    ? `${product.inventory.available_quantity} available`
+                                                    : 'Not tracked'}
                                             </span>
                                         </div>
                                         {product.track_inventory ? (
                                             <Link
                                                 href={
-                                                    product.inventory.primary_stock_item_id
-                                                        ? StockItemController.show.url(product.inventory.primary_stock_item_id)
+                                                    product.inventory
+                                                        .primary_stock_item_id
+                                                        ? StockItemController.show.url(
+                                                              product.inventory
+                                                                  .primary_stock_item_id,
+                                                          )
                                                         : `${StockItemController.index.url()}?search=${encodeURIComponent(product.sku)}`
                                                 }
                                                 className="text-xs font-medium text-primary transition hover:text-primary/80"

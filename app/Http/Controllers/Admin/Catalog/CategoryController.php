@@ -34,7 +34,7 @@ class CategoryController extends Controller
     public function index(Request $request): InertiaResponse
     {
         $filters = [
-            'search'    => $request->query('search') ?: null,
+            'search' => $request->query('search') ?: null,
             'is_active' => $request->query('is_active') !== null
                 ? filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
                 : null,
@@ -42,7 +42,7 @@ class CategoryController extends Controller
 
         return Inertia::render('admin/catalog/categories/index', [
             'categories' => $this->listQuery->withFilters($filters)->get(),
-            'filters'    => $filters,
+            'filters' => $filters,
         ]);
     }
 

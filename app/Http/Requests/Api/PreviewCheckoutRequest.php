@@ -14,7 +14,7 @@ class PreviewCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address_id'         => ['required', 'integer', 'exists:addresses,id'],
+            'address_id' => ['required', 'integer', 'exists:addresses,id'],
             'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
         ];
     }

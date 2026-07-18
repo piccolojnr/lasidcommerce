@@ -14,36 +14,36 @@ class CheckoutPreviewResource extends JsonResource
         /** @var array $this->resource */
         $data = $this->resource;
 
-        $cart           = $data['cart'];
-        $address        = $data['address'];
-        $shippingZone   = $data['shipping_zone'];
+        $cart = $data['cart'];
+        $address = $data['address'];
+        $shippingZone = $data['shipping_zone'];
         $shippingMethod = $data['shipping_method'];
 
         return [
             'cart' => [
-                'id'       => $cart->id,
+                'id' => $cart->id,
                 'currency' => $cart->currency_code,
-                'items'    => CartItemResource::collection($cart->cartItems),
+                'items' => CartItemResource::collection($cart->cartItems),
             ],
-            'address'         => new AddressResource($address),
-            'shipping_zone'   => [
-                'id'   => $shippingZone->id,
+            'address' => new AddressResource($address),
+            'shipping_zone' => [
+                'id' => $shippingZone->id,
                 'name' => $shippingZone->name,
                 'code' => $shippingZone->code,
             ],
             'shipping_method' => [
-                'id'                => $shippingMethod->id,
-                'name'              => $shippingMethod->name,
-                'code'              => $shippingMethod->code,
+                'id' => $shippingMethod->id,
+                'name' => $shippingMethod->name,
+                'code' => $shippingMethod->code,
                 'min_delivery_days' => $shippingMethod->min_delivery_days,
                 'max_delivery_days' => $shippingMethod->max_delivery_days,
             ],
             'totals' => [
                 'subtotal_amount' => $data['subtotal_amount'],
                 'discount_amount' => $data['discount_amount'],
-                'tax_amount'      => $data['tax_amount'],
+                'tax_amount' => $data['tax_amount'],
                 'shipping_amount' => $data['shipping_amount'],
-                'total_amount'    => $data['total_amount'],
+                'total_amount' => $data['total_amount'],
             ],
         ];
     }

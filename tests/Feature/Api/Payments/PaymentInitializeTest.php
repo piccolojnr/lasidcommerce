@@ -3,11 +3,13 @@
 namespace Tests\Feature\Api\Payments;
 
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\PaymentActionRequiredNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Assert;
 use Tests\TestCase;
 
 class PaymentInitializeTest extends TestCase
@@ -18,12 +20,12 @@ class PaymentInitializeTest extends TestCase
     {
         Http::fake([
             'api.paystack.co/transaction/initialize' => Http::response([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Authorization URL created',
-                'data'    => [
+                'data' => [
                     'authorization_url' => 'https://checkout.paystack.com/abc123',
-                    'access_code'       => 'abc123',
-                    'reference'         => $reference,
+                    'access_code' => 'abc123',
+                    'reference' => $reference,
                 ],
             ], 200),
         ]);
@@ -32,13 +34,13 @@ class PaymentInitializeTest extends TestCase
     private function pendingOrder(User $user, array $attrs = []): Order
     {
         return Order::factory()->create(array_merge([
-            'user_id'         => $user->id,
-            'email'           => $user->email,
-            'status'          => 'pending',
-            'payment_status'  => 'unpaid',
-            'total_amount'    => 5000,
-            'currency_code'   => 'GHS',
-            'order_number'    => 'ORD-' . now()->format('Ymd') . '-TEST01',
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+            'total_amount' => 5000,
+            'currency_code' => 'GHS',
+            'order_number' => 'ORD-'.now()->format('Ymd').'-TEST01',
         ], $attrs));
     }
 
@@ -49,7 +51,7 @@ class PaymentInitializeTest extends TestCase
         Notification::fake();
         $this->paystackOk();
 
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user);
 
         $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -70,7 +72,7 @@ class PaymentInitializeTest extends TestCase
     {
         $this->paystackOk();
 
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user);
 
         $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -87,7 +89,7 @@ class PaymentInitializeTest extends TestCase
     {
         $this->paystackOk();
 
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user);
 
         $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -95,11 +97,11 @@ class PaymentInitializeTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('payments', [
-            'order_id'  => $order->id,
-            'user_id'   => $user->id,
-            'provider'  => 'paystack',
-            'status'    => 'pending',
-            'amount'    => 5000,
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'provider' => 'paystack',
+            'status' => 'pending',
+            'amount' => 5000,
         ]);
     }
 
@@ -108,20 +110,20 @@ class PaymentInitializeTest extends TestCase
         Http::fake([
             'api.paystack.co/transaction/initialize' => function ($request) {
                 $body = $request->data();
-                \PHPUnit\Framework\Assert::assertSame(8000, $body['amount']);
+                Assert::assertSame(8000, $body['amount']);
 
                 return Http::response([
                     'status' => true,
-                    'data'   => [
+                    'data' => [
                         'authorization_url' => 'https://checkout.paystack.com/xyz',
-                        'access_code'       => 'xyz',
-                        'reference'         => 'PAY-XYZ',
+                        'access_code' => 'xyz',
+                        'reference' => 'PAY-XYZ',
                     ],
                 ], 200);
             },
         ]);
 
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user, ['total_amount' => 8000]);
 
         $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -135,7 +137,7 @@ class PaymentInitializeTest extends TestCase
     {
         $this->paystackOk();
 
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $other = User::factory()->create();
         $order = $this->pendingOrder($other);
 
@@ -148,7 +150,7 @@ class PaymentInitializeTest extends TestCase
 
     public function test_cannot_initialize_paid_order(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user, ['payment_status' => 'paid']);
 
         $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -161,7 +163,7 @@ class PaymentInitializeTest extends TestCase
 
     public function test_cannot_initialize_cancelled_order(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user, ['status' => 'cancelled']);
 
         $response = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -197,7 +199,7 @@ class PaymentInitializeTest extends TestCase
         Notification::fake();
         $this->paystackOk('PAY-REUSED-001');
 
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = $this->pendingOrder($user);
 
         $firstResponse = $this->actingAsCustomer($user)->postJson('/api/v1/payments/initialize', [
@@ -213,8 +215,7 @@ class PaymentInitializeTest extends TestCase
             $firstResponse->json('data.reference'),
             $secondResponse->json('data.reference'),
         );
-        $this->assertSame(1, \App\Models\Payment::where('order_id', $order->id)->count());
+        $this->assertSame(1, Payment::where('order_id', $order->id)->count());
         Notification::assertSentOnDemandTimes(PaymentActionRequiredNotification::class, 1);
     }
 }
-

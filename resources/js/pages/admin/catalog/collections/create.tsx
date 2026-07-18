@@ -12,11 +12,25 @@ interface ProductOption {
     status: string;
 }
 
-export default function CollectionCreatePage({ products }: { products: ProductOption[] }) {
+export default function CollectionCreatePage({
+    products,
+}: {
+    products: ProductOption[];
+}) {
     return (
         <AdminLayout title="Create Collection">
             <div className="mx-auto w-full max-w-5xl space-y-6">
-                <PageHeader title="Create collection" description="Curate a storefront grouping with deliberate product ordering." actions={<Button variant="outline" asChild><Link href={CollectionController.index.url()}>Back to list</Link></Button>} />
+                <PageHeader
+                    title="Create collection"
+                    description="Curate a storefront grouping with deliberate product ordering."
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={CollectionController.index.url()}>
+                                Back to list
+                            </Link>
+                        </Button>
+                    }
+                />
                 <CollectionForm products={products} />
             </div>
         </AdminLayout>

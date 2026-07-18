@@ -47,7 +47,10 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                     </thead>
                     <tbody>
                         {categories.map((category) => (
-                            <tr key={category.id} className="border-t align-top">
+                            <tr
+                                key={category.id}
+                                className="border-t align-top"
+                            >
                                 <td className="px-4 py-4 align-middle">
                                     <span
                                         className="inline-flex items-center gap-2"
@@ -60,7 +63,9 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                                 └
                                             </span>
                                         )}
-                                        <span className="font-medium">{category.name}</span>
+                                        <span className="font-medium">
+                                            {category.name}
+                                        </span>
                                         {category.children_count > 0 && (
                                             <span className="ml-1 text-xs text-muted-foreground">
                                                 ({category.children_count})

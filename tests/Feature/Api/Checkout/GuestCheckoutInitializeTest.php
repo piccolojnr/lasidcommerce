@@ -4,7 +4,6 @@ namespace Tests\Feature\Api\Checkout;
 
 use App\Models\Cart;
 use App\Models\CartItem;
-use App\Models\Order;
 use App\Models\Product;
 use App\Models\ShippingMethod;
 use App\Models\ShippingZone;

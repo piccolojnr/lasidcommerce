@@ -6,7 +6,7 @@ use App\Models\ProductOptionValue;
 
 class DeleteProductOptionValueAction
 {
-    public function execute(ProductOptionValue $optionValue): bool|null
+    public function execute(ProductOptionValue $optionValue): ?bool
     {
         return $optionValue->delete();
     }

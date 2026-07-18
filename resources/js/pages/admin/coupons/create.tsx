@@ -14,7 +14,9 @@ export default function CouponCreatePage() {
                     description="Build a promotion with clear economics, redemption rules, and enough context that operations can trust it."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={CouponController.index.url()}>Back to list</Link>
+                            <Link href={CouponController.index.url()}>
+                                Back to list
+                            </Link>
                         </Button>
                     }
                 />

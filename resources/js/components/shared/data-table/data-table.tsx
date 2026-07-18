@@ -26,7 +26,12 @@ export function DataTable<T extends object>({
     }
 
     return (
-        <div className={cn('overflow-hidden rounded-lg border bg-background', className)}>
+        <div
+            className={cn(
+                'overflow-hidden rounded-lg border bg-background',
+                className,
+            )}
+        >
             <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                     <thead className="bg-muted/40">
@@ -34,7 +39,10 @@ export function DataTable<T extends object>({
                             {columns.map((column) => (
                                 <th
                                     key={String(column.key)}
-                                    className={cn('px-4 py-3 text-left font-medium text-muted-foreground', column.className)}
+                                    className={cn(
+                                        'px-4 py-3 text-left font-medium text-muted-foreground',
+                                        column.className,
+                                    )}
                                 >
                                     {column.title}
                                 </th>
@@ -45,8 +53,23 @@ export function DataTable<T extends object>({
                         {data.map((row, index) => (
                             <tr key={index} className="border-t">
                                 {columns.map((column) => (
-                                    <td key={String(column.key)} className={cn('px-4 py-3 align-middle', column.className)}>
-                                        {column.render ? column.render(row) : String((row as Record<string, unknown>)[String(column.key)] ?? '')}
+                                    <td
+                                        key={String(column.key)}
+                                        className={cn(
+                                            'px-4 py-3 align-middle',
+                                            column.className,
+                                        )}
+                                    >
+                                        {column.render
+                                            ? column.render(row)
+                                            : String(
+                                                  (
+                                                      row as Record<
+                                                          string,
+                                                          unknown
+                                                      >
+                                                  )[String(column.key)] ?? '',
+                                              )}
                                     </td>
                                 ))}
                             </tr>

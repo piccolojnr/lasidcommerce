@@ -30,6 +30,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: bcmath, exif, fileinfo, gd, intl, mbstring, pdo_sqlite, redis, sqlite3, zip
+          ini-values: memory_limit=512M
           tools: composer:v2
           coverage: none
 
@@ -49,4 +50,4 @@ jobs:
           CACHE_STORE: array
           SESSION_DRIVER: array
           QUEUE_CONNECTION: sync
-        run: php artisan test
+        run: php -d memory_limit=512M artisan test

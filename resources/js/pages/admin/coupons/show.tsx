@@ -51,7 +51,7 @@ export default function CouponShowPage({ coupon }: Props) {
                     <Card className="border-border/70 bg-muted/30 lg:col-span-2">
                         <CardHeader className="space-y-3">
                             <div className="flex items-center justify-between gap-3">
-                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                                <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                                     Campaign profile
                                 </p>
                                 <StatusBadge
@@ -73,20 +73,20 @@ export default function CouponShowPage({ coupon }: Props) {
                         </CardHeader>
                         <CardContent className="grid gap-4 border-t border-border/70 pt-6 md:grid-cols-3">
                             <div className="space-y-1">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                     Discount value
                                 </p>
                                 <p className="text-2xl font-semibold">
                                     {formatCouponValue(coupon)}
                                 </p>
-                                <p className="text-xs capitalize text-muted-foreground">
+                                <p className="text-xs text-muted-foreground capitalize">
                                     {coupon.type === 'percentage'
                                         ? 'Percentage-based promotion'
                                         : 'Fixed-amount promotion'}
                                 </p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                     Used count
                                 </p>
                                 <p className="text-2xl font-semibold">
@@ -97,7 +97,7 @@ export default function CouponShowPage({ coupon }: Props) {
                                 </p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                     Remaining capacity
                                 </p>
                                 <p className="text-2xl font-semibold">
@@ -114,7 +114,7 @@ export default function CouponShowPage({ coupon }: Props) {
 
                     <Card className="border-border/70 bg-primary/5">
                         <CardHeader className="space-y-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                            <p className="text-xs font-semibold tracking-[0.24em] text-primary uppercase">
                                 Redemption state
                             </p>
                             <CardTitle className="text-xl">
@@ -164,7 +164,7 @@ export default function CouponShowPage({ coupon }: Props) {
                             </CardHeader>
                             <CardContent className="grid gap-4 p-6 md:grid-cols-2">
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Base value
                                     </p>
                                     <p className="mt-2 text-2xl font-semibold">
@@ -172,7 +172,7 @@ export default function CouponShowPage({ coupon }: Props) {
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Maximum discount
                                     </p>
                                     <p className="mt-2 text-2xl font-semibold">
@@ -192,7 +192,7 @@ export default function CouponShowPage({ coupon }: Props) {
                             </CardHeader>
                             <CardContent className="grid gap-4 p-6 md:grid-cols-2">
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Minimum order amount
                                     </p>
                                     <p className="mt-2 text-lg font-semibold">
@@ -209,7 +209,7 @@ export default function CouponShowPage({ coupon }: Props) {
                                 </div>
 
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Usage limit
                                     </p>
                                     <p className="mt-2 text-lg font-semibold">
@@ -232,7 +232,7 @@ export default function CouponShowPage({ coupon }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4 p-6">
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Starts at
                                     </p>
                                     <p className="mt-2 font-medium">
@@ -240,7 +240,7 @@ export default function CouponShowPage({ coupon }: Props) {
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Expires at
                                     </p>
                                     <p className="mt-2 font-medium">
@@ -248,7 +248,7 @@ export default function CouponShowPage({ coupon }: Props) {
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Created
                                     </p>
                                     <p className="mt-2 font-medium">
@@ -256,7 +256,7 @@ export default function CouponShowPage({ coupon }: Props) {
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                         Last updated
                                     </p>
                                     <p className="mt-2 font-medium">

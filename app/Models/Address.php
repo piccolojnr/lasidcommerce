@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\ShippingZone;
-use App\Models\ShippingZoneArea;
 
 class Address extends Model
 {
@@ -62,7 +60,7 @@ class Address extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn() => trim(implode(' ', array_filter([$this->name]))),
+            get: fn () => trim(implode(' ', array_filter([$this->name]))),
         );
     }
 }

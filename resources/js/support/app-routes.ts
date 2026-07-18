@@ -1,7 +1,5 @@
-import {
-    queryParams,
-} from '@/wayfinder';
-import type {RouteDefinition, RouteQueryOptions} from '@/wayfinder';
+import { queryParams } from '@/wayfinder';
+import type { RouteDefinition, RouteQueryOptions } from '@/wayfinder';
 
 const makeGetRoute = (
     path: string,

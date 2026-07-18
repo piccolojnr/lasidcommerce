@@ -18,7 +18,7 @@ class PaystackWebhookController extends Controller
     public function handle(Request $request): JsonResponse
     {
         $rawPayload = $request->getContent();
-        $signature  = $request->header('X-Paystack-Signature', '');
+        $signature = $request->header('X-Paystack-Signature', '');
 
         try {
             $this->handleAction->execute($rawPayload, $signature);

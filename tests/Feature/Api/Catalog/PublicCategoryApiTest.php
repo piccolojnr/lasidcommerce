@@ -14,7 +14,7 @@ class PublicCategoryApiTest extends TestCase
 
     public function test_index_returns_active_categories(): void
     {
-        $active   = Category::factory()->create(['is_active' => true, 'parent_id' => null]);
+        $active = Category::factory()->create(['is_active' => true, 'parent_id' => null]);
         $inactive = Category::factory()->create(['is_active' => false, 'parent_id' => null]);
 
         $response = $this->getJson('/api/v1/catalog/categories');
@@ -42,7 +42,7 @@ class PublicCategoryApiTest extends TestCase
     public function test_index_includes_children_by_default(): void
     {
         $parent = Category::factory()->create(['is_active' => true, 'parent_id' => null]);
-        $child  = Category::factory()->create(['is_active' => true, 'parent_id' => $parent->id]);
+        $child = Category::factory()->create(['is_active' => true, 'parent_id' => $parent->id]);
 
         $response = $this->getJson('/api/v1/catalog/categories');
 
@@ -57,7 +57,7 @@ class PublicCategoryApiTest extends TestCase
     public function test_index_root_only_excludes_children_from_top_level(): void
     {
         $parent = Category::factory()->create(['is_active' => true, 'parent_id' => null]);
-        $child  = Category::factory()->create(['is_active' => true, 'parent_id' => $parent->id]);
+        $child = Category::factory()->create(['is_active' => true, 'parent_id' => $parent->id]);
 
         $response = $this->getJson('/api/v1/catalog/categories?root_only=1');
 
@@ -114,8 +114,8 @@ class PublicCategoryApiTest extends TestCase
 
     public function test_show_includes_active_children(): void
     {
-        $parent       = Category::factory()->create(['is_active' => true, 'parent_id' => null]);
-        $activeChild  = Category::factory()->create(['is_active' => true, 'parent_id' => $parent->id]);
+        $parent = Category::factory()->create(['is_active' => true, 'parent_id' => null]);
+        $activeChild = Category::factory()->create(['is_active' => true, 'parent_id' => $parent->id]);
         $inactiveChild = Category::factory()->create(['is_active' => false, 'parent_id' => $parent->id]);
 
         $response = $this->getJson("/api/v1/catalog/categories/{$parent->slug}");

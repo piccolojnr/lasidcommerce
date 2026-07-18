@@ -17,10 +17,10 @@ class ResolveShippingMethodsRequest extends FormRequest
 
         return [
             'shipping_zone_id' => ['nullable', 'integer', 'exists:shipping_zones,id'],
-            'country'          => [$zoneProvided ? 'nullable' : 'required', 'string', 'size:2'],
-            'region'           => ['nullable', 'string', 'max:255'],
-            'city'             => [$zoneProvided ? 'nullable' : 'required', 'string', 'max:255'],
-            'cart_id'          => ['nullable', 'integer', 'exists:carts,id'],
+            'country' => [$zoneProvided ? 'nullable' : 'required', 'string', 'size:2'],
+            'region' => ['nullable', 'string', 'max:255'],
+            'city' => [$zoneProvided ? 'nullable' : 'required', 'string', 'max:255'],
+            'cart_id' => ['nullable', 'integer', 'exists:carts,id'],
         ];
     }
 }

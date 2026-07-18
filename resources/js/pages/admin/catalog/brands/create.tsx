@@ -14,7 +14,9 @@ export default function BrandCreatePage() {
                     description="Define a cleaner brand identity with stronger copy, image handling, and visibility controls."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={BrandController.index.url()}>Back to list</Link>
+                            <Link href={BrandController.index.url()}>
+                                Back to list
+                            </Link>
                         </Button>
                     }
                 />

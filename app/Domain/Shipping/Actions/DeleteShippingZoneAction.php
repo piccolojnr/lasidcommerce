@@ -6,7 +6,7 @@ use App\Models\ShippingZone;
 
 class DeleteShippingZoneAction
 {
-    public function execute(ShippingZone $zone): bool|null
+    public function execute(ShippingZone $zone): ?bool
     {
         return $zone->delete();
     }

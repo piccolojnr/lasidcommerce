@@ -43,7 +43,10 @@ export default function OrderIndexPage({ orders, filters }: Props) {
     ).length;
 
     return (
-        <AdminLayout title="Orders" description="Track order intake and fulfillment progress.">
+        <AdminLayout
+            title="Orders"
+            description="Track order intake and fulfillment progress."
+        >
             <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title="Orders"
@@ -66,7 +69,9 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{orders.data.length}</div>
+                            <div className="text-3xl font-semibold">
+                                {orders.data.length}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                                 Orders on the current page after filters.
                             </p>
@@ -79,7 +84,9 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{paidOrders}</div>
+                            <div className="text-3xl font-semibold">
+                                {paidOrders}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                                 Orders with money already captured or confirmed.
                             </p>
@@ -92,7 +99,9 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{blockedOrders}</div>
+                            <div className="text-3xl font-semibold">
+                                {blockedOrders}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                                 Orders still sitting in the operational queue.
                             </p>
@@ -102,11 +111,12 @@ export default function OrderIndexPage({ orders, filters }: Props) {
 
                 <div className="rounded-[2rem] border border-border/70 bg-muted/25 p-5">
                     <div className="space-y-1">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                        <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                             Queue filter
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            Search by order or customer, then narrow by order, payment, or fulfillment state.
+                            Search by order or customer, then narrow by order,
+                            payment, or fulfillment state.
                         </p>
                     </div>
 
@@ -120,17 +130,30 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                         <Select
                             value={filters.status ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('status', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'status',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-44 bg-background">
                                 <SelectValue placeholder="All order states" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All order states</SelectItem>
-                                {['pending', 'confirmed', 'processing', 'completed', 'cancelled'].map((status) => (
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All order states
+                                </SelectItem>
+                                {[
+                                    'pending',
+                                    'confirmed',
+                                    'processing',
+                                    'completed',
+                                    'cancelled',
+                                ].map((status) => (
                                     <SelectItem key={status} value={status}>
-                                        {status.replace(/\b\w/g, (character) => character.toUpperCase())}
+                                        {status.replace(/\b\w/g, (character) =>
+                                            character.toUpperCase(),
+                                        )}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -138,17 +161,24 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                         <Select
                             value={filters.payment_status ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('payment_status', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'payment_status',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-44 bg-background">
                                 <SelectValue placeholder="All payment states" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All payment states</SelectItem>
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All payment states
+                                </SelectItem>
                                 {['unpaid', 'paid', 'failed'].map((status) => (
                                     <SelectItem key={status} value={status}>
-                                        {status.replace(/\b\w/g, (character) => character.toUpperCase())}
+                                        {status.replace(/\b\w/g, (character) =>
+                                            character.toUpperCase(),
+                                        )}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -156,17 +186,28 @@ export default function OrderIndexPage({ orders, filters }: Props) {
                         <Select
                             value={filters.fulfillment_status ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('fulfillment_status', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'fulfillment_status',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-44 bg-background">
                                 <SelectValue placeholder="All fulfillment states" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All fulfillment states</SelectItem>
-                                {['unfulfilled', 'partially_fulfilled', 'fulfilled'].map((status) => (
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All fulfillment states
+                                </SelectItem>
+                                {[
+                                    'unfulfilled',
+                                    'partially_fulfilled',
+                                    'fulfilled',
+                                ].map((status) => (
                                     <SelectItem key={status} value={status}>
-                                        {status.replace(/\b\w/g, (character) => character.toUpperCase())}
+                                        {status.replace(/\b\w/g, (character) =>
+                                            character.toUpperCase(),
+                                        )}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -178,25 +219,30 @@ export default function OrderIndexPage({ orders, filters }: Props) {
 
                 {orders.last_page > 1 && orders.links && (
                     <div className="flex items-center justify-center gap-1">
-                        {orders.links.map((link: PaginationLink, index: number) =>
-                            link.url ? (
-                                <Link
-                                    key={index}
-                                    href={link.url}
-                                    className={`rounded border px-3 py-1 text-sm ${
-                                        link.active
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'hover:bg-muted'
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ) : (
-                                <span
-                                    key={index}
-                                    className="rounded border px-3 py-1 text-sm opacity-40"
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ),
+                        {orders.links.map(
+                            (link: PaginationLink, index: number) =>
+                                link.url ? (
+                                    <Link
+                                        key={index}
+                                        href={link.url}
+                                        className={`rounded border px-3 py-1 text-sm ${
+                                            link.active
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'hover:bg-muted'
+                                        }`}
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className="rounded border px-3 py-1 text-sm opacity-40"
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ),
                         )}
                     </div>
                 )}

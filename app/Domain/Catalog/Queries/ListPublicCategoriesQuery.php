@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 class ListPublicCategoriesQuery
 {
     private bool $withChildren = false;
+
     private bool $rootOnly = false;
 
     public function withChildren(): static

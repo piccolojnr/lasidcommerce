@@ -12,11 +12,11 @@ class ShippingZoneFactory extends Factory
         $name = $this->faker->unique()->country();
 
         return [
-            'name'         => $name,
-            'code'         => strtoupper(Str::slug($name, '_')),
+            'name' => $name,
+            'code' => strtoupper(Str::slug($name, '_')),
             'country_code' => 'GH',
-            'description'  => null,
-            'is_active'    => true,
+            'description' => null,
+            'is_active' => true,
         ];
     }
 }

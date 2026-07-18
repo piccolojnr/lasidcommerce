@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -63,6 +64,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        if (Str::startsWith((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
     }
 
     /**
@@ -76,7 +81,8 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
+        Password::defaults(
+            fn(): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()
@@ -103,25 +109,25 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(Refund::class, RefundPolicy::class);
         Gate::policy(PaymentWebhookLog::class, PaymentWebhookLogPolicy::class);
-        Gate::define('viewAdminDashboard', fn (User $user): bool => $user->can('view admin dashboard'));
+        Gate::define('viewAdminDashboard', fn(User $user): bool => $user->can('view admin dashboard'));
 
         RateLimiter::for('storefront-magic-links', function (Request $request) {
             $email = Str::lower((string) $request->input('email'));
-            $key = Str::transliterate($email.'|'.$request->ip());
+            $key = Str::transliterate($email . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($key);
         });
 
         RateLimiter::for('storefront-password-logins', function (Request $request) {
             $email = Str::lower((string) $request->input('email'));
-            $key = Str::transliterate($email.'|'.$request->ip());
+            $key = Str::transliterate($email . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($key);
         });
 
         RateLimiter::for('storefront-password-resets', function (Request $request) {
             $email = Str::lower((string) $request->input('email'));
-            $key = Str::transliterate($email.'|'.$request->ip());
+            $key = Str::transliterate($email . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($key);
         });

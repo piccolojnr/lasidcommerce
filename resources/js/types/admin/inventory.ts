@@ -38,7 +38,7 @@ export interface AdminStockItemDetail extends AdminStockItemSummary {
     movements: AdminStockMovementSummary[];
 }
 
-export interface AdminStockMovementDetail extends AdminStockMovementSummary {}
+export type AdminStockMovementDetail = AdminStockMovementSummary;
 
 export interface AdminInventoryListPage<T> {
     data: T[];

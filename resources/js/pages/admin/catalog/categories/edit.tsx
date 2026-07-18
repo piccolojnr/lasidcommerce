@@ -26,7 +26,9 @@ export default function CategoryEditPage({ category, categories }: Props) {
                     description="Adjust the hierarchy, image, and storefront visibility without wrestling a cramped form."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={CategoryController.show.url(category)}>View category</Link>
+                            <Link href={CategoryController.show.url(category)}>
+                                View category
+                            </Link>
                         </Button>
                     }
                 />

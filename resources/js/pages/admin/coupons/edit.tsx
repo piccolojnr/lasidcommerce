@@ -19,7 +19,9 @@ export default function CouponEditPage({ coupon }: Props) {
                     description="Adjust the discount model, redemption windows, and operational guardrails without losing track of current usage."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={CouponController.show.url(coupon)}>Back to coupon</Link>
+                            <Link href={CouponController.show.url(coupon)}>
+                                Back to coupon
+                            </Link>
                         </Button>
                     }
                 />

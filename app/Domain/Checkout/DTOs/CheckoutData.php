@@ -13,8 +13,7 @@ class CheckoutData
         public readonly int $taxAmount = 0,
         public readonly int $shippingAmount = 0,
         public readonly int $totalAmount = 0,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

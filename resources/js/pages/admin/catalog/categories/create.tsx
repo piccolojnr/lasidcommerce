@@ -24,7 +24,9 @@ export default function CategoryCreatePage({ categories }: Props) {
                     description="Shape the catalog hierarchy with a category form that actually explains what you are doing."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={CategoryController.index.url()}>Back to categories</Link>
+                            <Link href={CategoryController.index.url()}>
+                                Back to categories
+                            </Link>
                         </Button>
                     }
                 />

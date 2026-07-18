@@ -77,18 +77,18 @@ class OrderHistoryTest extends TestCase
 
     public function test_list_includes_summary_fields(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.index'));
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'order_number'       => $order->order_number,
-            'status'             => $order->status,
-            'payment_status'     => $order->payment_status,
+            'order_number' => $order->order_number,
+            'status' => $order->status,
+            'payment_status' => $order->payment_status,
             'fulfillment_status' => $order->fulfillment_status,
-            'total_amount'       => $order->total_amount,
+            'total_amount' => $order->total_amount,
         ]);
     }
 
@@ -105,7 +105,7 @@ class OrderHistoryTest extends TestCase
 
     public function test_user_can_view_own_order(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
@@ -127,7 +127,7 @@ class OrderHistoryTest extends TestCase
 
     public function test_order_detail_includes_items(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
         OrderItem::factory()->create(['order_id' => $order->id]);
         OrderItem::factory()->create(['order_id' => $order->id]);
@@ -169,13 +169,13 @@ class OrderHistoryTest extends TestCase
 
     public function test_order_detail_includes_totals(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user, [
             'subtotal_amount' => 5000,
             'discount_amount' => 0,
-            'tax_amount'      => 0,
+            'tax_amount' => 0,
             'shipping_amount' => 1000,
-            'total_amount'    => 6000,
+            'total_amount' => 6000,
         ]);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
@@ -184,18 +184,18 @@ class OrderHistoryTest extends TestCase
         $response->assertJsonFragment([
             'subtotal_amount' => 5000,
             'shipping_amount' => 1000,
-            'total_amount'    => 6000,
+            'total_amount' => 6000,
         ]);
     }
 
     public function test_order_detail_includes_shipping_address(): void
     {
-        $user    = $this->user();
-        $order   = $this->orderFor($user);
+        $user = $this->user();
+        $order = $this->orderFor($user);
         OrderAddress::factory()->create([
             'order_id' => $order->id,
-            'type'     => 'shipping',
-            'city'     => 'Kumasi',
+            'type' => 'shipping',
+            'city' => 'Kumasi',
         ]);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
@@ -206,19 +206,19 @@ class OrderHistoryTest extends TestCase
 
     public function test_order_detail_returns_shipping_address_not_billing_address(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         OrderAddress::factory()->create([
             'order_id' => $order->id,
-            'type'     => 'billing',
-            'city'     => 'Accra',
+            'type' => 'billing',
+            'city' => 'Accra',
         ]);
 
         OrderAddress::factory()->create([
             'order_id' => $order->id,
-            'type'     => 'shipping',
-            'city'     => 'Kumasi',
+            'type' => 'shipping',
+            'city' => 'Kumasi',
         ]);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
@@ -230,11 +230,11 @@ class OrderHistoryTest extends TestCase
 
     public function test_order_detail_includes_shipment_tracking_when_present(): void
     {
-        $user     = $this->user();
-        $order    = $this->orderFor($user, ['status' => 'shipped']);
+        $user = $this->user();
+        $order = $this->orderFor($user, ['status' => 'shipped']);
         $shipment = Shipment::factory()->shipped()->create([
-            'order_id'        => $order->id,
-            'carrier_name'    => 'GIG Logistics',
+            'order_id' => $order->id,
+            'carrier_name' => 'GIG Logistics',
             'tracking_number' => 'GIG-9999',
         ]);
 
@@ -243,25 +243,25 @@ class OrderHistoryTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(1, 'data.shipments');
         $response->assertJsonFragment([
-            'carrier_name'    => 'GIG Logistics',
+            'carrier_name' => 'GIG Logistics',
             'tracking_number' => 'GIG-9999',
-            'status'          => 'shipped',
+            'status' => 'shipped',
         ]);
         $this->assertNotNull($response->json('data.shipments.0.shipped_at'));
     }
 
     public function test_order_detail_includes_failed_and_returned_shipment_timestamps(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         Shipment::factory()->create([
-            'order_id'     => $order->id,
-            'status'       => 'returned',
-            'packed_at'    => now()->subDay(),
-            'shipped_at'   => now()->subHours(12),
-            'failed_at'    => now()->subHours(6),
-            'returned_at'  => now(),
+            'order_id' => $order->id,
+            'status' => 'returned',
+            'packed_at' => now()->subDay(),
+            'shipped_at' => now()->subHours(12),
+            'failed_at' => now()->subHours(6),
+            'returned_at' => now(),
         ]);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
@@ -273,7 +273,7 @@ class OrderHistoryTest extends TestCase
 
     public function test_order_detail_has_empty_shipments_when_none_exist(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         $response = $this->actingAsCustomer($user)->getJson(route('api.v1.orders.show', $order));
@@ -284,9 +284,9 @@ class OrderHistoryTest extends TestCase
 
     public function test_order_detail_includes_payment_and_fulfillment_status(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user, [
-            'payment_status'     => 'paid',
+            'payment_status' => 'paid',
             'fulfillment_status' => 'unfulfilled',
         ]);
 
@@ -294,9 +294,8 @@ class OrderHistoryTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'payment_status'     => 'paid',
+            'payment_status' => 'paid',
             'fulfillment_status' => 'unfulfilled',
         ]);
     }
 }
-

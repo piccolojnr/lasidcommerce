@@ -12,13 +12,13 @@ use App\Models\PaymentWebhookLog;
 class HandlePaystackWebhookAction
 {
     public function __construct(
-        private PaymentSignatureVerifier  $signatureVerifier,
-        private PaymentWebhookLogger      $webhookLogger,
+        private PaymentSignatureVerifier $signatureVerifier,
+        private PaymentWebhookLogger $webhookLogger,
         private PaymentStatusSynchronizer $synchronizer,
     ) {}
 
     /**
-     * @throws PaymentException  on invalid signature
+     * @throws PaymentException on invalid signature
      */
     public function execute(string $rawPayload, string $signature): void
     {
@@ -28,16 +28,16 @@ class HandlePaystackWebhookAction
             throw new PaymentException('Invalid webhook signature.');
         }
 
-        $data      = json_decode($rawPayload, true) ?? [];
-        $event     = $data['event'] ?? 'unknown';
+        $data = json_decode($rawPayload, true) ?? [];
+        $event = $data['event'] ?? 'unknown';
         $reference = $data['data']['reference'] ?? null;
 
         $log = $this->webhookLogger->log(
-            provider:   'paystack',
-            eventType:  $event,
-            reference:  $reference,
+            provider: 'paystack',
+            eventType: $event,
+            reference: $reference,
             rawPayload: $rawPayload,
-            signature:  $signature,
+            signature: $signature,
         );
 
         try {
@@ -59,6 +59,7 @@ class HandlePaystackWebhookAction
 
         if ($reference === null) {
             $this->webhookLogger->markProcessed($log, 'Missing reference in payload — ignored.');
+
             return;
         }
 
@@ -66,6 +67,7 @@ class HandlePaystackWebhookAction
 
         if ($payment === null) {
             $this->webhookLogger->markProcessed($log, 'Unknown reference — ignored.');
+
             return;
         }
 

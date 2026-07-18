@@ -1,4 +1,8 @@
-export function formatMoney(amountInMinorUnits: number | null | undefined, currency = 'GHS', locale = 'en-GH'): string {
+export function formatMoney(
+    amountInMinorUnits: number | null | undefined,
+    currency = 'GHS',
+    locale = 'en-GH',
+): string {
     const amount = (amountInMinorUnits ?? 0) / 100;
 
     return new Intl.NumberFormat(locale, {

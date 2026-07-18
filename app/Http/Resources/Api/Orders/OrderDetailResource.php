@@ -17,28 +17,28 @@ class OrderDetailResource extends JsonResource
         }
 
         return [
-            'id'                   => $this->id,
-            'order_number'         => $this->order_number,
-            'status'               => $this->status,
-            'payment_status'       => $this->payment_status,
-            'fulfillment_status'   => $this->fulfillment_status,
-            'currency_code'        => $this->currency_code,
-            'subtotal_amount'      => $this->subtotal_amount,
-            'discount_amount'      => $this->discount_amount,
-            'tax_amount'           => $this->tax_amount,
-            'shipping_amount'      => $this->shipping_amount,
-            'total_amount'         => $this->total_amount,
-            'shipping_zone_name'   => $this->shipping_zone_name,
+            'id' => $this->id,
+            'order_number' => $this->order_number,
+            'status' => $this->status,
+            'payment_status' => $this->payment_status,
+            'fulfillment_status' => $this->fulfillment_status,
+            'currency_code' => $this->currency_code,
+            'subtotal_amount' => $this->subtotal_amount,
+            'discount_amount' => $this->discount_amount,
+            'tax_amount' => $this->tax_amount,
+            'shipping_amount' => $this->shipping_amount,
+            'total_amount' => $this->total_amount,
+            'shipping_zone_name' => $this->shipping_zone_name,
             'shipping_method_name' => $this->shipping_method_name,
-            'notes'                => $this->notes,
-            'delivery_notes'       => $this->delivery_notes,
-            'placed_at'            => $this->placed_at?->toISOString(),
-            'items'                => OrderItemResource::collection($this->whenLoaded('orderItems')),
-            'shipping_address'     => $this->when(
+            'notes' => $this->notes,
+            'delivery_notes' => $this->delivery_notes,
+            'placed_at' => $this->placed_at?->toISOString(),
+            'items' => OrderItemResource::collection($this->whenLoaded('orderItems')),
+            'shipping_address' => $this->when(
                 $shippingAddress !== null,
                 fn () => $shippingAddress,
             ),
-            'shipments'            => ShipmentTrackingResource::collection($this->whenLoaded('shipments')),
+            'shipments' => ShipmentTrackingResource::collection($this->whenLoaded('shipments')),
         ];
     }
 }

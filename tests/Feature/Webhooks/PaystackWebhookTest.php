@@ -3,12 +3,14 @@
 namespace Tests\Feature\Webhooks;
 
 use App\Models\Order;
+use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\InternalPaymentReceivedNotification;
 use App\Notifications\PaymentReceivedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class PaystackWebhookTest extends TestCase
@@ -34,18 +36,18 @@ class PaystackWebhookTest extends TestCase
     {
         return json_encode(array_merge([
             'event' => 'charge.success',
-            'data'  => array_merge([
-                'id'               => 987654321,
-                'reference'        => $reference,
-                'amount'           => $amount,
-                'currency'         => 'GHS',
-                'status'           => 'success',
+            'data' => array_merge([
+                'id' => 987654321,
+                'reference' => $reference,
+                'amount' => $amount,
+                'currency' => 'GHS',
+                'status' => 'success',
                 'gateway_response' => 'Successful',
             ], $overrides),
         ], []));
     }
 
-    private function postRaw(string $payload, string $signature): \Illuminate\Testing\TestResponse
+    private function postRaw(string $payload, string $signature): TestResponse
     {
         return $this->call(
             'POST',
@@ -55,7 +57,7 @@ class PaystackWebhookTest extends TestCase
             [],
             [
                 'HTTP_X_PAYSTACK_SIGNATURE' => $signature,
-                'CONTENT_TYPE'             => 'application/json',
+                'CONTENT_TYPE' => 'application/json',
             ],
             $payload,
         );
@@ -63,22 +65,22 @@ class PaystackWebhookTest extends TestCase
 
     private function pendingPayment(array $orderAttrs = []): Payment
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = Order::factory()->create(array_merge([
-            'user_id'        => $user->id,
-            'email'          => $user->email,
-            'status'         => 'pending',
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'status' => 'pending',
             'payment_status' => 'unpaid',
-            'total_amount'   => 5000,
+            'total_amount' => 5000,
         ], $orderAttrs));
 
         return Payment::factory()->create([
-            'order_id'  => $order->id,
-            'user_id'   => $user->id,
-            'provider'  => 'paystack',
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'provider' => 'paystack',
             'reference' => 'PAY-TESTREF001',
-            'status'    => 'pending',
-            'amount'    => 5000,
+            'status' => 'pending',
+            'amount' => 5000,
         ]);
     }
 
@@ -86,8 +88,8 @@ class PaystackWebhookTest extends TestCase
 
     public function test_rejects_invalid_signature(): void
     {
-        $payload   = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $badSig    = 'invalidsignature';
+        $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
+        $badSig = 'invalidsignature';
 
         $response = $this->postRaw($payload, $badSig);
 
@@ -98,14 +100,14 @@ class PaystackWebhookTest extends TestCase
     {
         $this->pendingPayment();
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         $this->postRaw($payload, $sig);
 
         $this->assertDatabaseHas('payment_webhook_logs', [
-            'provider'   => 'paystack',
+            'provider' => 'paystack',
             'event_type' => 'charge.success',
-            'reference'  => 'PAY-TESTREF001',
+            'reference' => 'PAY-TESTREF001',
         ]);
     }
 
@@ -115,12 +117,12 @@ class PaystackWebhookTest extends TestCase
         config()->set('notifications.internal.recipients', ['ops@example.com']);
         $payment = $this->pendingPayment();
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         $this->postRaw($payload, $sig)->assertOk();
 
         $this->assertDatabaseHas('payments', [
-            'id'     => $payment->id,
+            'id' => $payment->id,
             'status' => 'paid',
         ]);
         $this->assertNotNull($payment->fresh()->paid_at);
@@ -131,31 +133,31 @@ class PaystackWebhookTest extends TestCase
     public function test_updates_order_payment_status(): void
     {
         $payment = $this->pendingPayment();
-        $order   = $payment->order;
+        $order = $payment->order;
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         $this->postRaw($payload, $sig)->assertOk();
 
         $this->assertDatabaseHas('orders', [
-            'id'             => $order->id,
+            'id' => $order->id,
             'payment_status' => 'paid',
-            'status'         => 'confirmed',
+            'status' => 'confirmed',
         ]);
     }
 
     public function test_creates_order_status_history(): void
     {
         $payment = $this->pendingPayment();
-        $order   = $payment->order;
+        $order = $payment->order;
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         $this->postRaw($payload, $sig)->assertOk();
 
         $this->assertDatabaseHas('order_status_histories', [
-            'order_id'   => $order->id,
-            'to_status'  => 'confirmed',
+            'order_id' => $order->id,
+            'to_status' => 'confirmed',
         ]);
     }
 
@@ -163,7 +165,7 @@ class PaystackWebhookTest extends TestCase
     {
         $payment = $this->pendingPayment();
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         // First call
         $this->postRaw($payload, $sig)->assertOk();
@@ -172,14 +174,14 @@ class PaystackWebhookTest extends TestCase
         $this->postRaw($payload, $sig)->assertOk();
 
         // Only one status history entry for 'confirmed' despite two calls
-        $this->assertSame(1, \App\Models\OrderStatusHistory::where('to_status', 'confirmed')->count());
+        $this->assertSame(1, OrderStatusHistory::where('to_status', 'confirmed')->count());
     }
 
     public function test_ignores_unsupported_events_safely(): void
     {
         $payload = json_encode([
             'event' => 'transfer.success',
-            'data'  => ['reference' => 'SOME-REF'],
+            'data' => ['reference' => 'SOME-REF'],
         ]);
         $sig = $this->sign($payload);
 
@@ -188,14 +190,14 @@ class PaystackWebhookTest extends TestCase
         $response->assertOk();
         $this->assertDatabaseHas('payment_webhook_logs', [
             'event_type' => 'transfer.success',
-            'processed'  => true,
+            'processed' => true,
         ]);
     }
 
     public function test_handles_unknown_reference_safely(): void
     {
         $payload = $this->chargeSuccessPayload('PAY-DOESNOTEXIST');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         $response = $this->postRaw($payload, $sig);
 
@@ -213,7 +215,7 @@ class PaystackWebhookTest extends TestCase
             'payment_status' => 'unpaid',
         ]);
         $payload = $this->chargeSuccessPayload('PAY-TESTREF001');
-        $sig     = $this->sign($payload);
+        $sig = $this->sign($payload);
 
         $this->postRaw($payload, $sig)->assertOk();
 

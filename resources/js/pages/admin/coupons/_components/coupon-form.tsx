@@ -50,7 +50,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
 
     const submitLabel = isEdit ? 'Update coupon' : 'Create coupon';
     const validityState = isActive
-        ? coupon?.is_currently_valid ?? true
+        ? (coupon?.is_currently_valid ?? true)
             ? 'Ready to redeem'
             : 'Scheduled or expired'
         : 'Disabled';
@@ -75,22 +75,25 @@ export function CouponForm({ coupon }: CouponFormProps) {
                             <div className="rounded-[2rem] border border-border/70 bg-muted/30 p-6 shadow-sm">
                                 <div className="flex flex-wrap items-start justify-between gap-4">
                                     <div className="space-y-2">
-                                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                                        <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                                             Promotion setup
                                         </p>
                                         <h2 className="text-2xl font-semibold tracking-tight">
-                                            {isEdit ? coupon.code : 'New coupon'}
+                                            {isEdit
+                                                ? coupon.code
+                                                : 'New coupon'}
                                         </h2>
                                         <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                                            Configure discount mechanics, guardrails,
-                                            and validity windows without guessing what
-                                            each field means.
+                                            Configure discount mechanics,
+                                            guardrails, and validity windows
+                                            without guessing what each field
+                                            means.
                                         </p>
                                     </div>
 
                                     <div className="grid min-w-56 gap-3 sm:grid-cols-2">
                                         <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                            <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                                 Discount mode
                                             </p>
                                             <p className="mt-2 text-lg font-semibold">
@@ -100,7 +103,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             </p>
                                         </div>
                                         <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                            <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                                 Redemption state
                                             </p>
                                             <p className="mt-2 text-lg font-semibold">
@@ -115,7 +118,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                         <div className="rounded-[2rem] border border-border/70 bg-primary/5 p-6 shadow-sm">
                             <div className="space-y-4">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                                    <p className="text-xs font-semibold tracking-[0.24em] text-primary uppercase">
                                         Operational view
                                     </p>
                                     <h3 className="mt-2 text-xl font-semibold tracking-tight">
@@ -181,7 +184,9 @@ export function CouponForm({ coupon }: CouponFormProps) {
                             >
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label htmlFor="code">Coupon code</Label>
+                                        <Label htmlFor="code">
+                                            Coupon code
+                                        </Label>
                                         <Input
                                             id="code"
                                             name="code"
@@ -190,7 +195,8 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             className="h-11 font-mono uppercase"
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Keep it short, obvious, and easy to type.
+                                            Keep it short, obvious, and easy to
+                                            type.
                                         </p>
                                         <FieldError message={errors.code} />
                                     </div>
@@ -220,8 +226,8 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                         </Select>
                                         <p className="text-xs text-muted-foreground">
                                             Fixed discounts use minor units.
-                                            Percentage discounts use whole-number
-                                            percentages.
+                                            Percentage discounts use
+                                            whole-number percentages.
                                         </p>
                                         <FieldError message={errors.type} />
                                     </div>
@@ -272,17 +278,20 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             type="number"
                                             min="0"
                                             defaultValue={
-                                                coupon?.minimum_order_amount ?? ''
+                                                coupon?.minimum_order_amount ??
+                                                ''
                                             }
                                             placeholder="5000"
                                             className="h-11"
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Leave blank if no minimum basket value is
-                                            required.
+                                            Leave blank if no minimum basket
+                                            value is required.
                                         </p>
                                         <FieldError
-                                            message={errors.minimum_order_amount}
+                                            message={
+                                                errors.minimum_order_amount
+                                            }
                                         />
                                     </div>
 
@@ -303,11 +312,13 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             className="h-11"
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Useful for percentage coupons so they do
-                                            not run wild.
+                                            Useful for percentage coupons so
+                                            they do not run wild.
                                         </p>
                                         <FieldError
-                                            message={errors.maximum_discount_amount}
+                                            message={
+                                                errors.maximum_discount_amount
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -336,9 +347,12 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             className="h-11"
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Leave blank for unlimited redemptions.
+                                            Leave blank for unlimited
+                                            redemptions.
                                         </p>
-                                        <FieldError message={errors.usage_limit} />
+                                        <FieldError
+                                            message={errors.usage_limit}
+                                        />
                                     </div>
 
                                     <div className="space-y-2">
@@ -354,7 +368,9 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             )}
                                             className="h-11"
                                         />
-                                        <FieldError message={errors.starts_at} />
+                                        <FieldError
+                                            message={errors.starts_at}
+                                        />
                                     </div>
 
                                     <div className="space-y-2">
@@ -370,7 +386,9 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             )}
                                             className="h-11"
                                         />
-                                        <FieldError message={errors.expires_at} />
+                                        <FieldError
+                                            message={errors.expires_at}
+                                        />
                                     </div>
                                 </div>
 
@@ -389,12 +407,14 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                                 htmlFor="is_active"
                                                 className="cursor-pointer"
                                             >
-                                                Active and available for redemption
+                                                Active and available for
+                                                redemption
                                             </Label>
                                             <p className="text-sm text-muted-foreground">
-                                                Disable this when you want to keep
-                                                the code for records without allowing
-                                                new redemptions.
+                                                Disable this when you want to
+                                                keep the code for records
+                                                without allowing new
+                                                redemptions.
                                             </p>
                                         </div>
                                     </div>
@@ -416,7 +436,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                 >
                                     <div className="grid gap-3">
                                         <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                            <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                                 Existing usage
                                             </p>
                                             <p className="mt-2 text-2xl font-semibold">
@@ -424,7 +444,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             </p>
                                         </div>
                                         <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                            <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                                 Minimum spend
                                             </p>
                                             <p className="mt-2 text-lg font-semibold">
@@ -434,7 +454,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                             </p>
                                         </div>
                                         <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                            <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                                 Max discount
                                             </p>
                                             <p className="mt-2 text-lg font-semibold">
@@ -447,22 +467,23 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                 </FormSection>
 
                                 <div className="rounded-[1.75rem] border border-border/70 bg-secondary/40 p-5">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/70">
+                                    <p className="text-xs font-semibold tracking-[0.24em] text-foreground/70 uppercase">
                                         Guardrails
                                     </p>
                                     <div className="mt-4 space-y-3 text-sm text-muted-foreground">
                                         <p>
-                                            Fixed discounts and spending thresholds
-                                            are stored in minor units.
+                                            Fixed discounts and spending
+                                            thresholds are stored in minor
+                                            units.
                                         </p>
                                         <p>
-                                            Percentage coupons should usually define
-                                            a maximum discount cap.
+                                            Percentage coupons should usually
+                                            define a maximum discount cap.
                                         </p>
                                         <p>
-                                            If both dates are blank, the coupon is
-                                            valid immediately and indefinitely while
-                                            active.
+                                            If both dates are blank, the coupon
+                                            is valid immediately and
+                                            indefinitely while active.
                                         </p>
                                     </div>
                                 </div>
@@ -473,7 +494,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                     children={
                                         <div
                                             className={cn(
-                                                'mr-auto rounded-full border border-border/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em]',
+                                                'mr-auto rounded-full border border-border/70 px-3 py-1 text-xs font-medium tracking-[0.18em] uppercase',
                                                 isActive
                                                     ? 'bg-primary/5 text-primary'
                                                     : 'bg-muted text-muted-foreground',

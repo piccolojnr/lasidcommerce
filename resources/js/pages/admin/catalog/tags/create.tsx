@@ -9,7 +9,17 @@ export default function TagCreatePage() {
     return (
         <AdminLayout title="Create Tag">
             <div className="mx-auto w-full max-w-4xl space-y-6">
-                <PageHeader title="Create tag" description="Create a reusable merchandising label for storefront discovery." actions={<Button variant="outline" asChild><Link href={TagController.index.url()}>Back to list</Link></Button>} />
+                <PageHeader
+                    title="Create tag"
+                    description="Create a reusable merchandising label for storefront discovery."
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={TagController.index.url()}>
+                                Back to list
+                            </Link>
+                        </Button>
+                    }
+                />
                 <TagForm />
             </div>
         </AdminLayout>

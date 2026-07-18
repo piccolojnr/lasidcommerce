@@ -38,7 +38,7 @@ class UpdateShipmentStatusAction
             $updateData[$tsField] = now();
         }
 
-        DB::transaction(function () use ($shipment, $updateData, $toStatus) {
+        DB::transaction(function () use ($shipment, $updateData) {
             $shipment->update($updateData);
             $this->fulfillmentService->sync($shipment->order->fresh([
                 'orderItems.shipmentItems.shipment',

@@ -3,12 +3,12 @@
 namespace Tests\Feature\Admin\Orders;
 
 use App\Models\Order;
-use App\Models\OrderStatusHistory;
 use App\Models\User;
 use App\Notifications\InternalOrderStatusUpdatedNotification;
 use App\Notifications\OrderStatusUpdatedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -33,7 +33,7 @@ class OrderStatusTest extends TestCase
         return Order::factory()->create(['status' => $status]);
     }
 
-    private function updateStatus(Order $order, array $data): \Illuminate\Testing\TestResponse
+    private function updateStatus(Order $order, array $data): TestResponse
     {
         return $this->actingAs($this->admin)
             ->patch(route('admin.orders.status.update', $order), $data);
@@ -52,7 +52,7 @@ class OrderStatusTest extends TestCase
 
     public function test_unauthorized_user_cannot_update_order_status(): void
     {
-        $user  = User::factory()->create(); // no permission
+        $user = User::factory()->create(); // no permission
         $order = $this->order();
 
         $response = $this->actingAs($user)
@@ -69,7 +69,7 @@ class OrderStatusTest extends TestCase
         config()->set('notifications.internal.recipients', ['ops@example.com']);
         $order = $this->order('pending');
 
-        $response = $this->updateStatus($order,['status' => 'confirmed']);
+        $response = $this->updateStatus($order, ['status' => 'confirmed']);
 
         $response->assertRedirect(route('admin.orders.show', $order));
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'confirmed']);
@@ -80,14 +80,14 @@ class OrderStatusTest extends TestCase
     public function test_pending_to_confirmed(): void
     {
         $order = $this->order('pending');
-        $this->updateStatus($order,['status' => 'confirmed']);
+        $this->updateStatus($order, ['status' => 'confirmed']);
         $this->assertSame('confirmed', $order->fresh()->status);
     }
 
     public function test_confirmed_to_processing(): void
     {
         $order = $this->order('confirmed');
-        $this->updateStatus($order,['status' => 'processing']);
+        $this->updateStatus($order, ['status' => 'processing']);
         $this->assertSame('processing', $order->fresh()->status);
     }
 
@@ -97,28 +97,28 @@ class OrderStatusTest extends TestCase
             'status' => 'processing',
             'fulfillment_status' => 'fulfilled',
         ]);
-        $this->updateStatus($order,['status' => 'completed']);
+        $this->updateStatus($order, ['status' => 'completed']);
         $this->assertSame('completed', $order->fresh()->status);
     }
 
     public function test_pending_can_be_cancelled(): void
     {
         $order = $this->order('pending');
-        $this->updateStatus($order,['status' => 'cancelled']);
+        $this->updateStatus($order, ['status' => 'cancelled']);
         $this->assertSame('cancelled', $order->fresh()->status);
     }
 
     public function test_confirmed_can_be_cancelled(): void
     {
         $order = $this->order('confirmed');
-        $this->updateStatus($order,['status' => 'cancelled']);
+        $this->updateStatus($order, ['status' => 'cancelled']);
         $this->assertSame('cancelled', $order->fresh()->status);
     }
 
     public function test_processing_can_be_cancelled(): void
     {
         $order = $this->order('processing');
-        $this->updateStatus($order,['status' => 'cancelled']);
+        $this->updateStatus($order, ['status' => 'cancelled']);
         $this->assertSame('cancelled', $order->fresh()->status);
     }
 
@@ -128,7 +128,7 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('pending');
 
-        $response = $this->updateStatus($order,['status' => 'completed']); // skip steps
+        $response = $this->updateStatus($order, ['status' => 'completed']); // skip steps
 
         $response->assertRedirect(route('admin.orders.show', $order));
         $response->assertSessionHasErrors('status');
@@ -139,7 +139,7 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('cancelled');
 
-        $response = $this->updateStatus($order,['status' => 'pending']);
+        $response = $this->updateStatus($order, ['status' => 'pending']);
 
         $response->assertSessionHasErrors('status');
         $this->assertSame('cancelled', $order->fresh()->status);
@@ -149,7 +149,7 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('completed');
 
-        $response = $this->updateStatus($order,['status' => 'processing']);
+        $response = $this->updateStatus($order, ['status' => 'processing']);
 
         $response->assertSessionHasErrors('status');
         $this->assertSame('completed', $order->fresh()->status);
@@ -159,7 +159,7 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('processing');
 
-        $response = $this->updateStatus($order,['status' => 'completed']);
+        $response = $this->updateStatus($order, ['status' => 'completed']);
 
         $response->assertSessionHasErrors('status');
         $this->assertSame('processing', $order->fresh()->status);
@@ -171,14 +171,14 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('pending');
 
-        $this->updateStatus($order,['status' => 'confirmed', 'note' => 'Manual confirmation.']);
+        $this->updateStatus($order, ['status' => 'confirmed', 'note' => 'Manual confirmation.']);
 
         $this->assertDatabaseHas('order_status_histories', [
-            'order_id'    => $order->id,
+            'order_id' => $order->id,
             'from_status' => 'pending',
-            'to_status'   => 'confirmed',
-            'note'        => 'Manual confirmation.',
-            'changed_by'  => $this->admin->id,
+            'to_status' => 'confirmed',
+            'note' => 'Manual confirmation.',
+            'changed_by' => $this->admin->id,
         ]);
     }
 
@@ -186,7 +186,7 @@ class OrderStatusTest extends TestCase
     {
         $order = $this->order('cancelled');
 
-        $this->updateStatus($order,['status' => 'confirmed']);
+        $this->updateStatus($order, ['status' => 'confirmed']);
 
         $this->assertDatabaseCount('order_status_histories', 0);
     }

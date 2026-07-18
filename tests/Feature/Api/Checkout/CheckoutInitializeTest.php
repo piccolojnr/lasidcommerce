@@ -188,4 +188,3 @@ class CheckoutInitializeTest extends TestCase
         ]);
     }
 }
-

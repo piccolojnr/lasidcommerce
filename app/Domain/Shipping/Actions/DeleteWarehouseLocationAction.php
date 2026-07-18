@@ -6,7 +6,7 @@ use App\Models\WarehouseLocation;
 
 class DeleteWarehouseLocationAction
 {
-    public function execute(WarehouseLocation $warehouseLocation): bool|null
+    public function execute(WarehouseLocation $warehouseLocation): ?bool
     {
         return $warehouseLocation->delete();
     }

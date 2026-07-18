@@ -9,30 +9,38 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ListPublicProductsQuery
 {
     private ?string $search = null;
+
     private ?string $categorySlug = null;
+
     private ?string $brandSlug = null;
+
     private ?string $tagSlug = null;
+
     private ?string $collectionSlug = null;
+
     private bool $featuredOnly = false;
+
     private string $sort = 'latest';
+
     private ?int $minPrice = null;
+
     private ?int $maxPrice = null;
 
     public function withFilters(array $filters): static
     {
         $clone = clone $this;
-        $clone->search       = $filters['search'] ?? null;
+        $clone->search = $filters['search'] ?? null;
         $clone->categorySlug = $filters['category'] ?? null;
-        $clone->brandSlug    = $filters['brand'] ?? null;
-        $clone->tagSlug      = $filters['tag'] ?? null;
+        $clone->brandSlug = $filters['brand'] ?? null;
+        $clone->tagSlug = $filters['tag'] ?? null;
         $clone->collectionSlug = $filters['collection'] ?? null;
         $clone->featuredOnly = isset($filters['featured'])
             && filter_var($filters['featured'], FILTER_VALIDATE_BOOLEAN);
-        $clone->sort         = in_array($filters['sort'] ?? '', ['price_asc', 'price_desc', 'latest'], true)
+        $clone->sort = in_array($filters['sort'] ?? '', ['price_asc', 'price_desc', 'latest'], true)
             ? ($filters['sort'])
             : 'latest';
-        $clone->minPrice     = isset($filters['min_price']) ? (int) $filters['min_price'] : null;
-        $clone->maxPrice     = isset($filters['max_price']) ? (int) $filters['max_price'] : null;
+        $clone->minPrice = isset($filters['min_price']) ? (int) $filters['min_price'] : null;
+        $clone->maxPrice = isset($filters['max_price']) ? (int) $filters['max_price'] : null;
 
         return $clone;
     }

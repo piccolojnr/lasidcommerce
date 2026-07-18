@@ -9,6 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ListAdminCustomersQuery
 {
     private ?string $search = null;
+
     private ?string $status = null;
 
     public function __construct(

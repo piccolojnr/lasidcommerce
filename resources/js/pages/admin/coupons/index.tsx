@@ -40,7 +40,9 @@ export default function CouponIndexPage({ coupons, filters }: Props) {
             : filters.is_active === false
               ? '0'
               : EMPTY_SENTINEL;
-    const activeCoupons = coupons.data.filter((coupon) => coupon.is_active).length;
+    const activeCoupons = coupons.data.filter(
+        (coupon) => coupon.is_active,
+    ).length;
     const validCoupons = coupons.data.filter(
         (coupon) => coupon.is_currently_valid,
     ).length;
@@ -107,8 +109,8 @@ export default function CouponIndexPage({ coupons, filters }: Props) {
                                 {validCoupons}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                Coupons that are active and inside their validity
-                                window.
+                                Coupons that are active and inside their
+                                validity window.
                             </p>
                         </CardContent>
                     </Card>
@@ -117,15 +119,15 @@ export default function CouponIndexPage({ coupons, filters }: Props) {
                 <div className="rounded-[2rem] border border-border/70 bg-muted/25 p-5">
                     <div className="flex flex-wrap items-end justify-between gap-4">
                         <div className="space-y-1">
-                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                            <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                                 Campaign filter
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                Search by code, then narrow the result set by active
-                                state.
+                                Search by code, then narrow the result set by
+                                active state.
                             </p>
                         </div>
-                        <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
                             {cappedCoupons} capped campaigns on this page
                         </div>
                     </div>

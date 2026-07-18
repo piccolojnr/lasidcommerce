@@ -10,7 +10,17 @@ export default function TagEditPage({ tag }: { tag: AdminTag }) {
     return (
         <AdminLayout title="Edit Tag">
             <div className="mx-auto w-full max-w-4xl space-y-6">
-                <PageHeader title={`Edit ${tag.name}`} description="Refine the tag copy and storefront visibility." actions={<Button variant="outline" asChild><Link href={TagController.show.url(tag)}>Back to tag</Link></Button>} />
+                <PageHeader
+                    title={`Edit ${tag.name}`}
+                    description="Refine the tag copy and storefront visibility."
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={TagController.show.url(tag)}>
+                                Back to tag
+                            </Link>
+                        </Button>
+                    }
+                />
                 <TagForm tag={tag} />
             </div>
         </AdminLayout>

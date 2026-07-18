@@ -12,12 +12,12 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            'order_id'      => Order::factory(),
-            'user_id'       => User::factory(),
-            'provider'      => 'paystack',
-            'reference'     => 'PAY-' . strtoupper(Str::random(16)),
-            'status'        => 'pending',
-            'amount'        => 5000,
+            'order_id' => Order::factory(),
+            'user_id' => User::factory(),
+            'provider' => 'paystack',
+            'reference' => 'PAY-'.strtoupper(Str::random(16)),
+            'status' => 'pending',
+            'amount' => 5000,
             'currency_code' => 'GHS',
         ];
     }

@@ -34,11 +34,11 @@ class UpdateOrderStatusAction
         $order->update(['status' => $toStatus]);
 
         OrderStatusHistory::create([
-            'order_id'    => $order->id,
+            'order_id' => $order->id,
             'from_status' => $fromStatus,
-            'to_status'   => $toStatus,
-            'note'        => $note,
-            'changed_by'  => $actor?->id,
+            'to_status' => $toStatus,
+            'note' => $note,
+            'changed_by' => $actor?->id,
         ]);
 
         $updatedOrder = $order->fresh();

@@ -163,7 +163,7 @@ class CustomerAuthTest extends TestCase
         });
 
         $this->get($verifyUrl)->assertRedirect('http://shop.example.test/account');
-        $this->get($verifyUrl)->assertRedirect('http://shop.example.test/auth?auth_error=invalid_or_expired_link');
+        $this->get($verifyUrl)->assertRedirect('http://shop.example.test/auth/login?auth_error=invalid_or_expired_link');
     }
 
     public function test_password_login_merges_guest_cart_into_existing_customer_cart(): void

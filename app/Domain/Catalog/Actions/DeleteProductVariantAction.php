@@ -6,7 +6,7 @@ use App\Models\ProductVariant;
 
 class DeleteProductVariantAction
 {
-    public function execute(ProductVariant $variant): bool|null
+    public function execute(ProductVariant $variant): ?bool
     {
         return $variant->delete();
     }

@@ -15,6 +15,7 @@ use App\Models\ShippingZone;
 use App\Models\User;
 use App\Models\WarehouseLocation;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class DemoOrdersSeeder extends Seeder
 {
@@ -365,9 +366,9 @@ class DemoOrdersSeeder extends Seeder
     }
 
     /**
-     * @param array<int, array{sku: string, quantity: int}> $items
-     * @param array<int, array{from_status: ?string, to_status: string, note: ?string, created_at: \Illuminate\Support\Carbon}> $statusHistory
-     * @param array<string, mixed>|null $shipment
+     * @param  array<int, array{sku: string, quantity: int}>  $items
+     * @param  array<int, array{from_status: ?string, to_status: string, note: ?string, created_at: Carbon}>  $statusHistory
+     * @param  array<string, mixed>|null  $shipment
      */
     private function seedOrder(
         string $orderNumber,
@@ -383,7 +384,7 @@ class DemoOrdersSeeder extends Seeder
         ?array $shipment,
         array $statusHistory,
     ): void {
-        if (!$customer) {
+        if (! $customer) {
             return;
         }
 
@@ -393,7 +394,7 @@ class DemoOrdersSeeder extends Seeder
         foreach ($items as $item) {
             $product = Product::query()->where('sku', $item['sku'])->first();
 
-            if (!$product) {
+            if (! $product) {
                 continue;
             }
 
@@ -515,7 +516,7 @@ class DemoOrdersSeeder extends Seeder
             foreach ($lineItems as $lineItem) {
                 $orderItem = $orderItems->get($lineItem['product']->sku);
 
-                if (!$orderItem) {
+                if (! $orderItem) {
                     continue;
                 }
 

@@ -13,6 +13,7 @@ class ProductVariantOptionValue extends Model
     public $timestamps = false;
 
     public const CREATED_AT = null;
+
     public const UPDATED_AT = null;
 
     protected $fillable = [

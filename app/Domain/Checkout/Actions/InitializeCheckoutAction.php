@@ -7,6 +7,7 @@ use App\Domain\Payment\Actions\InitializePaystackPaymentAction;
 use App\Domain\Payment\Exceptions\PaymentException;
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\Order;
 use App\Models\ShippingMethod;
 use App\Models\User;
 
@@ -18,7 +19,7 @@ class InitializeCheckoutAction
     ) {}
 
     /**
-     * @return array{order: \App\Models\Order, payment: array|null, payment_error: string|null}
+     * @return array{order: Order, payment: array|null, payment_error: string|null}
      *
      * @throws CheckoutException
      */
@@ -31,8 +32,7 @@ class InitializeCheckoutAction
         ?string $notes = null,
         ?string $deliveryNotes = null,
         ?string $couponCode = null,
-    ): array
-    {
+    ): array {
         if ($couponCode !== null) {
             throw new CheckoutException('Coupon codes are not supported in checkout initialization yet.');
         }

@@ -16,8 +16,6 @@ class VerifyPaystackPaymentAction
     /**
      * Look up a payment by reference, verify with Paystack if still pending,
      * sync the order if confirmed. Returns the payment (with order loaded) or null.
-     *
-     * @return Payment|null
      */
     public function execute(string $reference): ?Payment
     {
@@ -42,7 +40,7 @@ class VerifyPaystackPaymentAction
             return $payment;
         }
 
-        $data   = $response->json('data') ?? [];
+        $data = $response->json('data') ?? [];
         $status = $data['status'] ?? null;
 
         if ($status === 'success') {

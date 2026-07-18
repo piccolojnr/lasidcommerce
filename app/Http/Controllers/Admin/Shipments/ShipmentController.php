@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin\Shipments;
 
+use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Actions\CreateShipmentAction;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Queries\ListAdminShipmentsQuery;
-use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShipmentRequest;
@@ -13,8 +13,9 @@ use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
 use App\Models\WarehouseLocation;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -124,7 +125,7 @@ class ShipmentController extends Controller
             ->with('success', 'Shipment created successfully.');
     }
 
-    public function update(Shipment $shipment): \Illuminate\Http\Response
+    public function update(Shipment $shipment): Response
     {
         $this->authorize('update', $shipment);
 

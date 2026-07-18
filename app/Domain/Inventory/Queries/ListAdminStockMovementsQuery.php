@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListAdminStockMovementsQuery
 {
     private ?string $search = null;
+
     private ?string $type = null;
 
     public function withFilters(array $filters): static

@@ -12,7 +12,13 @@ export default function WarehouseCreatePage() {
                 <PageHeader
                     title="Create warehouse location"
                     description="Add a new fulfillment origin for shipment assignment and operational routing."
-                    actions={<Button variant="outline" asChild><Link href={adminRoutes.shipping.warehouses}>Back to warehouses</Link></Button>}
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={adminRoutes.shipping.warehouses}>
+                                Back to warehouses
+                            </Link>
+                        </Button>
+                    }
                 />
                 <WarehouseForm />
             </div>

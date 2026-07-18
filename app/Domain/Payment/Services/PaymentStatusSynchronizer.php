@@ -19,16 +19,16 @@ class PaymentStatusSynchronizer
     {
         DB::transaction(function () use ($payment, $paystackData) {
             $payment->update([
-                'status'                  => 'paid',
+                'status' => 'paid',
                 'provider_transaction_id' => isset($paystackData['id'])
                     ? (string) $paystackData['id']
                     : null,
-                'paid_at'          => now(),
+                'paid_at' => now(),
                 'gateway_response' => $paystackData['gateway_response'] ?? null,
                 'raw_payload_json' => $paystackData,
             ]);
 
-            $order      = $payment->order;
+            $order = $payment->order;
             $fromStatus = $order->status;
             $updateData = ['payment_status' => 'paid'];
 
@@ -40,11 +40,11 @@ class PaymentStatusSynchronizer
 
             if (($updateData['status'] ?? null) === 'confirmed') {
                 OrderStatusHistory::create([
-                    'order_id'    => $order->id,
+                    'order_id' => $order->id,
                     'from_status' => $fromStatus,
-                    'to_status'   => 'confirmed',
-                    'note'        => 'Payment confirmed via Paystack webhook.',
-                    'changed_by'  => null,
+                    'to_status' => 'confirmed',
+                    'note' => 'Payment confirmed via Paystack webhook.',
+                    'changed_by' => null,
                 ]);
             }
         });

@@ -17,7 +17,7 @@ class DeleteProductActionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->action = new DeleteProductAction();
+        $this->action = new DeleteProductAction;
     }
 
     public function test_soft_deletes_product_with_no_order_items(): void
@@ -35,21 +35,21 @@ class DeleteProductActionTest extends TestCase
 
         $orderId = \DB::table('orders')->insertGetId([
             'order_number' => 'TEST-001',
-            'email'        => 'test@example.com',
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'email' => 'test@example.com',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         \DB::table('order_items')->insert([
-            'order_id'     => $orderId,
-            'product_id'   => $product->id,
+            'order_id' => $orderId,
+            'product_id' => $product->id,
             'product_name' => $product->name,
-            'sku'          => $product->sku,
-            'quantity'     => 1,
-            'unit_price'   => $product->base_price,
-            'line_total'   => $product->base_price,
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'sku' => $product->sku,
+            'quantity' => 1,
+            'unit_price' => $product->base_price,
+            'line_total' => $product->base_price,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $this->expectException(CannotDeleteProductException::class);
@@ -64,21 +64,21 @@ class DeleteProductActionTest extends TestCase
 
         $orderId = \DB::table('orders')->insertGetId([
             'order_number' => 'TEST-002',
-            'email'        => 'test@example.com',
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'email' => 'test@example.com',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         \DB::table('order_items')->insert([
-            'order_id'     => $orderId,
-            'product_id'   => $product->id,
+            'order_id' => $orderId,
+            'product_id' => $product->id,
             'product_name' => $product->name,
-            'sku'          => $product->sku,
-            'quantity'     => 1,
-            'unit_price'   => $product->base_price,
-            'line_total'   => $product->base_price,
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            'sku' => $product->sku,
+            'quantity' => 1,
+            'unit_price' => $product->base_price,
+            'line_total' => $product->base_price,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         try {

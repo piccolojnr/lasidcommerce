@@ -234,7 +234,7 @@ class CategoryTest extends TestCase
         $this->actingAs($this->admin);
 
         $this->post(route('admin.catalog.categories.store'), [
-            'name'  => 'Image Category',
+            'name' => 'Image Category',
             'image' => UploadedFile::fake()->image('cat.jpg'),
         ]);
 
@@ -250,7 +250,7 @@ class CategoryTest extends TestCase
         $category->addMedia(UploadedFile::fake()->image('cat.jpg'))->toMediaCollection('images');
 
         $this->put(route('admin.catalog.categories.update', $category), [
-            'name'         => $category->name,
+            'name' => $category->name,
             'remove_image' => true,
         ]);
 

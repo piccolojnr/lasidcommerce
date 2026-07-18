@@ -13,7 +13,9 @@ class ListAdminUsersQuery
     ) {}
 
     private ?string $search = null;
+
     private ?string $status = null;
+
     private ?string $role = null;
 
     public function withFilters(array $filters): static

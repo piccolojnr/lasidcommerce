@@ -7,11 +7,11 @@ use App\Models\Order;
 class OrderStatusManager
 {
     private const TRANSITIONS = [
-        'pending'    => ['confirmed', 'cancelled'],
-        'confirmed'  => ['processing', 'cancelled'],
+        'pending' => ['confirmed', 'cancelled'],
+        'confirmed' => ['processing', 'cancelled'],
         'processing' => ['completed', 'cancelled'],
-        'completed'  => [],
-        'cancelled'  => [],
+        'completed' => [],
+        'cancelled' => [],
     ];
 
     public function canTransition(Order $order, string $toStatus): bool

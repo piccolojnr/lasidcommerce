@@ -38,7 +38,9 @@ export function SettingsForm({ catalogSettings }: Props) {
             >
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <Label htmlFor="setting-new-arrival-window">New arrival window (days)</Label>
+                        <Label htmlFor="setting-new-arrival-window">
+                            New arrival window (days)
+                        </Label>
                         <Input
                             id="setting-new-arrival-window"
                             type="number"
@@ -54,9 +56,16 @@ export function SettingsForm({ catalogSettings }: Props) {
                             }
                         />
                         <p className="text-sm text-muted-foreground">
-                            Products published within this window receive the computed <code>new_arrival</code> badge.
+                            Products published within this window receive the
+                            computed <code>new_arrival</code> badge.
                         </p>
-                        <FieldError message={(form.errors as Record<string, string>)['settings.0.value']} />
+                        <FieldError
+                            message={
+                                (form.errors as Record<string, string>)[
+                                    'settings.0.value'
+                                ]
+                            }
+                        />
                     </div>
                 </div>
             </FormSection>

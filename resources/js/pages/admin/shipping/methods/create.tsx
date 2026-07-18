@@ -12,7 +12,13 @@ export default function ShippingMethodCreatePage() {
                 <PageHeader
                     title="Create shipping method"
                     description="Create a reusable shipping method definition that zones can attach when needed."
-                    actions={<Button variant="outline" asChild><Link href={adminRoutes.shipping.methods}>Back to methods</Link></Button>}
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={adminRoutes.shipping.methods}>
+                                Back to methods
+                            </Link>
+                        </Button>
+                    }
                 />
                 <MethodForm />
             </div>

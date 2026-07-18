@@ -8,8 +8,8 @@ use Illuminate\Http\UploadedFile;
 class SyncProductMediaAction
 {
     /**
-     * @param array<int, UploadedFile> $newImages      New files to add to the images collection
-     * @param array<int, int>          $removeImageIds  Media IDs to delete from the collection
+     * @param  array<int, UploadedFile>  $newImages  New files to add to the images collection
+     * @param  array<int, int>  $removeImageIds  Media IDs to delete from the collection
      */
     public function execute(Product $product, array $newImages = [], array $removeImageIds = []): void
     {

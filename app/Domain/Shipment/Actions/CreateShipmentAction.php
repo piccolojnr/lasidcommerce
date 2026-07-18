@@ -2,8 +2,8 @@
 
 namespace App\Domain\Shipment\Actions;
 
-use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Order\Services\OrderFulfillmentService;
+use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
@@ -60,23 +60,23 @@ class CreateShipmentAction
 
         return DB::transaction(function () use ($order, $data) {
             $shipment = Shipment::create([
-                'order_id'        => $order->id,
+                'order_id' => $order->id,
                 'warehouse_location_id' => $data['warehouse_location_id'] ?? null,
                 'shipping_method_id' => $order->shipping_method_id,
-                'status'          => 'pending',
-                'carrier_name'    => $data['carrier_name'] ?? null,
+                'status' => 'pending',
+                'carrier_name' => $data['carrier_name'] ?? null,
                 'tracking_number' => $data['tracking_number'] ?? null,
-                'tracking_url'    => $data['tracking_url'] ?? null,
-                'notes'           => $data['notes'] ?? null,
-                'rider_name'      => $data['rider_name'] ?? null,
-                'rider_phone'     => $data['rider_phone'] ?? null,
+                'tracking_url' => $data['tracking_url'] ?? null,
+                'notes' => $data['notes'] ?? null,
+                'rider_name' => $data['rider_name'] ?? null,
+                'rider_phone' => $data['rider_phone'] ?? null,
             ]);
 
             foreach ($data['items'] as $item) {
                 ShipmentItem::create([
-                    'shipment_id'   => $shipment->id,
+                    'shipment_id' => $shipment->id,
                     'order_item_id' => $item['order_item_id'],
-                    'quantity'      => $item['quantity'],
+                    'quantity' => $item['quantity'],
                 ]);
             }
 

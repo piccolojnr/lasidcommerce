@@ -3,8 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 
 type FilterValue = string | number | boolean | null | undefined;
 
-export function useFilters<T extends Record<string, FilterValue>>(route: string, serverFilters: T) {
-    const [search, setSearch] = useState<string>((serverFilters.search as string) ?? '');
+export function useFilters<T extends Record<string, FilterValue>>(
+    route: string,
+    serverFilters: T,
+) {
+    const [search, setSearch] = useState<string>(
+        (serverFilters.search as string) ?? '',
+    );
     const isFirstRender = useRef(true);
     const latestFilters = useRef<Record<string, FilterValue>>(serverFilters);
     latestFilters.current = serverFilters;
@@ -23,7 +28,8 @@ export function useFilters<T extends Record<string, FilterValue>>(route: string,
         }
 
         const timer = setTimeout(
-            () => navigate({ ...latestFilters.current, search: search || null }),
+            () =>
+                navigate({ ...latestFilters.current, search: search || null }),
             300,
         );
 
@@ -33,13 +39,23 @@ export function useFilters<T extends Record<string, FilterValue>>(route: string,
 
     function navigate(filters: Record<string, FilterValue>) {
         const params = Object.fromEntries(
-            Object.entries(filters).filter(([, v]) => v !== null && v !== undefined && v !== ''),
+            Object.entries(filters).filter(
+                ([, v]) => v !== null && v !== undefined && v !== '',
+            ),
         ) as Record<string, string>;
-        router.get(route, params, { preserveState: true, preserveScroll: true, replace: true });
+        router.get(route, params, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
     }
 
     function setFilter(key: string, value: FilterValue) {
-        navigate({ ...latestFilters.current, search: search || null, [key]: value });
+        navigate({
+            ...latestFilters.current,
+            search: search || null,
+            [key]: value,
+        });
     }
 
     return { search, setSearch, setFilter };

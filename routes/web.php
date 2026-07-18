@@ -21,13 +21,13 @@ use App\Http\Controllers\Admin\Payments\PaymentWebhookLogController;
 use App\Http\Controllers\Admin\Payments\RefundController;
 use App\Http\Controllers\Admin\Settings\SettingController;
 use App\Http\Controllers\Admin\Shipments\ShipmentController;
+use App\Http\Controllers\Admin\Shipments\ShipmentStatusController;
 use App\Http\Controllers\Admin\Shipments\ShippingMethodController;
 use App\Http\Controllers\Admin\Shipments\ShippingZoneAreaController;
 use App\Http\Controllers\Admin\Shipments\ShippingZoneController;
-use App\Http\Controllers\Admin\Shipments\ShipmentStatusController;
 use App\Http\Controllers\Admin\Shipments\WarehouseLocationController;
-use App\Http\Controllers\Admin\Users\UserController;
 use App\Http\Controllers\Admin\Users\CustomerController;
+use App\Http\Controllers\Admin\Users\UserController;
 use App\Http\Controllers\Admin\Users\UserRoleController;
 use Illuminate\Support\Facades\Route;
 

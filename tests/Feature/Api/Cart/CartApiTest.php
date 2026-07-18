@@ -17,7 +17,7 @@ class CartApiTest extends TestCase
     private function activeProduct(array $attrs = []): Product
     {
         return Product::factory()->create(array_merge([
-            'status'       => 'active',
+            'status' => 'active',
             'published_at' => now()->subDay(),
         ], $attrs));
     }
@@ -41,8 +41,8 @@ class CartApiTest extends TestCase
 
     public function test_guest_retrieves_same_cart_with_token(): void
     {
-        $first  = $this->getJson('/api/v1/cart');
-        $token  = $first->json('data.cart_token');
+        $first = $this->getJson('/api/v1/cart');
+        $token = $first->json('data.cart_token');
 
         $second = $this->getJson('/api/v1/cart', ['X-Cart-Token' => $token]);
 
@@ -58,7 +58,7 @@ class CartApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/cart/items', [
             'product_id' => $product->id,
-            'quantity'   => 2,
+            'quantity' => 2,
         ]);
 
         $response->assertCreated()
@@ -95,8 +95,8 @@ class CartApiTest extends TestCase
     public function test_adding_same_product_increments_quantity(): void
     {
         $product = $this->activeProduct();
-        $first   = $this->getJson('/api/v1/cart');
-        $token   = $first->json('data.cart_token');
+        $first = $this->getJson('/api/v1/cart');
+        $token = $first->json('data.cart_token');
 
         $this->postJson('/api/v1/cart/items', ['product_id' => $product->id, 'quantity' => 1], ['X-Cart-Token' => $token]);
         $response = $this->postJson('/api/v1/cart/items', ['product_id' => $product->id, 'quantity' => 2], ['X-Cart-Token' => $token]);
@@ -111,13 +111,13 @@ class CartApiTest extends TestCase
 
     public function test_update_quantity_works(): void
     {
-        $product  = $this->activeProduct();
+        $product = $this->activeProduct();
         $cartInit = $this->getJson('/api/v1/cart');
-        $token    = $cartInit->json('data.cart_token');
+        $token = $cartInit->json('data.cart_token');
 
         $this->postJson('/api/v1/cart/items', ['product_id' => $product->id, 'quantity' => 1], ['X-Cart-Token' => $token]);
 
-        $cart     = Cart::where('session_id', $token)->first();
+        $cart = Cart::where('session_id', $token)->first();
         $cartItem = $cart->cartItems()->first();
 
         $response = $this->patchJson(
@@ -134,13 +134,13 @@ class CartApiTest extends TestCase
 
     public function test_remove_item_works(): void
     {
-        $product  = $this->activeProduct();
+        $product = $this->activeProduct();
         $cartInit = $this->getJson('/api/v1/cart');
-        $token    = $cartInit->json('data.cart_token');
+        $token = $cartInit->json('data.cart_token');
 
         $this->postJson('/api/v1/cart/items', ['product_id' => $product->id, 'quantity' => 1], ['X-Cart-Token' => $token]);
 
-        $cart     = Cart::where('session_id', $token)->first();
+        $cart = Cart::where('session_id', $token)->first();
         $cartItem = $cart->cartItems()->first();
 
         $response = $this->deleteJson(
@@ -161,7 +161,7 @@ class CartApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/cart/items', [
             'product_id' => $product->id,
-            'quantity'   => 3,
+            'quantity' => 3,
         ]);
 
         $response->assertCreated();
@@ -170,13 +170,13 @@ class CartApiTest extends TestCase
 
     public function test_totals_recalculate_after_update(): void
     {
-        $product  = $this->activeProduct(['base_price' => 1000]);
+        $product = $this->activeProduct(['base_price' => 1000]);
         $cartInit = $this->getJson('/api/v1/cart');
-        $token    = $cartInit->json('data.cart_token');
+        $token = $cartInit->json('data.cart_token');
 
         $this->postJson('/api/v1/cart/items', ['product_id' => $product->id, 'quantity' => 1], ['X-Cart-Token' => $token]);
 
-        $cart     = Cart::where('session_id', $token)->first();
+        $cart = Cart::where('session_id', $token)->first();
         $cartItem = $cart->cartItems()->first();
 
         $response = $this->patchJson(
@@ -191,13 +191,13 @@ class CartApiTest extends TestCase
 
     public function test_totals_recalculate_after_remove(): void
     {
-        $product  = $this->activeProduct(['base_price' => 500]);
+        $product = $this->activeProduct(['base_price' => 500]);
         $cartInit = $this->getJson('/api/v1/cart');
-        $token    = $cartInit->json('data.cart_token');
+        $token = $cartInit->json('data.cart_token');
 
         $this->postJson('/api/v1/cart/items', ['product_id' => $product->id, 'quantity' => 2], ['X-Cart-Token' => $token]);
 
-        $cart     = Cart::where('session_id', $token)->first();
+        $cart = Cart::where('session_id', $token)->first();
         $cartItem = $cart->cartItems()->first();
 
         $response = $this->deleteJson(
@@ -218,7 +218,7 @@ class CartApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/cart/items', [
             'product_id' => $product->id,
-            'quantity'   => 1,
+            'quantity' => 1,
         ]);
 
         $response->assertUnprocessable();
@@ -227,13 +227,13 @@ class CartApiTest extends TestCase
     public function test_cannot_add_future_published_product(): void
     {
         $product = Product::factory()->create([
-            'status'       => 'active',
+            'status' => 'active',
             'published_at' => now()->addDay(),
         ]);
 
         $response = $this->postJson('/api/v1/cart/items', [
             'product_id' => $product->id,
-            'quantity'   => 1,
+            'quantity' => 1,
         ]);
 
         $response->assertUnprocessable();
@@ -243,15 +243,15 @@ class CartApiTest extends TestCase
 
     public function test_cannot_update_another_carts_item(): void
     {
-        $product      = $this->activeProduct();
-        $otherCart    = Cart::factory()->create(['status' => 'active', 'session_id' => \Str::uuid()]);
-        $otherItem    = CartItem::factory()->create([
-            'cart_id'    => $otherCart->id,
+        $product = $this->activeProduct();
+        $otherCart = Cart::factory()->create(['status' => 'active', 'session_id' => \Str::uuid()]);
+        $otherItem = CartItem::factory()->create([
+            'cart_id' => $otherCart->id,
             'product_id' => $product->id,
         ]);
 
         $myCartInit = $this->getJson('/api/v1/cart');
-        $myToken    = $myCartInit->json('data.cart_token');
+        $myToken = $myCartInit->json('data.cart_token');
 
         $response = $this->patchJson(
             "/api/v1/cart/items/{$otherItem->id}",
@@ -264,15 +264,15 @@ class CartApiTest extends TestCase
 
     public function test_cannot_remove_another_carts_item(): void
     {
-        $product   = $this->activeProduct();
+        $product = $this->activeProduct();
         $otherCart = Cart::factory()->create(['status' => 'active', 'session_id' => \Str::uuid()]);
         $otherItem = CartItem::factory()->create([
-            'cart_id'    => $otherCart->id,
+            'cart_id' => $otherCart->id,
             'product_id' => $product->id,
         ]);
 
         $myCartInit = $this->getJson('/api/v1/cart');
-        $myToken    = $myCartInit->json('data.cart_token');
+        $myToken = $myCartInit->json('data.cart_token');
 
         $response = $this->deleteJson(
             "/api/v1/cart/items/{$otherItem->id}",

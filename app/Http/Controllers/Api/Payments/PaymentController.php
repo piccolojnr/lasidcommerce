@@ -53,8 +53,8 @@ class PaymentController extends Controller
 
         return ApiResponse::success([
             'authorization_url' => $result['authorization_url'],
-            'access_code'       => $result['access_code'],
-            'reference'         => $result['reference'],
+            'access_code' => $result['access_code'],
+            'reference' => $result['reference'],
         ]);
     }
 
@@ -78,7 +78,7 @@ class PaymentController extends Controller
 
         return ApiResponse::success([
             'payment_status' => $payment->status,
-            'order'          => new OrderResource($payment->order),
+            'order' => new OrderResource($payment->order),
         ]);
     }
 }

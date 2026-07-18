@@ -12,7 +12,13 @@ export default function ShippingZoneCreatePage() {
                 <PageHeader
                     title="Create shipping zone"
                     description="Define a new shipping territory for routing, pricing, and delivery configuration."
-                    actions={<Button variant="outline" asChild><Link href={adminRoutes.shipping.zones}>Back to zones</Link></Button>}
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={adminRoutes.shipping.zones}>
+                                Back to zones
+                            </Link>
+                        </Button>
+                    }
                 />
                 <ZoneForm />
             </div>

@@ -28,39 +28,69 @@ export function ShipmentTable({ shipments }: ShipmentTableProps) {
                 <table className="min-w-full text-sm">
                     <thead className="bg-muted/35">
                         <tr>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Shipment</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Route context</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Tracking</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">State</th>
-                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">Action</th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Shipment
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Route context
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Tracking
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                State
+                            </th>
+                            <th className="px-5 py-4 text-left font-medium text-muted-foreground">
+                                Action
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         {shipments.map((shipment) => (
-                            <tr key={shipment.id} className="border-t border-border/60 align-top">
+                            <tr
+                                key={shipment.id}
+                                className="border-t border-border/60 align-top"
+                            >
                                 <td className="px-5 py-4">
                                     <div className="space-y-1">
                                         <Link
-                                            href={ShipmentController.show.url(shipment)}
+                                            href={ShipmentController.show.url(
+                                                shipment,
+                                            )}
                                             className="font-semibold text-foreground transition hover:text-primary"
                                         >
-                                            {shipment.tracking_number ?? `Shipment #${shipment.id}`}
+                                            {shipment.tracking_number ??
+                                                `Shipment #${shipment.id}`}
                                         </Link>
                                         <p className="text-xs text-muted-foreground">
-                                            {shipment.order?.order_number ?? 'No linked order'}
+                                            {shipment.order?.order_number ??
+                                                'No linked order'}
                                         </p>
                                     </div>
                                 </td>
                                 <td className="px-5 py-4 text-muted-foreground">
                                     <div className="space-y-1 text-xs">
-                                        <p>{shipment.carrier_name ?? 'No carrier assigned'}</p>
-                                        <p>{shipment.order?.email ?? 'No customer email'}</p>
+                                        <p>
+                                            {shipment.carrier_name ??
+                                                'No carrier assigned'}
+                                        </p>
+                                        <p>
+                                            {shipment.order?.email ??
+                                                'No customer email'}
+                                        </p>
                                     </div>
                                 </td>
                                 <td className="px-5 py-4 text-muted-foreground">
                                     <div className="space-y-1 text-xs">
-                                        <p>Tracking: {shipment.tracking_number ?? 'Pending'}</p>
-                                        <p>Shipped: {formatDate(shipment.shipped_at)}</p>
+                                        <p>
+                                            Tracking:{' '}
+                                            {shipment.tracking_number ??
+                                                'Pending'}
+                                        </p>
+                                        <p>
+                                            Shipped:{' '}
+                                            {formatDate(shipment.shipped_at)}
+                                        </p>
                                     </div>
                                 </td>
                                 <td className="px-5 py-4">
@@ -68,7 +98,13 @@ export function ShipmentTable({ shipments }: ShipmentTableProps) {
                                 </td>
                                 <td className="px-5 py-4">
                                     <Button variant="outline" size="sm" asChild>
-                                        <Link href={ShipmentController.show.url(shipment)}>View shipment</Link>
+                                        <Link
+                                            href={ShipmentController.show.url(
+                                                shipment,
+                                            )}
+                                        >
+                                            View shipment
+                                        </Link>
                                     </Button>
                                 </td>
                             </tr>

@@ -10,7 +10,7 @@ class OrderNumberGenerator
     public function generate(): string
     {
         do {
-            $number = 'ORD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
+            $number = 'ORD-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
         } while (Order::where('order_number', $number)->exists());
 
         return $number;

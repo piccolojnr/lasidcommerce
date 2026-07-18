@@ -39,7 +39,7 @@ class OrderAddress extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn() => trim(implode(' ', array_filter([$this->name]))),
+            get: fn () => trim(implode(' ', array_filter([$this->name]))),
         );
     }
 }

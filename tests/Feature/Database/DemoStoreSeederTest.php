@@ -45,8 +45,8 @@ class DemoStoreSeederTest extends TestCase
         $this->assertCount(1, $order->payments);
         $this->assertCount(1, $order->shipments);
 
-        $this->assertSame(5, Product::query()->where('status', 'active')->count());
-        $this->assertSame(5, StockMovement::query()->count());
+        $this->assertSame(16, Product::query()->where('status', 'active')->count());
+        $this->assertSame(16, StockMovement::query()->count());
         $this->assertSame(6, User::query()->whereIn('email', [
             'catalog.manager@example.com',
             'orders.manager@example.com',

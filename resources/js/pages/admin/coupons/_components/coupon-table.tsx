@@ -73,7 +73,7 @@ export function CouponTable({ coupons }: CouponTableProps) {
                                         >
                                             {coupon.code}
                                         </Link>
-                                        <p className="text-xs capitalize text-muted-foreground">
+                                        <p className="text-xs text-muted-foreground capitalize">
                                             {coupon.type === 'percentage'
                                                 ? 'Percentage discount'
                                                 : 'Fixed discount'}
@@ -104,7 +104,8 @@ export function CouponTable({ coupons }: CouponTableProps) {
                                     <div className="space-y-1 text-muted-foreground">
                                         <p className="text-xs">
                                             Minimum:{' '}
-                                            {coupon.minimum_order_amount !== null
+                                            {coupon.minimum_order_amount !==
+                                            null
                                                 ? formatMoney(
                                                       coupon.minimum_order_amount,
                                                   )
@@ -161,7 +162,11 @@ export function CouponTable({ coupons }: CouponTableProps) {
                                 </td>
                                 <td className="px-5 py-4">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <Button variant="outline" size="sm" asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                        >
                                             <Link
                                                 href={CouponController.show.url(
                                                     coupon,
@@ -170,7 +175,11 @@ export function CouponTable({ coupons }: CouponTableProps) {
                                                 View
                                             </Link>
                                         </Button>
-                                        <Button variant="outline" size="sm" asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                        >
                                             <Link
                                                 href={CouponController.edit.url(
                                                     coupon,

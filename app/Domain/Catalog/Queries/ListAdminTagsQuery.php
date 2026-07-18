@@ -8,6 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ListAdminTagsQuery
 {
     private ?string $search = null;
+
     private ?bool $isActive = null;
 
     public function withFilters(array $filters): static

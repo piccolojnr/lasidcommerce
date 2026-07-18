@@ -13,11 +13,29 @@ interface ProductOption {
     status: string;
 }
 
-export default function CollectionEditPage({ collection, products }: { collection: AdminCollection; products: ProductOption[] }) {
+export default function CollectionEditPage({
+    collection,
+    products,
+}: {
+    collection: AdminCollection;
+    products: ProductOption[];
+}) {
     return (
         <AdminLayout title="Edit Collection">
             <div className="mx-auto w-full max-w-5xl space-y-6">
-                <PageHeader title={`Edit ${collection.name}`} description="Adjust collection copy, visibility, and explicit product ordering." actions={<Button variant="outline" asChild><Link href={CollectionController.show.url(collection)}>Back to collection</Link></Button>} />
+                <PageHeader
+                    title={`Edit ${collection.name}`}
+                    description="Adjust collection copy, visibility, and explicit product ordering."
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link
+                                href={CollectionController.show.url(collection)}
+                            >
+                                Back to collection
+                            </Link>
+                        </Button>
+                    }
+                />
                 <CollectionForm collection={collection} products={products} />
             </div>
         </AdminLayout>

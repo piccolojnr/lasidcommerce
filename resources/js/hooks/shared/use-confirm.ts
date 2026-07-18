@@ -16,13 +16,16 @@ export function useConfirm(initialState: UseConfirmOptions = {}) {
         description: initialState.description,
     });
 
-    const openConfirm = useCallback((options: UseConfirmOptions = {}) => {
-        setState({
-            open: true,
-            title: options.title ?? initialState.title,
-            description: options.description ?? initialState.description,
-        });
-    }, [initialState.description, initialState.title]);
+    const openConfirm = useCallback(
+        (options: UseConfirmOptions = {}) => {
+            setState({
+                open: true,
+                title: options.title ?? initialState.title,
+                description: options.description ?? initialState.description,
+            });
+        },
+        [initialState.description, initialState.title],
+    );
 
     const closeConfirm = useCallback(() => {
         setState((current) => ({ ...current, open: false }));

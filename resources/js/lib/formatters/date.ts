@@ -1,4 +1,7 @@
-export function formatDate(value: string | Date | null | undefined, locale = 'en-GH'): string {
+export function formatDate(
+    value: string | Date | null | undefined,
+    locale = 'en-GH',
+): string {
     if (!value) {
         return 'N/A';
     }

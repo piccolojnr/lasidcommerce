@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Shipment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class OrderTimelineTest extends TestCase
@@ -26,7 +27,7 @@ class OrderTimelineTest extends TestCase
         return Order::factory()->create(array_merge(['user_id' => $user->id], $attrs));
     }
 
-    private function getTimeline(User $user, Order $order): \Illuminate\Testing\TestResponse
+    private function getTimeline(User $user, Order $order): TestResponse
     {
         return $this->actingAsCustomer($user)->getJson(route('api.v1.orders.timeline', $order));
     }
@@ -52,7 +53,7 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_order_placed_event(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user, ['placed_at' => now()]);
 
         $response = $this->getTimeline($user, $order);
@@ -64,13 +65,13 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_payment_confirmed_event(): void
     {
-        $user    = $this->user();
-        $order   = $this->orderFor($user);
+        $user = $this->user();
+        $order = $this->orderFor($user);
         Payment::factory()->create([
             'order_id' => $order->id,
-            'user_id'  => $user->id,
-            'status'   => 'paid',
-            'paid_at'  => now(),
+            'user_id' => $user->id,
+            'status' => 'paid',
+            'paid_at' => now(),
         ]);
 
         $response = $this->getTimeline($user, $order);
@@ -82,14 +83,14 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_order_status_history_events(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
         OrderStatusHistory::create([
-            'order_id'    => $order->id,
+            'order_id' => $order->id,
             'from_status' => 'pending',
-            'to_status'   => 'confirmed',
-            'note'        => null,
-            'changed_by'  => null,
+            'to_status' => 'confirmed',
+            'note' => null,
+            'changed_by' => null,
         ]);
 
         $response = $this->getTimeline($user, $order);
@@ -101,8 +102,8 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_shipment_packed_event(): void
     {
-        $user     = $this->user();
-        $order    = $this->orderFor($user);
+        $user = $this->user();
+        $order = $this->orderFor($user);
         Shipment::factory()->packed()->create(['order_id' => $order->id]);
 
         $response = $this->getTimeline($user, $order);
@@ -114,8 +115,8 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_shipment_shipped_event(): void
     {
-        $user     = $this->user();
-        $order    = $this->orderFor($user);
+        $user = $this->user();
+        $order = $this->orderFor($user);
         Shipment::factory()->shipped()->create(['order_id' => $order->id]);
 
         $response = $this->getTimeline($user, $order);
@@ -127,8 +128,8 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_shipment_delivered_event(): void
     {
-        $user     = $this->user();
-        $order    = $this->orderFor($user);
+        $user = $this->user();
+        $order = $this->orderFor($user);
         Shipment::factory()->delivered()->create(['order_id' => $order->id]);
 
         $response = $this->getTimeline($user, $order);
@@ -140,15 +141,15 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_order_shipped_status_event(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         OrderStatusHistory::create([
-            'order_id'    => $order->id,
+            'order_id' => $order->id,
             'from_status' => 'processing',
-            'to_status'   => 'shipped',
-            'note'        => null,
-            'changed_by'  => null,
+            'to_status' => 'shipped',
+            'note' => null,
+            'changed_by' => null,
         ]);
 
         $response = $this->getTimeline($user, $order);
@@ -160,15 +161,15 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_includes_order_delivered_status_event(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         OrderStatusHistory::create([
-            'order_id'    => $order->id,
+            'order_id' => $order->id,
             'from_status' => 'shipped',
-            'to_status'   => 'delivered',
-            'note'        => null,
-            'changed_by'  => null,
+            'to_status' => 'delivered',
+            'note' => null,
+            'changed_by' => null,
         ]);
 
         $response = $this->getTimeline($user, $order);
@@ -180,7 +181,7 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_omits_shipment_events_when_no_shipment(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user);
 
         $response = $this->getTimeline($user, $order);
@@ -196,7 +197,7 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_has_correct_event_shape(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user, ['placed_at' => now()]);
 
         $response = $this->getTimeline($user, $order);
@@ -213,36 +214,35 @@ class OrderTimelineTest extends TestCase
 
     public function test_timeline_is_sorted_chronologically(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $order = $this->orderFor($user, ['placed_at' => now()->subHours(3)]);
 
         // Payment happened 2h ago
         Payment::factory()->create([
             'order_id' => $order->id,
-            'user_id'  => $user->id,
-            'status'   => 'paid',
-            'paid_at'  => now()->subHours(2),
+            'user_id' => $user->id,
+            'status' => 'paid',
+            'paid_at' => now()->subHours(2),
         ]);
 
         // Status history confirmed 1h ago
         OrderStatusHistory::create([
-            'order_id'    => $order->id,
+            'order_id' => $order->id,
             'from_status' => 'pending',
-            'to_status'   => 'confirmed',
-            'note'        => null,
-            'changed_by'  => null,
-            'created_at'  => now()->subHour(),
+            'to_status' => 'confirmed',
+            'note' => null,
+            'changed_by' => null,
+            'created_at' => now()->subHour(),
         ]);
 
         $response = $this->getTimeline($user, $order);
 
         $response->assertOk();
-        $events      = $response->json('data');
+        $events = $response->json('data');
         $occurredAts = array_column($events, 'occurred_at');
-        $sorted      = $occurredAts;
+        $sorted = $occurredAts;
         sort($sorted);
 
         $this->assertSame($sorted, $occurredAts, 'Timeline events are not in chronological order.');
     }
 }
-

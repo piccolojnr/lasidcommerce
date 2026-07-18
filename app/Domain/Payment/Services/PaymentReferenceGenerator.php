@@ -10,7 +10,7 @@ class PaymentReferenceGenerator
     public function generate(): string
     {
         do {
-            $reference = 'PAY-' . strtoupper(Str::random(16));
+            $reference = 'PAY-'.strtoupper(Str::random(16));
         } while (Payment::where('reference', $reference)->exists());
 
         return $reference;

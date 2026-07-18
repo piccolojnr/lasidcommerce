@@ -11,10 +11,15 @@ class StockMovement extends Model
     use HasFactory;
 
     public const TYPE_RESTOCK = 'restock';
+
     public const TYPE_RETURN = 'return';
+
     public const TYPE_CORRECTION_ADD = 'correction_add';
+
     public const TYPE_DAMAGE = 'damage';
+
     public const TYPE_SHRINKAGE = 'shrinkage';
+
     public const TYPE_CORRECTION_REMOVE = 'correction_remove';
 
     public const UPDATED_AT = null;

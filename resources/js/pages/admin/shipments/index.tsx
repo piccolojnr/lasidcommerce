@@ -44,7 +44,10 @@ export default function ShipmentIndexPage({ shipments, filters }: Props) {
     ).length;
 
     return (
-        <AdminLayout title="Shipments" description="Track outbound delivery activity and status changes.">
+        <AdminLayout
+            title="Shipments"
+            description="Track outbound delivery activity and status changes."
+        >
             <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title="Shipments"
@@ -62,39 +65,59 @@ export default function ShipmentIndexPage({ shipments, filters }: Props) {
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Visible in this result</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                Visible in this result
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{shipments.data.length}</div>
-                            <p className="text-sm text-muted-foreground">Shipments on the current page after filters.</p>
+                            <div className="text-3xl font-semibold">
+                                {shipments.data.length}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Shipments on the current page after filters.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">In active flow</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                In active flow
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{activeFlow}</div>
-                            <p className="text-sm text-muted-foreground">Shipments still moving through packing or transit.</p>
+                            <div className="text-3xl font-semibold">
+                                {activeFlow}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Shipments still moving through packing or
+                                transit.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Delivered in this slice</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                Delivered in this slice
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{delivered}</div>
-                            <p className="text-sm text-muted-foreground">Shipments already closed successfully.</p>
+                            <div className="text-3xl font-semibold">
+                                {delivered}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Shipments already closed successfully.
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="rounded-[2rem] border border-border/70 bg-muted/25 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                    <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                         Delivery filter
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Search by tracking, carrier, order number, or customer, then narrow by shipment state.
+                        Search by tracking, carrier, order number, or customer,
+                        then narrow by shipment state.
                     </p>
                     <div className="mt-4 flex flex-wrap items-center gap-3">
                         <Input
@@ -106,17 +129,33 @@ export default function ShipmentIndexPage({ shipments, filters }: Props) {
                         <Select
                             value={filters.status ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('status', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'status',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-48 bg-background">
                                 <SelectValue placeholder="All shipment states" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All shipment states</SelectItem>
-                                {['pending', 'packed', 'shipped', 'in_transit', 'delivered', 'failed', 'returned', 'cancelled'].map((status) => (
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All shipment states
+                                </SelectItem>
+                                {[
+                                    'pending',
+                                    'packed',
+                                    'shipped',
+                                    'in_transit',
+                                    'delivered',
+                                    'failed',
+                                    'returned',
+                                    'cancelled',
+                                ].map((status) => (
                                     <SelectItem key={status} value={status}>
-                                        {status.replace(/\b\w/g, (character) => character.toUpperCase())}
+                                        {status.replace(/\b\w/g, (character) =>
+                                            character.toUpperCase(),
+                                        )}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -128,25 +167,30 @@ export default function ShipmentIndexPage({ shipments, filters }: Props) {
 
                 {shipments.last_page > 1 && shipments.links && (
                     <div className="flex items-center justify-center gap-1">
-                        {shipments.links.map((link: PaginationLink, index: number) =>
-                            link.url ? (
-                                <Link
-                                    key={index}
-                                    href={link.url}
-                                    className={`rounded border px-3 py-1 text-sm ${
-                                        link.active
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'hover:bg-muted'
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ) : (
-                                <span
-                                    key={index}
-                                    className="rounded border px-3 py-1 text-sm opacity-40"
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ),
+                        {shipments.links.map(
+                            (link: PaginationLink, index: number) =>
+                                link.url ? (
+                                    <Link
+                                        key={index}
+                                        href={link.url}
+                                        className={`rounded border px-3 py-1 text-sm ${
+                                            link.active
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'hover:bg-muted'
+                                        }`}
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className="rounded border px-3 py-1 text-sm opacity-40"
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ),
                         )}
                     </div>
                 )}

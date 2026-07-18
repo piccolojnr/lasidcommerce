@@ -19,14 +19,14 @@ class AddressApiTest extends TestCase
     private function addressPayload(array $overrides = []): array
     {
         return array_merge([
-            'type'           => 'shipping',
-            'name'           => 'Kwame Mensah',
-            'phone'          => '+233244000001',
-            'country'        => 'Ghana',
-            'region'         => 'Greater Accra',
-            'city'           => 'Accra',
+            'type' => 'shipping',
+            'name' => 'Kwame Mensah',
+            'phone' => '+233244000001',
+            'country' => 'Ghana',
+            'region' => 'Greater Accra',
+            'city' => 'Accra',
             'address_line_1' => '12 Independence Ave',
-            'is_default'     => false,
+            'is_default' => false,
         ], $overrides);
     }
 
@@ -34,7 +34,7 @@ class AddressApiTest extends TestCase
 
     public function test_list_returns_own_addresses(): void
     {
-        $user  = $this->user();
+        $user = $this->user();
         $other = $this->user();
 
         Address::factory()->create(['user_id' => $user->id]);
@@ -72,7 +72,7 @@ class AddressApiTest extends TestCase
 
         $this->assertDatabaseHas('addresses', [
             'user_id' => $user->id,
-            'city'    => 'Accra',
+            'city' => 'Accra',
         ]);
     }
 
@@ -106,7 +106,7 @@ class AddressApiTest extends TestCase
 
     public function test_update_own_address(): void
     {
-        $user    = $this->user();
+        $user = $this->user();
         $address = Address::factory()->create(['user_id' => $user->id, 'city' => 'Kumasi']);
 
         $response = $this->actingAsCustomer($user)->patchJson(
@@ -122,8 +122,8 @@ class AddressApiTest extends TestCase
 
     public function test_cannot_update_another_users_address(): void
     {
-        $user    = $this->user();
-        $other   = $this->user();
+        $user = $this->user();
+        $other = $this->user();
         $address = Address::factory()->create(['user_id' => $other->id]);
 
         $response = $this->actingAsCustomer($user)->patchJson(
@@ -138,7 +138,7 @@ class AddressApiTest extends TestCase
 
     public function test_delete_own_address(): void
     {
-        $user    = $this->user();
+        $user = $this->user();
         $address = Address::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAsCustomer($user)->deleteJson("/api/v1/addresses/{$address->id}");
@@ -151,8 +151,8 @@ class AddressApiTest extends TestCase
 
     public function test_cannot_delete_another_users_address(): void
     {
-        $user    = $this->user();
-        $other   = $this->user();
+        $user = $this->user();
+        $other = $this->user();
         $address = Address::factory()->create(['user_id' => $other->id]);
 
         $response = $this->actingAsCustomer($user)->deleteJson("/api/v1/addresses/{$address->id}");
@@ -165,7 +165,7 @@ class AddressApiTest extends TestCase
 
     public function test_set_default_marks_address_as_default(): void
     {
-        $user    = $this->user();
+        $user = $this->user();
         $address = Address::factory()->create(['user_id' => $user->id, 'is_default' => false]);
 
         $response = $this->actingAsCustomer($user)->patchJson("/api/v1/addresses/{$address->id}/default");
@@ -178,9 +178,9 @@ class AddressApiTest extends TestCase
 
     public function test_set_default_unsets_previous_default(): void
     {
-        $user    = $this->user();
-        $first   = Address::factory()->create(['user_id' => $user->id, 'is_default' => true]);
-        $second  = Address::factory()->create(['user_id' => $user->id, 'is_default' => false]);
+        $user = $this->user();
+        $first = Address::factory()->create(['user_id' => $user->id, 'is_default' => true]);
+        $second = Address::factory()->create(['user_id' => $user->id, 'is_default' => false]);
 
         $this->actingAsCustomer($user)->patchJson("/api/v1/addresses/{$second->id}/default");
 
@@ -190,8 +190,8 @@ class AddressApiTest extends TestCase
 
     public function test_cannot_set_default_on_another_users_address(): void
     {
-        $user    = $this->user();
-        $other   = $this->user();
+        $user = $this->user();
+        $other = $this->user();
         $address = Address::factory()->create(['user_id' => $other->id]);
 
         $response = $this->actingAsCustomer($user)->patchJson("/api/v1/addresses/{$address->id}/default");
@@ -199,4 +199,3 @@ class AddressApiTest extends TestCase
         $response->assertNotFound();
     }
 }
-

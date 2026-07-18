@@ -13,7 +13,7 @@ class ProductFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . $this->faker->unique()->numberBetween(1, 9999),
+            'slug' => Str::slug($name).'-'.$this->faker->unique()->numberBetween(1, 9999),
             'sku' => strtoupper($this->faker->unique()->bothify('??-###')),
             'status' => 'draft',
             'product_type' => 'physical',

@@ -16,7 +16,7 @@ class CategorySlugGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->generator = new CategorySlugGenerator();
+        $this->generator = new CategorySlugGenerator;
     }
 
     public function test_generates_slug_from_name(): void

@@ -56,16 +56,16 @@ class DemoCatalogSeeder extends Seeder
             ['name' => 'Workday', 'slug' => 'workday', 'description' => 'Products that fit office, commute, and weekday routines.'],
             ['name' => 'Weekend Ready', 'slug' => 'weekend-ready', 'description' => 'Relaxed lifestyle picks for weekends and casual shopping.'],
             ['name' => 'Family Essentials', 'slug' => 'family-essentials', 'description' => 'Practical staples for repeat household and family buying.'],
-        ])->mapWithKeys(fn(array $definition) => [
-                $definition['slug'] => Tag::query()->updateOrCreate(
-                    ['slug' => $definition['slug']],
-                    [
-                        'name' => $definition['name'],
-                        'description' => $definition['description'],
-                        'is_active' => true,
-                    ],
-                ),
-            ])->all();
+        ])->mapWithKeys(fn (array $definition) => [
+            $definition['slug'] => Tag::query()->updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'name' => $definition['name'],
+                    'description' => $definition['description'],
+                    'is_active' => true,
+                ],
+            ),
+        ])->all();
 
         $collections = collect([
             ['name' => 'New Arrivals', 'slug' => 'new-arrivals', 'description' => 'Recently launched products across the storefront.', 'sort_order' => 10],
@@ -73,17 +73,17 @@ class DemoCatalogSeeder extends Seeder
             ['name' => 'Workday Rotation', 'slug' => 'workday-rotation', 'description' => 'Sharper wardrobe and commute-ready accessories.', 'sort_order' => 30],
             ['name' => 'Home Refresh', 'slug' => 'home-refresh', 'description' => 'Curated home and self-care products for quick store upgrades.', 'sort_order' => 40],
             ['name' => 'Top Picks', 'slug' => 'top-picks', 'description' => 'Manual highlights spanning the strongest seeded products.', 'sort_order' => 50],
-        ])->mapWithKeys(fn(array $definition) => [
-                $definition['slug'] => Collection::query()->updateOrCreate(
-                    ['slug' => $definition['slug']],
-                    [
-                        'name' => $definition['name'],
-                        'description' => $definition['description'],
-                        'is_active' => true,
-                        'sort_order' => $definition['sort_order'],
-                    ],
-                ),
-            ])->all();
+        ])->mapWithKeys(fn (array $definition) => [
+            $definition['slug'] => Collection::query()->updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'name' => $definition['name'],
+                    'description' => $definition['description'],
+                    'is_active' => true,
+                    'sort_order' => $definition['sort_order'],
+                ],
+            ),
+        ])->all();
 
         $products = [
             [
@@ -471,7 +471,7 @@ class DemoCatalogSeeder extends Seeder
 
             $product->tags()->sync(
                 collect($definition['tag_slugs'] ?? [])
-                    ->map(fn(string $slug) => $tags[$slug]?->getKey())
+                    ->map(fn (string $slug) => $tags[$slug]?->getKey())
                     ->filter()
                     ->values()
                     ->all(),
@@ -499,7 +499,7 @@ class DemoCatalogSeeder extends Seeder
     }
 
     /**
-     * @param array<string, mixed> $definition
+     * @param  array<string, mixed>  $definition
      */
     private function syncProductImages(Product $product, array $definition): void
     {
@@ -522,7 +522,7 @@ class DemoCatalogSeeder extends Seeder
     }
 
     /**
-     * @param array<string, mixed> $definition
+     * @param  array<string, mixed>  $definition
      */
     private function buildProductImageSvg(array $definition, string $label, int $index): string
     {

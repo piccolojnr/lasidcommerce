@@ -10,8 +10,12 @@ export const ADMIN_PERMISSIONS = {
     MANAGE_SETTINGS: 'manage settings',
 } as const;
 
-export type AdminPermission = (typeof ADMIN_PERMISSIONS)[keyof typeof ADMIN_PERMISSIONS];
+export type AdminPermission =
+    (typeof ADMIN_PERMISSIONS)[keyof typeof ADMIN_PERMISSIONS];
 
-export function hasPermission(permissions: string[] | undefined, permission: AdminPermission): boolean {
+export function hasPermission(
+    permissions: string[] | undefined,
+    permission: AdminPermission,
+): boolean {
     return permissions?.includes(permission) ?? false;
 }

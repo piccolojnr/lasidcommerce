@@ -21,10 +21,10 @@ class OrderStatusController extends Controller
 
         try {
             $this->updateStatusAction->execute(
-                order:    $order,
+                order: $order,
                 toStatus: $request->status,
-                note:     $request->note,
-                actor:    $request->user(),
+                note: $request->note,
+                actor: $request->user(),
             );
         } catch (InvalidOrderTransitionException $e) {
             return redirect()

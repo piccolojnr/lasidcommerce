@@ -15,7 +15,13 @@ export default function ShippingAreaCreatePage({
                 <PageHeader
                     title="Create zone area"
                     description={`Add a new area rule under ${zone.name}.`}
-                    actions={<Button variant="outline" asChild><Link href={`/admin/shipping/zones/${zone.id}`}>Back to zone</Link></Button>}
+                    actions={
+                        <Button variant="outline" asChild>
+                            <Link href={`/admin/shipping/zones/${zone.id}`}>
+                                Back to zone
+                            </Link>
+                        </Button>
+                    }
                 />
                 <AreaForm zone={zone} />
             </div>

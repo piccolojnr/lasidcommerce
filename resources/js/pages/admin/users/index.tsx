@@ -39,11 +39,18 @@ export default function UserIndexPage({ users, filters, roles }: Props) {
         UserController.index.url(),
         filters,
     );
-    const activeUsers = users.data.filter((user) => user.status === 'active').length;
-    const assignedUsers = users.data.filter((user) => user.roles.length > 0).length;
+    const activeUsers = users.data.filter(
+        (user) => user.status === 'active',
+    ).length;
+    const assignedUsers = users.data.filter(
+        (user) => user.roles.length > 0,
+    ).length;
 
     return (
-        <AdminLayout title="Platform Users" description="Manage internal staff accounts and access.">
+        <AdminLayout
+            title="Platform Users"
+            description="Manage internal staff accounts and access."
+        >
             <div className="mx-auto w-full max-w-7xl space-y-8">
                 <PageHeader
                     title="Platform users"
@@ -61,39 +68,59 @@ export default function UserIndexPage({ users, filters, roles }: Props) {
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Visible in this result</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                Visible in this result
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{users.data.length}</div>
-                            <p className="text-sm text-muted-foreground">Internal accounts on the current page after filters.</p>
+                            <div className="text-3xl font-semibold">
+                                {users.data.length}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Internal accounts on the current page after
+                                filters.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Active staff</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                Active staff
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{activeUsers}</div>
-                            <p className="text-sm text-muted-foreground">Accounts still enabled for platform access.</p>
+                            <div className="text-3xl font-semibold">
+                                {activeUsers}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Accounts still enabled for platform access.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">With role assignments</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                With role assignments
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-semibold">{assignedUsers}</div>
-                            <p className="text-sm text-muted-foreground">Accounts already mapped to at least one role.</p>
+                            <div className="text-3xl font-semibold">
+                                {assignedUsers}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Accounts already mapped to at least one role.
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="rounded-[2rem] border border-border/70 bg-muted/25 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                    <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                         Access filter
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Search by staff member, then narrow by account status or role assignment.
+                        Search by staff member, then narrow by account status or
+                        role assignment.
                     </p>
                     <div className="mt-4 flex flex-wrap items-center gap-3">
                         <Input
@@ -105,31 +132,46 @@ export default function UserIndexPage({ users, filters, roles }: Props) {
                         <Select
                             value={filters.status ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('status', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'status',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-44 bg-background">
                                 <SelectValue placeholder="All statuses" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All statuses</SelectItem>
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All statuses
+                                </SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="inactive">
+                                    Inactive
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                         <Select
                             value={filters.role ?? EMPTY_SENTINEL}
                             onValueChange={(value) =>
-                                setFilter('role', value === EMPTY_SENTINEL ? null : value)
+                                setFilter(
+                                    'role',
+                                    value === EMPTY_SENTINEL ? null : value,
+                                )
                             }
                         >
                             <SelectTrigger className="h-11 w-52 bg-background">
                                 <SelectValue placeholder="All roles" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All roles</SelectItem>
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All roles
+                                </SelectItem>
                                 {roles.map((role) => (
-                                    <SelectItem key={role.name} value={role.name}>
+                                    <SelectItem
+                                        key={role.name}
+                                        value={role.name}
+                                    >
                                         {role.name}
                                     </SelectItem>
                                 ))}
@@ -142,25 +184,30 @@ export default function UserIndexPage({ users, filters, roles }: Props) {
 
                 {users.last_page > 1 && users.links && (
                     <div className="flex items-center justify-center gap-1">
-                        {users.links.map((link: PaginationLink, index: number) =>
-                            link.url ? (
-                                <Link
-                                    key={index}
-                                    href={link.url}
-                                    className={`rounded border px-3 py-1 text-sm ${
-                                        link.active
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'hover:bg-muted'
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ) : (
-                                <span
-                                    key={index}
-                                    className="rounded border px-3 py-1 text-sm opacity-40"
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ),
+                        {users.links.map(
+                            (link: PaginationLink, index: number) =>
+                                link.url ? (
+                                    <Link
+                                        key={index}
+                                        href={link.url}
+                                        className={`rounded border px-3 py-1 text-sm ${
+                                            link.active
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'hover:bg-muted'
+                                        }`}
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className="rounded border px-3 py-1 text-sm opacity-40"
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                ),
                         )}
                     </div>
                 )}

@@ -34,9 +34,9 @@ class PreviewCheckoutAction
         $zone = $address->shipping_zone_id
             ? ShippingZone::find($address->shipping_zone_id)
             : $this->zoneResolver->resolve(new ShippingAddressData(
-                country:  $address->country,
-                region:   $address->region,
-                city:     $address->city,
+                country: $address->country,
+                region: $address->region,
+                city: $address->city,
                 district: $address->district,
             ));
 
@@ -59,19 +59,19 @@ class PreviewCheckoutAction
         $subtotal = $cart->cartItems->sum('line_total');
         $shipping = $this->feeCalculator->calculate($shippingMethod);
         $discount = 0;
-        $tax      = 0;
-        $total    = $subtotal + $shipping - $discount + $tax;
+        $tax = 0;
+        $total = $subtotal + $shipping - $discount + $tax;
 
         return [
-            'cart'            => $cart,
-            'address'         => $address,
-            'shipping_zone'   => $zone,
+            'cart' => $cart,
+            'address' => $address,
+            'shipping_zone' => $zone,
             'shipping_method' => $shippingMethod,
             'subtotal_amount' => $subtotal,
             'discount_amount' => $discount,
-            'tax_amount'      => $tax,
+            'tax_amount' => $tax,
             'shipping_amount' => $shipping,
-            'total_amount'    => $total,
+            'total_amount' => $total,
         ];
     }
 }

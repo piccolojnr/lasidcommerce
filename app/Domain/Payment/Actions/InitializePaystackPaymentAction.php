@@ -20,6 +20,7 @@ class InitializePaystackPaymentAction
 
     /**
      * @return array{authorization_url: string, access_code: string, reference: string, payment: Payment}
+     *
      * @throws PaymentException
      */
     public function execute(Order $order, User $user): array
@@ -48,14 +49,14 @@ class InitializePaystackPaymentAction
         $reference = $this->referenceGenerator->generate();
 
         $payload = [
-            'email'        => $order->email,
-            'amount'       => $order->total_amount,
-            'reference'    => $reference,
+            'email' => $order->email,
+            'amount' => $order->total_amount,
+            'reference' => $reference,
             'callback_url' => config('services.paystack.callback_url'),
-            'metadata'     => [
-                'order_id'     => $order->id,
+            'metadata' => [
+                'order_id' => $order->id,
                 'order_number' => $order->order_number,
-                'user_id'      => $user->id,
+                'user_id' => $user->id,
             ],
         ];
 
@@ -71,12 +72,12 @@ class InitializePaystackPaymentAction
         $reference = $data['reference'] ?? $reference;
 
         $payment = Payment::create([
-            'order_id'      => $order->id,
-            'user_id'       => $user->id,
-            'provider'      => 'paystack',
-            'reference'     => $reference,
-            'status'        => 'pending',
-            'amount'        => $order->total_amount,
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'provider' => 'paystack',
+            'reference' => $reference,
+            'status' => 'pending',
+            'amount' => $order->total_amount,
             'currency_code' => $order->currency_code,
             'raw_payload_json' => $data,
         ]);
@@ -85,9 +86,9 @@ class InitializePaystackPaymentAction
 
         return [
             'authorization_url' => $data['authorization_url'],
-            'access_code'       => $data['access_code'],
-            'reference'         => $data['reference'],
-            'payment'           => $payment,
+            'access_code' => $data['access_code'],
+            'reference' => $data['reference'],
+            'payment' => $payment,
         ];
     }
 }

@@ -16,7 +16,7 @@ class GetProductDetailQuery
             'tags',
             'collections',
             'stockItems',
-            'variants'   => fn ($q) => $q->where('is_active', true)->orderBy('price'),
+            'variants' => fn ($q) => $q->where('is_active', true)->orderBy('price'),
             'optionTypes.optionValues',
         ])
             ->visibleOnStorefront()
@@ -27,7 +27,7 @@ class GetProductDetailQuery
     public function relatedProducts(Product $product, int $limit = 6): EloquentCollection
     {
         if ($product->category_id === null) {
-            return new EloquentCollection();
+            return new EloquentCollection;
         }
 
         return Product::with(['media', 'category', 'brand', 'tags', 'collections', 'stockItems'])

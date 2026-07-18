@@ -11,7 +11,7 @@ class ShipmentFactory extends Factory
     {
         return [
             'order_id' => Order::factory(),
-            'status'   => 'pending',
+            'status' => 'pending',
         ];
     }
 
@@ -28,9 +28,9 @@ class ShipmentFactory extends Factory
     public function delivered(): static
     {
         return $this->state([
-            'status'       => 'delivered',
-            'packed_at'    => now()->subDay(),
-            'shipped_at'   => now()->subHours(12),
+            'status' => 'delivered',
+            'packed_at' => now()->subDay(),
+            'shipped_at' => now()->subHours(12),
             'delivered_at' => now(),
         ]);
     }

@@ -16,11 +16,11 @@ class ShippingZoneController extends Controller
             ->orderBy('name')
             ->get()
             ->map(fn ($zone) => [
-                'id'    => $zone->id,
-                'name'  => $zone->name,
-                'code'  => $zone->code,
+                'id' => $zone->id,
+                'name' => $zone->name,
+                'code' => $zone->code,
                 'areas' => $zone->areas->map(fn ($area) => [
-                    'id'        => $area->id,
+                    'id' => $area->id,
                     'area_type' => $area->area_type,
                     'area_name' => $area->area_name,
                 ])->values(),

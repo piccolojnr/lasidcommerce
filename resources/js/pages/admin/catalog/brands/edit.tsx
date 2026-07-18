@@ -19,7 +19,9 @@ export default function BrandEditPage({ brand }: Props) {
                     description="Refine the brand presentation without relying on a dead-simple utility form."
                     actions={
                         <Button variant="outline" asChild>
-                            <Link href={BrandController.show.url(brand)}>Back to brand</Link>
+                            <Link href={BrandController.show.url(brand)}>
+                                Back to brand
+                            </Link>
                         </Button>
                     }
                 />

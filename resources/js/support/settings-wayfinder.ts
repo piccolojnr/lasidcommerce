@@ -1,7 +1,9 @@
-import {
-    queryParams
+import { queryParams } from '@/wayfinder';
+import type {
+    RouteDefinition,
+    RouteFormDefinition,
+    RouteQueryOptions,
 } from '@/wayfinder';
-import type { RouteDefinition, RouteFormDefinition, RouteQueryOptions } from '@/wayfinder';
 
 const profilePath = '/settings/profile';
 const securityPath = '/settings/security';

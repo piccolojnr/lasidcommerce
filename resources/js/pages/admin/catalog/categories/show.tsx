@@ -142,7 +142,9 @@ export default function CategoryShowPage({ category }: Props) {
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Slug</span>
+                                <span className="text-muted-foreground">
+                                    Slug
+                                </span>
                                 <span className="font-mono text-xs">
                                     {category.slug}
                                 </span>

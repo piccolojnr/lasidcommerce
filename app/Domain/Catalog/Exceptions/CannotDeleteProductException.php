@@ -4,6 +4,4 @@ namespace App\Domain\Catalog\Exceptions;
 
 use RuntimeException;
 
-class CannotDeleteProductException extends RuntimeException
-{
-}
+class CannotDeleteProductException extends RuntimeException {}

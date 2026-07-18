@@ -13,7 +13,7 @@ class TagFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . $this->faker->unique()->numberBetween(1, 9999),
+            'slug' => Str::slug($name).'-'.$this->faker->unique()->numberBetween(1, 9999),
             'description' => $this->faker->optional()->sentence(),
             'is_active' => true,
         ];

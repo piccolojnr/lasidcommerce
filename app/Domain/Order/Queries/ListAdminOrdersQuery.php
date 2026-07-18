@@ -8,8 +8,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ListAdminOrdersQuery
 {
     private ?string $search = null;
+
     private ?string $status = null;
+
     private ?string $paymentStatus = null;
+
     private ?string $fulfillmentStatus = null;
 
     public function withFilters(array $filters): static

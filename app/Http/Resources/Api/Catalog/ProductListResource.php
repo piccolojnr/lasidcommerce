@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\Api\Catalog;
 
-use App\Http\Resources\Api\Catalog\Concerns\ResolvesProductImageUrls;
 use App\Domain\Catalog\Services\ProductBadgeService;
 use App\Domain\Catalog\Services\ProductStockResolver;
+use App\Http\Resources\Api\Catalog\Concerns\ResolvesProductImageUrls;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,23 +21,23 @@ class ProductListResource extends JsonResource
         $stock = app(ProductStockResolver::class)->resolve($this->resource);
 
         return [
-            'id'                => $this->id,
-            'name'              => $this->name,
-            'slug'              => $this->slug,
-            'sku'               => $this->sku,
-            'base_price'        => $this->base_price,
-            'compare_at_price'  => $this->compare_at_price,
-            'is_featured'       => $this->is_featured,
-            'badges'            => app(ProductBadgeService::class)->resolve($this->resource),
-            'stock'             => $stock,
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'sku' => $this->sku,
+            'base_price' => $this->base_price,
+            'compare_at_price' => $this->compare_at_price,
+            'is_featured' => $this->is_featured,
+            'badges' => app(ProductBadgeService::class)->resolve($this->resource),
+            'stock' => $stock,
             'primary_image_url' => $primaryImage['url'] ?? null,
             'primary_image_thumb_url' => $primaryImage['thumb_url'] ?? null,
             'primary_image_card_url' => $primaryImage['card_url'] ?? null,
             'primary_image_gallery_url' => $primaryImage['gallery_url'] ?? null,
-            'category'          => $this->when(
+            'category' => $this->when(
                 $this->relationLoaded('category') && $this->category !== null,
                 fn () => [
-                    'id'   => $this->category->id,
+                    'id' => $this->category->id,
                     'name' => $this->category->name,
                     'slug' => $this->category->slug,
                 ],
@@ -45,7 +45,7 @@ class ProductListResource extends JsonResource
             'brand' => $this->when(
                 $this->relationLoaded('brand') && $this->brand !== null,
                 fn () => [
-                    'id'   => $this->brand->id,
+                    'id' => $this->brand->id,
                     'name' => $this->brand->name,
                     'slug' => $this->brand->slug,
                 ],

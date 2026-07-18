@@ -21,7 +21,12 @@ interface BrandFormProps {
 }
 
 function slugify(value: string): string {
-    return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
 }
 
 function SummaryItem({ label, value }: { label: string; value: string }) {
@@ -39,36 +44,69 @@ export function BrandForm({ brand }: BrandFormProps) {
     const [slugValue, setSlugValue] = useState(brand?.slug ?? '');
     const [isActive, setIsActive] = useState(brand?.is_active ?? true);
 
-    const formProps = isEdit ? BrandController.update.form.patch(brand) : BrandController.store.form.post();
+    const formProps = isEdit
+        ? BrandController.update.form.patch(brand)
+        : BrandController.store.form.post();
 
     return (
-        <Form {...formProps} options={{ preserveScroll: true }} className="space-y-8">
+        <Form
+            {...formProps}
+            options={{ preserveScroll: true }}
+            className="space-y-8"
+        >
             {({ errors }) => (
                 <>
                     <input type="hidden" name="slug" value={slugValue} />
-                    <input type="hidden" name="is_active" value={isActive ? '1' : '0'} />
+                    <input
+                        type="hidden"
+                        name="is_active"
+                        value={isActive ? '1' : '0'}
+                    />
 
                     <div className="grid gap-8 xl:grid-cols-[minmax(0,1.55fr)_320px]">
                         <div className="space-y-8">
                             <section className="overflow-hidden rounded-[28px] border border-border/70 bg-linear-to-br from-primary/10 via-background to-background shadow-sm">
                                 <div className="grid gap-6 p-6 lg:grid-cols-[1.1fr_0.9fr] lg:p-8">
                                     <div className="space-y-4">
-                                        <Badge variant="secondary" className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
+                                        <Badge
+                                            variant="secondary"
+                                            className="rounded-full px-3 py-1 text-[11px] tracking-[0.2em] uppercase"
+                                        >
                                             Brand editor
                                         </Badge>
                                         <div className="space-y-3">
                                             <h2 className="text-3xl font-semibold tracking-tight">
-                                                {isEdit ? 'Sharpen the brand identity' : 'Create a brand that feels intentional'}
+                                                {isEdit
+                                                    ? 'Sharpen the brand identity'
+                                                    : 'Create a brand that feels intentional'}
                                             </h2>
                                             <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                                                Strong naming, a clean slug, and a logo that does not look like an afterthought make the catalog feel much more coherent.
+                                                Strong naming, a clean slug, and
+                                                a logo that does not look like
+                                                an afterthought make the catalog
+                                                feel much more coherent.
                                             </p>
                                         </div>
                                     </div>
                                     <div className="grid gap-3">
-                                        <SummaryItem label="Status" value={isActive ? 'Active' : 'Inactive'} />
-                                        <SummaryItem label="Slug mode" value={slugManual ? 'Manual' : 'Auto'} />
-                                        <SummaryItem label="Products linked" value={String(brand?.products_count ?? 0)} />
+                                        <SummaryItem
+                                            label="Status"
+                                            value={
+                                                isActive ? 'Active' : 'Inactive'
+                                            }
+                                        />
+                                        <SummaryItem
+                                            label="Slug mode"
+                                            value={
+                                                slugManual ? 'Manual' : 'Auto'
+                                            }
+                                        />
+                                        <SummaryItem
+                                            label="Products linked"
+                                            value={String(
+                                                brand?.products_count ?? 0,
+                                            )}
+                                        />
                                     </div>
                                 </div>
                             </section>
@@ -90,7 +128,11 @@ export function BrandForm({ brand }: BrandFormProps) {
                                             className="h-12 rounded-xl"
                                             onChange={(event) => {
                                                 if (!slugManual) {
-                                                    setSlugValue(slugify(event.target.value));
+                                                    setSlugValue(
+                                                        slugify(
+                                                            event.target.value,
+                                                        ),
+                                                    );
                                                 }
                                             }}
                                         />
@@ -99,9 +141,21 @@ export function BrandForm({ brand }: BrandFormProps) {
 
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between gap-3">
-                                            <Label htmlFor="slug-display">Slug</Label>
-                                            <button type="button" className="text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setSlugManual((value) => !value)}>
-                                                {slugManual ? 'Manual mode' : 'Auto-generate'}
+                                            <Label htmlFor="slug-display">
+                                                Slug
+                                            </Label>
+                                            <button
+                                                type="button"
+                                                className="text-xs font-medium text-muted-foreground hover:text-foreground"
+                                                onClick={() =>
+                                                    setSlugManual(
+                                                        (value) => !value,
+                                                    )
+                                                }
+                                            >
+                                                {slugManual
+                                                    ? 'Manual mode'
+                                                    : 'Auto-generate'}
                                             </button>
                                         </div>
                                         <Input
@@ -109,10 +163,16 @@ export function BrandForm({ brand }: BrandFormProps) {
                                             value={slugValue}
                                             placeholder="nike"
                                             readOnly={!slugManual}
-                                            className={cn('h-12 rounded-xl font-mono text-sm', !slugManual && 'bg-muted text-muted-foreground')}
+                                            className={cn(
+                                                'h-12 rounded-xl font-mono text-sm',
+                                                !slugManual &&
+                                                    'bg-muted text-muted-foreground',
+                                            )}
                                             onChange={(event) => {
                                                 if (slugManual) {
-                                                    setSlugValue(event.target.value);
+                                                    setSlugValue(
+                                                        event.target.value,
+                                                    );
                                                 }
                                             }}
                                         />
@@ -121,7 +181,9 @@ export function BrandForm({ brand }: BrandFormProps) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">
+                                        Description
+                                    </Label>
                                     <textarea
                                         id="description"
                                         name="description"
@@ -142,11 +204,21 @@ export function BrandForm({ brand }: BrandFormProps) {
                                 <ImageUploadField
                                     id="image"
                                     name="image"
-                                    label={isEdit ? 'Replace the brand image' : 'Upload a brand image'}
+                                    label={
+                                        isEdit
+                                            ? 'Replace the brand image'
+                                            : 'Upload a brand image'
+                                    }
                                     multiple={false}
                                     existingImages={
                                         brand?.image_url
-                                            ? [{ id: brand.id, url: brand.image_url, is_primary: true }]
+                                            ? [
+                                                  {
+                                                      id: brand.id,
+                                                      url: brand.image_url,
+                                                      is_primary: true,
+                                                  },
+                                              ]
                                             : []
                                     }
                                     removeFieldName="remove_image"
@@ -165,14 +237,26 @@ export function BrandForm({ brand }: BrandFormProps) {
                                     htmlFor="is_active"
                                     className={cn(
                                         'flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition',
-                                        isActive ? 'border-primary/40 bg-primary/5' : 'border-border/70 bg-background hover:bg-muted/30',
+                                        isActive
+                                            ? 'border-primary/40 bg-primary/5'
+                                            : 'border-border/70 bg-background hover:bg-muted/30',
                                     )}
                                 >
-                                    <Checkbox id="is_active" checked={isActive} onCheckedChange={(value) => setIsActive(Boolean(value))} />
+                                    <Checkbox
+                                        id="is_active"
+                                        checked={isActive}
+                                        onCheckedChange={(value) =>
+                                            setIsActive(Boolean(value))
+                                        }
+                                    />
                                     <div className="space-y-1">
-                                        <div className="font-medium">Active on storefront</div>
+                                        <div className="font-medium">
+                                            Active on storefront
+                                        </div>
                                         <p className="text-sm text-muted-foreground">
-                                            Keep this enabled when the brand should appear in navigation, filters, and product merchandising.
+                                            Keep this enabled when the brand
+                                            should appear in navigation,
+                                            filters, and product merchandising.
                                         </p>
                                     </div>
                                 </label>
@@ -188,25 +272,40 @@ export function BrandForm({ brand }: BrandFormProps) {
                                         <span>Brand snapshot</span>
                                     </div>
                                     <div className="space-y-2">
-                                        <h3 className="text-2xl font-semibold">{brand?.name ?? 'New brand draft'}</h3>
+                                        <h3 className="text-2xl font-semibold">
+                                            {brand?.name ?? 'New brand draft'}
+                                        </h3>
                                         <p className="text-sm leading-6 text-white/70">
-                                            A clean logo and a consistent name/slug pair go further than most admin teams expect.
+                                            A clean logo and a consistent
+                                            name/slug pair go further than most
+                                            admin teams expect.
                                         </p>
                                     </div>
                                     <div className="grid gap-3">
                                         <div className="rounded-2xl bg-white/10 p-4">
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <Tag className="size-4" />
-                                                <span className="text-sm">Slug</span>
+                                                <span className="text-sm">
+                                                    Slug
+                                                </span>
                                             </div>
-                                            <p className="mt-2 text-sm font-medium">{slugValue || 'Will be generated from the name'}</p>
+                                            <p className="mt-2 text-sm font-medium">
+                                                {slugValue ||
+                                                    'Will be generated from the name'}
+                                            </p>
                                         </div>
                                         <div className="rounded-2xl bg-white/10 p-4">
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <BadgeCheck className="size-4" />
-                                                <span className="text-sm">Visibility</span>
+                                                <span className="text-sm">
+                                                    Visibility
+                                                </span>
                                             </div>
-                                            <p className="mt-2 text-sm font-medium">{isActive ? 'Visible on storefront' : 'Hidden from storefront'}</p>
+                                            <p className="mt-2 text-sm font-medium">
+                                                {isActive
+                                                    ? 'Visible on storefront'
+                                                    : 'Hidden from storefront'}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -218,15 +317,31 @@ export function BrandForm({ brand }: BrandFormProps) {
                                 badge="Checklist"
                             >
                                 <div className="grid gap-3">
-                                    <SummaryItem label="Slug mode" value={slugManual ? 'Manual' : 'Auto'} />
-                                    <SummaryItem label="Current image" value={brand?.image_url ? 'Present' : 'Missing'} />
-                                    <SummaryItem label="Visibility" value={isActive ? 'Active' : 'Inactive'} />
+                                    <SummaryItem
+                                        label="Slug mode"
+                                        value={slugManual ? 'Manual' : 'Auto'}
+                                    />
+                                    <SummaryItem
+                                        label="Current image"
+                                        value={
+                                            brand?.image_url
+                                                ? 'Present'
+                                                : 'Missing'
+                                        }
+                                    />
+                                    <SummaryItem
+                                        label="Visibility"
+                                        value={isActive ? 'Active' : 'Inactive'}
+                                    />
                                 </div>
                             </FormSection>
                         </aside>
                     </div>
 
-                    <FormActions submitLabel={isEdit ? 'Update brand' : 'Create brand'} onCancel={() => window.history.back()} />
+                    <FormActions
+                        submitLabel={isEdit ? 'Update brand' : 'Create brand'}
+                        onCancel={() => window.history.back()}
+                    />
                 </>
             )}
         </Form>

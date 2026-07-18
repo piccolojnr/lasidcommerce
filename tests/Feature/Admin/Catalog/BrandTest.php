@@ -211,7 +211,7 @@ class BrandTest extends TestCase
     public function test_index_filters_brands_by_active_state(): void
     {
         $this->actingAs($this->admin);
-        $active   = Brand::factory()->create(['is_active' => true]);
+        $active = Brand::factory()->create(['is_active' => true]);
         $inactive = Brand::factory()->create(['is_active' => false]);
 
         $response = $this->get(route('admin.catalog.brands.index', ['is_active' => '1']));
@@ -250,7 +250,7 @@ class BrandTest extends TestCase
         $this->actingAs($this->admin);
 
         $this->post(route('admin.catalog.brands.store'), [
-            'name'  => 'Logo Brand',
+            'name' => 'Logo Brand',
             'image' => UploadedFile::fake()->image('logo.png'),
         ]);
 
@@ -266,7 +266,7 @@ class BrandTest extends TestCase
         $brand->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('images');
 
         $this->put(route('admin.catalog.brands.update', $brand), [
-            'name'         => $brand->name,
+            'name' => $brand->name,
             'remove_image' => true,
         ]);
 

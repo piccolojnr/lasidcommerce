@@ -49,7 +49,10 @@ export default function ProductShowPage({ product }: Props) {
                                 <Link
                                     href={
                                         product.inventory.primary_stock_item_id
-                                            ? StockItemController.show.url(product.inventory.primary_stock_item_id)
+                                            ? StockItemController.show.url(
+                                                  product.inventory
+                                                      .primary_stock_item_id,
+                                              )
                                             : `${StockItemController.index.url()}?search=${encodeURIComponent(product.sku)}`
                                     }
                                 >
@@ -162,13 +165,24 @@ export default function ProductShowPage({ product }: Props) {
                                 </span>
                             </div>
                             <div className="space-y-2 pt-2">
-                                <span className="text-muted-foreground">Computed badges</span>
+                                <span className="text-muted-foreground">
+                                    Computed badges
+                                </span>
                                 <div className="flex flex-wrap gap-2">
-                                    {product.badges.length > 0 ? product.badges.map((badge) => (
-                                        <span key={badge.key} className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                                            {badge.label}
+                                    {product.badges.length > 0 ? (
+                                        product.badges.map((badge) => (
+                                            <span
+                                                key={badge.key}
+                                                className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                                            >
+                                                {badge.label}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-sm font-medium">
+                                            None
                                         </span>
-                                    )) : <span className="text-sm font-medium">None</span>}
+                                    )}
                                 </div>
                             </div>
                         </CardContent>
@@ -212,7 +226,9 @@ export default function ProductShowPage({ product }: Props) {
                                 <span className="text-muted-foreground">
                                     Stock status
                                 </span>
-                                <StatusBadge status={product.inventory.status} />
+                                <StatusBadge
+                                    status={product.inventory.status}
+                                />
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
@@ -315,23 +331,52 @@ export default function ProductShowPage({ product }: Props) {
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground">Tags</p>
+                                            <p className="text-muted-foreground">
+                                                Tags
+                                            </p>
                                             <div className="mt-2 flex flex-wrap gap-2">
-                                                {product.tags.length > 0 ? product.tags.map((tag) => (
-                                                    <span key={tag.id} className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">
-                                                        {tag.name}
+                                                {product.tags.length > 0 ? (
+                                                    product.tags.map((tag) => (
+                                                        <span
+                                                            key={tag.id}
+                                                            className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground"
+                                                        >
+                                                            {tag.name}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-sm font-medium">
+                                                        No tags
                                                     </span>
-                                                )) : <span className="text-sm font-medium">No tags</span>}
+                                                )}
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground">Collections</p>
+                                            <p className="text-muted-foreground">
+                                                Collections
+                                            </p>
                                             <div className="mt-2 flex flex-wrap gap-2">
-                                                {product.collections.length > 0 ? product.collections.map((collection) => (
-                                                    <span key={collection.id} className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">
-                                                        {collection.name}
+                                                {product.collections.length >
+                                                0 ? (
+                                                    product.collections.map(
+                                                        (collection) => (
+                                                            <span
+                                                                key={
+                                                                    collection.id
+                                                                }
+                                                                className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground"
+                                                            >
+                                                                {
+                                                                    collection.name
+                                                                }
+                                                            </span>
+                                                        ),
+                                                    )
+                                                ) : (
+                                                    <span className="text-sm font-medium">
+                                                        No collections
                                                     </span>
-                                                )) : <span className="text-sm font-medium">No collections</span>}
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -452,7 +497,9 @@ export default function ProductShowPage({ product }: Props) {
 
                         <Card className="overflow-hidden border-border/70 pt-0">
                             <CardHeader className="border-b border-border/70 bg-muted/30 py-6">
-                                <CardTitle>Operational flags and inventory</CardTitle>
+                                <CardTitle>
+                                    Operational flags and inventory
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4 p-6 text-sm">
                                 <div className="flex items-center justify-between">

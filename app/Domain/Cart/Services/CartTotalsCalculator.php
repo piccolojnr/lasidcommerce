@@ -15,9 +15,9 @@ class CartTotalsCalculator
         $cart->update([
             'subtotal_amount' => $subtotal,
             'discount_amount' => 0,
-            'tax_amount'      => 0,
+            'tax_amount' => 0,
             'shipping_amount' => 0,
-            'total_amount'    => $subtotal,
+            'total_amount' => $subtotal,
         ]);
     }
 }

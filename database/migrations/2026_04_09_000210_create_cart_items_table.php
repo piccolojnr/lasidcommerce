@@ -35,14 +35,14 @@ return new class extends Migration
         });
 
         DB::statement(
-            'CREATE UNIQUE INDEX cart_items_cart_product_variant_unique ' .
-            'ON cart_items (cart_id, product_id, product_variant_id) ' .
+            'CREATE UNIQUE INDEX cart_items_cart_product_variant_unique '.
+            'ON cart_items (cart_id, product_id, product_variant_id) '.
             'WHERE product_variant_id IS NOT NULL'
         );
 
         DB::statement(
-            'CREATE UNIQUE INDEX cart_items_cart_product_null_variant_unique ' .
-            'ON cart_items (cart_id, product_id) ' .
+            'CREATE UNIQUE INDEX cart_items_cart_product_null_variant_unique '.
+            'ON cart_items (cart_id, product_id) '.
             'WHERE product_variant_id IS NULL'
         );
     }

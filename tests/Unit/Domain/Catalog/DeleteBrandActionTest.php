@@ -17,7 +17,7 @@ class DeleteBrandActionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->action = new DeleteBrandAction();
+        $this->action = new DeleteBrandAction;
     }
 
     public function test_soft_deletes_brand_with_no_products(): void

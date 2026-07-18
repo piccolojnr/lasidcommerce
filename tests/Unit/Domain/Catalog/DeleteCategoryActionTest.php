@@ -17,7 +17,7 @@ class DeleteCategoryActionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->action = new DeleteCategoryAction();
+        $this->action = new DeleteCategoryAction;
     }
 
     public function test_soft_deletes_category_with_no_children_or_products(): void

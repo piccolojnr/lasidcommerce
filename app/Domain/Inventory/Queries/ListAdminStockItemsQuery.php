@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListAdminStockItemsQuery
 {
     private ?string $search = null;
+
     private ?string $status = null;
 
     public function withFilters(array $filters): static

@@ -9,8 +9,7 @@ class ShippingAddressData
         public readonly ?string $region = null,
         public readonly string $city = '',
         public readonly ?string $district = null,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

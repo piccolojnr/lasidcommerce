@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Checkout;
 
 use App\Domain\Cart\Actions\GetOrCreateCartAction;
 use App\Domain\Checkout\Actions\CreateOrderFromCartAction;
-use App\Domain\Checkout\Actions\InitializeGuestCheckoutAction;
 use App\Domain\Checkout\Actions\InitializeCheckoutAction;
+use App\Domain\Checkout\Actions\InitializeGuestCheckoutAction;
 use App\Domain\Checkout\Actions\PreviewCheckoutAction;
 use App\Domain\Checkout\Exceptions\CheckoutException;
 use App\Domain\Shipping\Actions\ResolveShippingMethodsAction;
@@ -13,19 +13,19 @@ use App\Domain\Shipping\DTOs\ShippingAddressData;
 use App\Domain\Shipping\Services\ShippingFeeCalculator;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateOrderRequest;
-use App\Http\Requests\Api\InitializeGuestCheckoutRequest;
 use App\Http\Requests\Api\InitializeCheckoutRequest;
+use App\Http\Requests\Api\InitializeGuestCheckoutRequest;
 use App\Http\Requests\Api\PreviewCheckoutRequest;
 use App\Http\Requests\Api\ResolveShippingMethodsRequest;
 use App\Http\Resources\Api\Checkout\CheckoutPreviewResource;
 use App\Http\Resources\Api\Checkout\OrderResource;
 use App\Models\Address;
+use App\Models\Cart;
 use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
-use App\Models\Cart;
 use App\Support\Responses\ApiResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends Controller
@@ -49,22 +49,22 @@ class CheckoutController extends Controller
 
             $resolved = $zone ? [
                 'shipping_zone' => [
-                    'id'   => $zone->id,
+                    'id' => $zone->id,
                     'name' => $zone->name,
                     'code' => $zone->code,
                 ],
                 'shipping_methods' => $zone->shippingMethods
                     ->map(fn ($method) => [
-                        'id'                => $method->id,
-                        'name'              => $method->name,
-                        'code'              => $method->code,
-                        'method_type'       => $method->method_type,
-                        'price_type'        => $method->price_type,
-                        'flat_rate_amount'  => $method->flat_rate_amount,
-                        'shipping_amount'   => $this->feeCalculator->calculate($method),
+                        'id' => $method->id,
+                        'name' => $method->name,
+                        'code' => $method->code,
+                        'method_type' => $method->method_type,
+                        'price_type' => $method->price_type,
+                        'flat_rate_amount' => $method->flat_rate_amount,
+                        'shipping_amount' => $this->feeCalculator->calculate($method),
                         'min_delivery_days' => $method->min_delivery_days,
                         'max_delivery_days' => $method->max_delivery_days,
-                        'description'       => $method->description,
+                        'description' => $method->description,
                     ])
                     ->values()
                     ->all(),
@@ -72,8 +72,8 @@ class CheckoutController extends Controller
         } else {
             $resolved = $this->resolveShippingMethodsAction->execute(new ShippingAddressData(
                 country: $request->country,
-                region:  $request->region,
-                city:    $request->city,
+                region: $request->region,
+                city: $request->city,
             ));
         }
 
@@ -83,16 +83,16 @@ class CheckoutController extends Controller
         }
 
         return ApiResponse::success([
-            'shipping_zone'    => $resolved['shipping_zone'],
+            'shipping_zone' => $resolved['shipping_zone'],
             'shipping_methods' => $resolved['shipping_methods'],
-            'cart_id'          => $cart?->id,
+            'cart_id' => $cart?->id,
         ]);
     }
 
     public function preview(PreviewCheckoutRequest $request): JsonResponse
     {
         $cart = $this->getOrCreateCart->execute(
-            user:      $request->user(),
+            user: $request->user(),
             cartToken: $request->header('X-Cart-Token'),
         );
 
@@ -116,7 +116,7 @@ class CheckoutController extends Controller
     public function createOrder(CreateOrderRequest $request): JsonResponse
     {
         $cart = $this->getOrCreateCart->execute(
-            user:      $request->user(),
+            user: $request->user(),
             cartToken: $request->header('X-Cart-Token'),
         );
 
@@ -130,12 +130,12 @@ class CheckoutController extends Controller
 
         try {
             $order = $this->createOrderAction->execute(
-                cart:           $cart,
-                address:        $address,
+                cart: $cart,
+                address: $address,
                 shippingMethod: $method,
-                user:           $request->user(),
-                notes:          $request->notes,
-                deliveryNotes:  $request->delivery_notes,
+                user: $request->user(),
+                notes: $request->notes,
+                deliveryNotes: $request->delivery_notes,
             );
         } catch (CheckoutException $e) {
             return ApiResponse::error($e->getMessage(), [], Response::HTTP_UNPROCESSABLE_ENTITY);
