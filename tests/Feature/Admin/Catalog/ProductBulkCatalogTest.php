@@ -85,6 +85,131 @@ class ProductBulkCatalogTest extends TestCase
         $this->assertStringContainsString('SKU-001', $csv);
     }
 
+    public function test_admin_can_view_bulk_editor(): void
+    {
+        Product::factory()->create(['sku' => 'BULK-EDIT-1']);
+
+        $response = $this->actingAs($this->admin)
+            ->get(route('admin.catalog.products.bulk.edit'));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->component('admin/catalog/products/bulk-edit')
+            ->has('products', 1)
+            ->where('products.0.sku', 'BULK-EDIT-1')
+            ->has('categories')
+            ->has('brands')
+        );
+    }
+
+    public function test_admin_can_save_bulk_editor_rows_and_trace_stock_change(): void
+    {
+        $category = Category::factory()->create();
+        $brand = Brand::factory()->create();
+        $product = Product::factory()->create([
+            'sku' => 'BULK-SAVE-1',
+            'name' => 'Old Bulk Name',
+            'base_price' => 1000,
+            'track_inventory' => true,
+        ]);
+        StockItem::query()->create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 5,
+            'reorder_level' => 1,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.catalog.products.bulk.update'), [
+                'products' => [[
+                    'id' => $product->id,
+                    'name' => 'New Bulk Name',
+                    'sku' => 'BULK-SAVE-1A',
+                    'status' => 'active',
+                    'product_type' => 'physical',
+                    'category_id' => $category->id,
+                    'brand_id' => $brand->id,
+                    'base_price' => 1500,
+                    'compare_at_price' => 2000,
+                    'cost_price' => 700,
+                    'track_inventory' => true,
+                    'allow_backorders' => true,
+                    'is_featured' => true,
+                    'quantity_on_hand' => 9,
+                    'reorder_level' => 3,
+                ]],
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('catalogBulkEdit.updated', 1);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'name' => 'New Bulk Name',
+            'sku' => 'BULK-SAVE-1A',
+            'status' => 'active',
+            'category_id' => $category->id,
+            'brand_id' => $brand->id,
+            'base_price' => 1500,
+            'compare_at_price' => 2000,
+            'cost_price' => 700,
+            'track_inventory' => true,
+            'allow_backorders' => true,
+            'is_featured' => true,
+        ]);
+        $this->assertDatabaseHas('stock_items', [
+            'product_id' => $product->id,
+            'quantity_on_hand' => 9,
+            'reorder_level' => 3,
+        ]);
+        $this->assertDatabaseHas('stock_movements', [
+            'type' => StockMovement::TYPE_CORRECTION_ADD,
+            'quantity' => 4,
+            'reference_type' => 'catalog_bulk_edit',
+            'reference_id' => $product->id,
+            'created_by' => $this->admin->id,
+        ]);
+    }
+
+    public function test_bulk_editor_reports_row_errors_without_rolling_back_valid_rows(): void
+    {
+        $valid = Product::factory()->create(['sku' => 'BULK-VALID']);
+        $conflict = Product::factory()->create(['sku' => 'BULK-CONFLICT']);
+        $invalid = Product::factory()->create(['sku' => 'BULK-INVALID']);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.catalog.products.bulk.update'), [
+                'products' => [
+                    [
+                        'id' => $valid->id,
+                        'name' => 'Valid Saved',
+                        'sku' => 'BULK-VALID-SAVED',
+                        'status' => 'draft',
+                        'product_type' => 'physical',
+                        'base_price' => 1200,
+                        'track_inventory' => false,
+                        'allow_backorders' => false,
+                        'is_featured' => false,
+                    ],
+                    [
+                        'id' => $invalid->id,
+                        'name' => 'Invalid Conflict',
+                        'sku' => $conflict->sku,
+                        'status' => 'draft',
+                        'product_type' => 'physical',
+                        'base_price' => 900,
+                        'track_inventory' => false,
+                        'allow_backorders' => false,
+                        'is_featured' => false,
+                    ],
+                ],
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('catalogBulkEdit.updated', 1)
+            ->assertSessionHas('catalogBulkEdit.failed', 1);
+
+        $this->assertDatabaseHas('products', ['id' => $valid->id, 'sku' => 'BULK-VALID-SAVED']);
+        $this->assertDatabaseHas('products', ['id' => $invalid->id, 'sku' => 'BULK-INVALID']);
+    }
+
     public function test_admin_can_import_new_catalog_rows(): void
     {
         $csv = $this->csv([

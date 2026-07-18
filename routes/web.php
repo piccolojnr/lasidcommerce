@@ -57,6 +57,10 @@ Route::middleware(['auth', 'verified'])
             Route::resource('collections', CollectionController::class);
             Route::patch('collections/{collection}/toggle-status', [CollectionController::class, 'toggleStatus'])
                 ->name('collections.toggle-status');
+            Route::get('products-bulk/edit', [ProductBulkCatalogController::class, 'edit'])
+                ->name('products.bulk.edit');
+            Route::patch('products-bulk', [ProductBulkCatalogController::class, 'update'])
+                ->name('products.bulk.update');
             Route::get('products-bulk/export', [ProductBulkCatalogController::class, 'export'])
                 ->name('products.bulk.export');
             Route::get('products-bulk/template', [ProductBulkCatalogController::class, 'template'])

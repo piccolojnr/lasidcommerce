@@ -1,5 +1,5 @@
 import { Form, Link } from '@inertiajs/react';
-import { Download, FileSpreadsheet, Upload } from 'lucide-react';
+import { Download, FileSpreadsheet, PencilLine, Upload } from 'lucide-react';
 import * as ProductBulkCatalogController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductBulkCatalogController';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
 import { FieldError } from '@/components/shared/forms/field-error';
@@ -74,6 +74,9 @@ export default function ProductIndexPage({
     const featuredProducts = products.data.filter(
         (product) => product.is_featured,
     ).length;
+    const activeFilterQuery = Object.fromEntries(
+        Object.entries(filters).filter(([, value]) => value !== null),
+    ) as Record<string, string>;
 
     return (
         <AdminLayout title="Products">
@@ -150,6 +153,16 @@ export default function ProductIndexPage({
                                 </CardTitle>
                             </div>
                             <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" asChild>
+                                    <Link
+                                        href={ProductBulkCatalogController.edit.url(
+                                            { query: activeFilterQuery },
+                                        )}
+                                    >
+                                        <PencilLine data-icon="inline-start" />
+                                        Bulk editor
+                                    </Link>
+                                </Button>
                                 <Button variant="outline" asChild>
                                     <a
                                         href={ProductBulkCatalogController.template.url()}

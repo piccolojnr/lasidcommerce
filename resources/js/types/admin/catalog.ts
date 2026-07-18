@@ -161,6 +161,31 @@ export interface AdminProduct {
     created_at: string;
 }
 
+export interface AdminBulkEditableProduct {
+    id: number;
+    name: string;
+    sku: string;
+    status: string;
+    product_type: string;
+    category_id: number | null;
+    category_name: string | null;
+    brand_id: number | null;
+    brand_name: string | null;
+    base_price: number;
+    compare_at_price: number | null;
+    cost_price: number | null;
+    track_inventory: boolean;
+    allow_backorders: boolean;
+    is_featured: boolean;
+    quantity_on_hand: number | null;
+    reorder_level: number | null;
+    reserved_quantity: number;
+    stock_item_count: number;
+    variants_count: number;
+    image_count: number;
+    primary_image_thumb_url: string | null;
+}
+
 export interface AdminCatalogListPage<T> {
     data: T[];
     current_page: number;
