@@ -8,6 +8,8 @@ use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
 use App\Models\Shipment;
+use App\Models\ShipmentStatusHistory;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class UpdateShipmentStatusAction
@@ -22,7 +24,7 @@ class UpdateShipmentStatusAction
     /**
      * @throws ShipmentException
      */
-    public function execute(Shipment $shipment, string $toStatus): Shipment
+    public function execute(Shipment $shipment, string $toStatus, ?string $note = null, ?User $actor = null): Shipment
     {
         if (! $this->statusManager->canTransition($shipment, $toStatus)) {
             throw new ShipmentException(
@@ -38,8 +40,17 @@ class UpdateShipmentStatusAction
             $updateData[$tsField] = now();
         }
 
-        DB::transaction(function () use ($shipment, $updateData) {
+        DB::transaction(function () use ($shipment, $updateData, $fromStatus, $toStatus, $note, $actor) {
             $shipment->update($updateData);
+
+            ShipmentStatusHistory::create([
+                'shipment_id' => $shipment->id,
+                'from_status' => $fromStatus,
+                'to_status' => $toStatus,
+                'note' => $note,
+                'changed_by' => $actor?->id,
+            ]);
+
             $this->fulfillmentService->sync($shipment->order->fresh([
                 'orderItems.shipmentItems.shipment',
                 'shipments',

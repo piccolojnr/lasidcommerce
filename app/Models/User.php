@@ -86,6 +86,11 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(OrderStatusHistory::class, 'changed_by');
     }
 
+    public function shipmentStatusHistories(): HasMany
+    {
+        return $this->hasMany(ShipmentStatusHistory::class, 'changed_by');
+    }
+
     public function sendEmailVerificationNotification(): void
     {
         $segmentService = app(UserSegmentService::class);

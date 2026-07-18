@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
+use App\Models\ShipmentStatusHistory;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class CreateShipmentAction
@@ -19,7 +21,7 @@ class CreateShipmentAction
     /**
      * @throws ShipmentException
      */
-    public function execute(Order $order, array $data): Shipment
+    public function execute(Order $order, array $data, ?User $actor = null): Shipment
     {
         if ($order->status !== 'processing') {
             throw new ShipmentException(
@@ -58,7 +60,7 @@ class CreateShipmentAction
             }
         }
 
-        return DB::transaction(function () use ($order, $data) {
+        return DB::transaction(function () use ($order, $data, $actor) {
             $shipment = Shipment::create([
                 'order_id' => $order->id,
                 'warehouse_location_id' => $data['warehouse_location_id'] ?? null,
@@ -70,6 +72,14 @@ class CreateShipmentAction
                 'notes' => $data['notes'] ?? null,
                 'rider_name' => $data['rider_name'] ?? null,
                 'rider_phone' => $data['rider_phone'] ?? null,
+            ]);
+
+            ShipmentStatusHistory::create([
+                'shipment_id' => $shipment->id,
+                'from_status' => null,
+                'to_status' => 'pending',
+                'note' => 'Shipment created.',
+                'changed_by' => $actor?->id,
             ]);
 
             foreach ($data['items'] as $item) {

@@ -20,7 +20,7 @@ class ShipmentStatusController extends Controller
         $this->authorize('update', $shipment);
 
         try {
-            $this->updateShipmentStatusAction->execute($shipment, $request->status);
+            $this->updateShipmentStatusAction->execute($shipment, $request->status, $request->note, $request->user());
         } catch (ShipmentException $e) {
             return redirect()
                 ->route('admin.shipments.show', $shipment)

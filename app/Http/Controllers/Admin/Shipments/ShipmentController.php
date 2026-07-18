@@ -4,18 +4,21 @@ namespace App\Http\Controllers\Admin\Shipments;
 
 use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Domain\Shipment\Actions\CreateShipmentAction;
+use App\Domain\Shipment\Actions\UpdateShipmentAction;
 use App\Domain\Shipment\Exceptions\ShipmentException;
 use App\Domain\Shipment\Queries\ListAdminShipmentsQuery;
 use App\Domain\Shipment\Services\ShipmentStatusManager;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShipmentRequest;
+use App\Http\Requests\Admin\UpdateShipmentRequest;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
+use App\Models\ShipmentStatusHistory;
+use App\Models\ShippingMethod;
 use App\Models\WarehouseLocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -23,6 +26,7 @@ class ShipmentController extends Controller
 {
     public function __construct(
         private CreateShipmentAction $createShipmentAction,
+        private UpdateShipmentAction $updateShipmentAction,
         private ListAdminShipmentsQuery $listQuery,
         private ShipmentStatusManager $statusManager,
         private OrderFulfillmentService $fulfillmentService,
@@ -55,6 +59,7 @@ class ShipmentController extends Controller
             'shipmentItems.orderItem',
             'warehouseLocation',
             'shippingMethod',
+            'statusHistories.changedBy:id,name',
         ]);
 
         $orderSummary = $shipment->order ? $this->fulfillmentService->summarize($shipment->order->loadMissing([
@@ -65,6 +70,34 @@ class ShipmentController extends Controller
         return Inertia::render('admin/shipments/show', [
             'shipment' => $this->formatShipmentDetail($shipment, $orderSummary),
             'allowedStatuses' => $this->statusManager->allowedFrom($shipment->status),
+            'availableWarehouses' => WarehouseLocation::query()
+                ->active()
+                ->orderByDesc('is_default')
+                ->orderBy('name')
+                ->get(['id', 'name', 'code', 'city', 'region', 'country', 'is_default'])
+                ->map(fn (WarehouseLocation $warehouse) => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'city' => $warehouse->city,
+                    'region' => $warehouse->region,
+                    'country' => $warehouse->country,
+                    'is_default' => $warehouse->is_default,
+                ])
+                ->values()
+                ->all(),
+            'availableShippingMethods' => ShippingMethod::query()
+                ->active()
+                ->orderBy('name')
+                ->get(['id', 'name', 'code', 'method_type'])
+                ->map(fn (ShippingMethod $method) => [
+                    'id' => $method->id,
+                    'name' => $method->name,
+                    'code' => $method->code,
+                    'method_type' => $method->method_type,
+                ])
+                ->values()
+                ->all(),
         ]);
     }
 
@@ -75,7 +108,7 @@ class ShipmentController extends Controller
         $order = Order::findOrFail($request->order_id);
 
         try {
-            $shipment = $this->createShipmentAction->execute($order, $request->validated());
+            $shipment = $this->createShipmentAction->execute($order, $request->validated(), $request->user());
         } catch (ShipmentException $e) {
             return back()->withErrors(['order_id' => $e->getMessage()]);
         }
@@ -85,7 +118,7 @@ class ShipmentController extends Controller
             ->with('success', 'Shipment created successfully.');
     }
 
-    public function quickStore(Order $order): RedirectResponse
+    public function quickStore(Request $request, Order $order): RedirectResponse
     {
         $this->authorize('create', Shipment::class);
 
@@ -115,7 +148,7 @@ class ShipmentController extends Controller
             $shipment = $this->createShipmentAction->execute($order, [
                 'warehouse_location_id' => $defaultWarehouse?->id,
                 'items' => $items,
-            ]);
+            ], $request->user());
         } catch (ShipmentException $e) {
             return back()->withErrors(['order_id' => $e->getMessage()]);
         }
@@ -125,11 +158,15 @@ class ShipmentController extends Controller
             ->with('success', 'Shipment created successfully.');
     }
 
-    public function update(Shipment $shipment): Response
+    public function update(UpdateShipmentRequest $request, Shipment $shipment): RedirectResponse
     {
         $this->authorize('update', $shipment);
 
-        return response("Admin shipment update placeholder: {$shipment->getKey()}");
+        $this->updateShipmentAction->execute($shipment, $request->validated());
+
+        return redirect()
+            ->route('admin.shipments.show', $shipment)
+            ->with('success', 'Shipment details updated successfully.');
     }
 
     private function formatShipmentSummary(Shipment $shipment): array
@@ -161,6 +198,7 @@ class ShipmentController extends Controller
             'rider_phone' => $shipment->rider_phone,
             'notes' => $shipment->notes,
             'warehouse_location' => $shipment->warehouseLocation ? [
+                'id' => $shipment->warehouseLocation->id,
                 'name' => $shipment->warehouseLocation->name,
                 'code' => $shipment->warehouseLocation->code,
                 'city' => $shipment->warehouseLocation->city,
@@ -168,6 +206,7 @@ class ShipmentController extends Controller
                 'country' => $shipment->warehouseLocation->country,
             ] : null,
             'shipping_method' => $shipment->shippingMethod ? [
+                'id' => $shipment->shippingMethod->id,
                 'name' => $shipment->shippingMethod->name,
                 'code' => $shipment->shippingMethod->code,
                 'method_type' => $shipment->shippingMethod->method_type,
@@ -189,6 +228,23 @@ class ShipmentController extends Controller
                 ])
                 ->values()
                 ->all(),
+            'history' => $shipment->statusHistories
+                ->sortByDesc('created_at')
+                ->map(fn (ShipmentStatusHistory $history) => $this->formatHistory($history))
+                ->values()
+                ->all(),
+        ];
+    }
+
+    private function formatHistory(ShipmentStatusHistory $history): array
+    {
+        return [
+            'id' => $history->id,
+            'from_status' => $history->from_status,
+            'to_status' => $history->to_status,
+            'note' => $history->note,
+            'changed_by_name' => $history->changedBy?->name,
+            'created_at' => $history->created_at?->toISOString(),
         ];
     }
 }

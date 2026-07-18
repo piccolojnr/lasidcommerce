@@ -6,7 +6,10 @@ use App\Domain\Order\Services\OrderFulfillmentService;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
+use App\Models\ShipmentStatusHistory;
+use App\Models\ShippingMethod;
 use App\Models\User;
+use App\Models\WarehouseLocation;
 use App\Notifications\InternalShipmentStatusUpdatedNotification;
 use App\Notifications\ShipmentStatusUpdatedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -64,6 +67,12 @@ class ShipmentTest extends TestCase
     {
         return $this->actingAs($this->admin)
             ->patch(route('admin.shipments.status.update', $shipment), ['status' => $status]);
+    }
+
+    private function updateShipment(Shipment $shipment, array $data): TestResponse
+    {
+        return $this->actingAs($this->admin)
+            ->patch(route('admin.shipments.update', $shipment), $data);
     }
 
     private function quickStoreShipment(Order $order): TestResponse
@@ -124,6 +133,30 @@ class ShipmentTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_guest_cannot_update_shipment_details(): void
+    {
+        $shipment = Shipment::factory()->create();
+
+        $response = $this->patch(route('admin.shipments.update', $shipment), [
+            'carrier_name' => 'DHL',
+        ]);
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_unauthorized_user_cannot_update_shipment_details(): void
+    {
+        $user = User::factory()->create();
+        $shipment = Shipment::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->patch(route('admin.shipments.update', $shipment), [
+                'carrier_name' => 'DHL',
+            ]);
+
+        $response->assertForbidden();
+    }
+
     // --- create shipment ---
 
     public function test_can_create_shipment_for_processing_order(): void
@@ -138,6 +171,27 @@ class ShipmentTest extends TestCase
 
         $response->assertRedirect();
         $this->assertDatabaseHas('shipments', ['order_id' => $order->id, 'status' => 'pending']);
+    }
+
+    public function test_creating_shipment_records_initial_status_history(): void
+    {
+        $order = $this->processingOrder();
+        $item = $this->orderItemFor($order);
+
+        $this->storeShipment([
+            'order_id' => $order->id,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ]);
+
+        $shipment = Shipment::query()->where('order_id', $order->id)->firstOrFail();
+
+        $this->assertDatabaseHas('shipment_status_histories', [
+            'shipment_id' => $shipment->id,
+            'from_status' => null,
+            'to_status' => 'pending',
+            'note' => 'Shipment created.',
+            'changed_by' => $this->admin->id,
+        ]);
     }
 
     public function test_shipment_items_are_created(): void
@@ -361,6 +415,48 @@ class ShipmentTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_update_shipment_details(): void
+    {
+        $warehouse = WarehouseLocation::query()->create([
+            'name' => 'Main Warehouse',
+            'code' => 'MAIN',
+            'country' => 'GH',
+            'city' => 'Accra',
+            'address_line_1' => '1 Warehouse Road',
+            'is_active' => true,
+            'is_default' => true,
+        ]);
+        $method = ShippingMethod::factory()->create([
+            'name' => 'Courier',
+            'code' => 'COURIER',
+        ]);
+        $shipment = Shipment::factory()->create();
+
+        $response = $this->updateShipment($shipment, [
+            'warehouse_location_id' => $warehouse->id,
+            'shipping_method_id' => $method->id,
+            'carrier_name' => 'DHL',
+            'tracking_number' => 'DHL12345',
+            'tracking_url' => 'https://example.com/track/DHL12345',
+            'rider_name' => 'Ama Mensah',
+            'rider_phone' => '+2335550100',
+            'notes' => 'Leave package at reception.',
+        ]);
+
+        $response->assertRedirect(route('admin.shipments.show', $shipment));
+        $this->assertDatabaseHas('shipments', [
+            'id' => $shipment->id,
+            'warehouse_location_id' => $warehouse->id,
+            'shipping_method_id' => $method->id,
+            'carrier_name' => 'DHL',
+            'tracking_number' => 'DHL12345',
+            'tracking_url' => 'https://example.com/track/DHL12345',
+            'rider_name' => 'Ama Mensah',
+            'rider_phone' => '+2335550100',
+            'notes' => 'Leave package at reception.',
+        ]);
+    }
+
     // --- valid status transitions ---
 
     public function test_pending_to_packed(): void
@@ -375,6 +471,27 @@ class ShipmentTest extends TestCase
         $this->assertNotNull($shipment->fresh()->packed_at);
         Notification::assertSentOnDemand(ShipmentStatusUpdatedNotification::class);
         Notification::assertSentOnDemand(InternalShipmentStatusUpdatedNotification::class);
+    }
+
+    public function test_status_update_records_history_with_note_and_actor(): void
+    {
+        Notification::fake();
+        $shipment = Shipment::factory()->create(['status' => 'pending']);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.shipments.status.update', $shipment), [
+                'status' => 'packed',
+                'note' => 'Packed by night shift.',
+            ])
+            ->assertRedirect(route('admin.shipments.show', $shipment));
+
+        $this->assertDatabaseHas('shipment_status_histories', [
+            'shipment_id' => $shipment->id,
+            'from_status' => 'pending',
+            'to_status' => 'packed',
+            'note' => 'Packed by night shift.',
+            'changed_by' => $this->admin->id,
+        ]);
     }
 
     public function test_packed_to_shipped(): void
@@ -454,6 +571,7 @@ class ShipmentTest extends TestCase
 
         $response->assertSessionHasErrors('status');
         $this->assertSame('pending', $shipment->fresh()->status);
+        $this->assertDatabaseCount('shipment_status_histories', 0);
     }
 
     public function test_cancelled_shipment_cannot_be_transitioned(): void
@@ -613,5 +731,29 @@ class ShipmentTest extends TestCase
 
         $response->assertRedirect(route('admin.shipments.show', $shipment));
         $response->assertSessionHasErrors('status');
+    }
+
+    public function test_shipment_show_includes_status_history(): void
+    {
+        $shipment = Shipment::factory()->create(['status' => 'packed']);
+        ShipmentStatusHistory::factory()->create([
+            'shipment_id' => $shipment->id,
+            'from_status' => 'pending',
+            'to_status' => 'packed',
+            'note' => 'Packed and staged.',
+            'changed_by' => $this->admin->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->get(route('admin.shipments.show', $shipment));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->component('admin/shipments/show')
+            ->where('shipment.history.0.from_status', 'pending')
+            ->where('shipment.history.0.to_status', 'packed')
+            ->where('shipment.history.0.note', 'Packed and staged.')
+            ->where('shipment.history.0.changed_by_name', $this->admin->name)
+        );
     }
 }

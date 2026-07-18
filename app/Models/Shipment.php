@@ -61,6 +61,11 @@ class Shipment extends Model
         return $this->hasMany(ShipmentItem::class);
     }
 
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(ShipmentStatusHistory::class);
+    }
+
     public function scopeStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);

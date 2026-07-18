@@ -36,6 +36,7 @@ export interface AdminShipmentDetail extends AdminShipment {
     order_remaining_quantity: number;
     can_reship_from_order: boolean;
     warehouse_location: {
+        id: number;
         name: string;
         code: string;
         city: string | null;
@@ -43,11 +44,39 @@ export interface AdminShipmentDetail extends AdminShipment {
         country: string;
     } | null;
     shipping_method: {
+        id: number;
         name: string;
         code: string;
         method_type: string;
     } | null;
     items: AdminShipmentItem[];
+    history: AdminShipmentHistoryEntry[];
+}
+
+export interface AdminShipmentHistoryEntry {
+    id: number;
+    from_status: string | null;
+    to_status: string;
+    note: string | null;
+    changed_by_name: string | null;
+    created_at: string | null;
+}
+
+export interface AdminShipmentWarehouseOption {
+    id: number;
+    name: string;
+    code: string;
+    city: string;
+    region: string | null;
+    country: string;
+    is_default: boolean;
+}
+
+export interface AdminShipmentShippingMethodOption {
+    id: number;
+    name: string;
+    code: string;
+    method_type: string;
 }
 
 export interface AdminShipmentListPage {
