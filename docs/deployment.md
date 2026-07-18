@@ -1,123 +1,112 @@
 # Deployment Guide
 
-## Server Prerequisites
+This app is deployed as Docker images published to GitHub Container Registry by GitHub Actions.
 
-To allow the deployment user to manage queues without `sudo`, configure Supervisor to grant access to a specific group (e.g., `supervisor`):
+## Images
 
-1. **Create the group and add users**:
+The workflow at `.github/workflows/publish.yml` builds and pushes:
 
-    ```bash
-    sudo groupadd supervisor
-    sudo usermod -aG supervisor deploy
-    ```
+- `ghcr.io/piccolojnr/lasidcommerce/app:latest`
+- `ghcr.io/piccolojnr/lasidcommerce/web:latest`
+- SHA tags for both images, using the short commit SHA
 
-2. **Configure Supervisor Socket**:
-   Edit `/etc/supervisor/supervisord.conf` and update the `[unix_http_server]` section:
+The `app` image runs PHP-FPM and Artisan commands. The `web` image runs nginx and serves the built public assets.
+Redis is included in the compose stack and is the default backend for cache, sessions, and queues in the Docker env.
 
-    ```ini
-    [unix_http_server]
-    file=/var/run/supervisor.sock   ; (the path to the socket file)
-    chmod=0770                       ; sock mode (default 0700)
-    chown=root:supervisor           ; socket file uid:gid owner
-    ```
+## CI/CD
 
-3. **Reload Supervisor**:
+- `.github/workflows/lint.yml` runs PHP formatting, frontend formatting, ESLint, and TypeScript checks.
+- `.github/workflows/tests.yml` runs the Laravel test suite against SQLite with array cache/session and sync queues.
+- `.github/workflows/publish.yml` builds both Docker targets on pull requests and pushes GHCR images on `main` or `master`.
+- `.github/dependabot.yml` keeps GitHub Actions dependencies grouped and updated weekly.
 
-    ```bash
-    sudo systemctl restart supervisor
-    ```
+## First-Time VPS Setup
 
-4. **Add NVM to deployment user's profile**:
+Install Docker Engine and the Docker Compose plugin on the VPS, then authenticate to GHCR:
 
-    ```bash
-    echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
-    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
-    echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> ~/.bashrc
-    source ~/.bashrc
-    ```
+```bash
+echo "$GITHUB_TOKEN" | docker login ghcr.io -u piccolojnr --password-stdin
+```
 
-5. **Install Node.js**:
+The token needs package read access for `ghcr.io/piccolojnr/lasidcommerce`.
 
-    ```bash
-    curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-    ```
+Create the persistent volumes expected by `docker/compose.yaml`:
 
-6. **Install pnpm**:
+```bash
+docker volume create docker_lasidcommerce_database
+docker volume create docker_lasidcommerce_redis
+docker volume create docker_lasidcommerce_storage
+```
 
-    ```bash
-    sudo npm install -g pnpm
-    ```
+Copy the deployment files to the VPS:
 
-7. **Install Composer**:
+```bash
+mkdir -p /opt/lasidcommerce
+cp docker/compose.yaml /opt/lasidcommerce/compose.yaml
+cp docker/.env.example /opt/lasidcommerce/.env
+```
 
-    ```bash
-    sudo apt-get install -y composer
-    ```
+Edit `/opt/lasidcommerce/.env` and set production values, especially:
 
-8. **Install Supervisor**:
+- `APP_KEY`
+- `APP_URL`
+- `NGINX_SERVER_NAME`
+- `DB_PASSWORD`
+- `REDIS_PASSWORD` if you want Redis password protection
+- `STOREFRONT_URL`
+- `CORS_ALLOWED_ORIGINS`
+- mail settings
+- Paystack settings
 
-    ```bash
-    sudo apt-get install -y supervisor
-    ```
+Generate `APP_KEY` locally or on the server:
 
-9. **Install Redis**:
+```bash
+docker run --rm ghcr.io/piccolojnr/lasidcommerce/app:latest php artisan key:generate --show
+```
 
-    ```bash
-    sudo apt-get install -y redis-server
-    ```
+## Deploy
 
-10. **Install Nginx**:
+From `/opt/lasidcommerce`:
 
-    ```bash
-    sudo apt-get install -y nginx
-    ```
+```bash
+docker compose pull
+docker compose up -d
+docker compose exec app php artisan migrate --force
+```
 
-11. **Install PHP 8.4**:
+To let the app container run migrations during startup, set:
 
-    ```bash
-    sudo apt-get install -y php8.4 php8.4-fpm php8.4-mysql php8.4-curl php8.4-gd php8.4-mbstring php8.4-xml php8.4-zip
-    ```
+```bash
+LASIDCOMMERCE_RUN_MIGRATIONS=true
+```
 
-12. **Install PHP extensions**:
+## Update
 
-    ```bash
-    sudo apt-get install -y php8.4-mysql php8.4-curl php8.4-gd php8.4-mbstring php8.4-xml php8.4-zip
-    ```
+After a push to `main` completes the GitHub Actions image build:
 
-13. **Install Certbot**:
-    ```bash
-    sudo apt-get install -y certbot python3-certbot-nginx
-    ```
-    eg. `sudo certbot --nginx -d pos.emanilaundry.com -d www.pos.emanilaundry.com`
+```bash
+cd /opt/lasidcommerce
+docker compose pull
+docker compose up -d
+docker image prune -f
+```
 
-## Production Deployment
+Use a SHA tag for pinned deployments:
 
-1 Pull latest code
+```bash
+LASIDCOMMERCE_IMAGE_TAG=<short-sha> docker compose up -d
+```
 
-cd /var/www/production/pos
-git pull origin main
+## Logs
 
-2 Install dependencies
+```bash
+docker compose ps
+docker compose logs -f app
+docker compose logs -f web
+docker compose logs -f queue
+docker compose logs -f scheduler
+```
 
-composer install --no-dev
-pnpm install
+## Reverse Proxy And TLS
 
-3 Build frontend
-
-pnpm build
-
-4 Run migrations
-
-php artisan migrate --force
-
-5 Cache config
-
-php artisan config:cache
-php artisan route:cache
-
-6 Restart queues
-
-sudo supervisorctl restart pos_prod_queue:\*
-
-sudo supervisorctl restart pos_staging_queue:\*
+The compose file exposes nginx on `APP_PORT`, defaulting to `8080`. Put Caddy, Traefik, or host nginx in front of it for TLS, forwarding traffic to `127.0.0.1:8080`.

@@ -1,0 +1,66 @@
+name: lint
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - master
+  pull_request:
+    branches:
+      - develop
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Generate frontend route and action types
+        run: php artisan wayfinder:generate --with-form
+
+      - name: Check PHP formatting
+        run: composer lint:check
+
+      - name: Check frontend formatting
+        run: pnpm run format:check
+
+      - name: Lint frontend
+        run: pnpm run lint:check
+
+      - name: Check frontend types
+        run: pnpm run types:check

@@ -1,0 +1,166 @@
+name: lasidcommerce
+
+services:
+  app:
+    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/app:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+      DB_HOST: ${LASIDCOMMERCE_DOCKER_DB_HOST:-database}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-lasidcommerce}
+      DB_USERNAME: ${DB_USERNAME:-lasidcommerce}
+      DB_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      SESSION_DRIVER: ${SESSION_DRIVER:-redis}
+      SESSION_CONNECTION: ${SESSION_CONNECTION:-default}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - lasidcommerce_storage:/var/www/html/storage
+    networks:
+      - lasidcommerce
+
+  web:
+    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/web:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-_}
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - lasidcommerce_storage:/var/www/html/storage:ro
+    networks:
+      - lasidcommerce
+
+  queue:
+    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/app:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+      DB_HOST: ${LASIDCOMMERCE_DOCKER_DB_HOST:-database}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-lasidcommerce}
+      DB_USERNAME: ${DB_USERNAME:-lasidcommerce}
+      DB_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      SESSION_DRIVER: ${SESSION_DRIVER:-redis}
+      SESSION_CONNECTION: ${SESSION_CONNECTION:-default}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      app:
+        condition: service_started
+    volumes:
+      - lasidcommerce_storage:/var/www/html/storage
+    networks:
+      - lasidcommerce
+
+  scheduler:
+    image: ${LASIDCOMMERCE_IMAGE_PREFIX:-ghcr.io/piccolojnr/lasidcommerce}/app:${LASIDCOMMERCE_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+      DB_HOST: ${LASIDCOMMERCE_DOCKER_DB_HOST:-database}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-lasidcommerce}
+      DB_USERNAME: ${DB_USERNAME:-lasidcommerce}
+      DB_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      SESSION_DRIVER: ${SESSION_DRIVER:-redis}
+      SESSION_CONNECTION: ${SESSION_CONNECTION:-default}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
+    command: sh -c "while true; do php artisan schedule:run --no-interaction; sleep 60; done"
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      app:
+        condition: service_started
+    volumes:
+      - lasidcommerce_storage:/var/www/html/storage
+    networks:
+      - lasidcommerce
+
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-lasidcommerce}
+      POSTGRES_USER: ${DB_USERNAME:-lasidcommerce}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-lasidcommerce}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lasidcommerce} -d ${DB_DATABASE:-lasidcommerce}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - lasidcommerce_database:/var/lib/postgresql/data
+    networks:
+      - lasidcommerce
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    env_file:
+      - ${LASIDCOMMERCE_COMPOSE_ENV_FILE:-.env}
+    command: >
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ] && [ "$$REDIS_PASSWORD" != "null" ]; then
+      redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD";
+      else redis-server --appendonly yes; fi'
+    healthcheck:
+      test: ["CMD-SHELL", "if [ -n \"$${REDIS_PASSWORD}\" ] && [ \"$${REDIS_PASSWORD}\" != \"null\" ]; then redis-cli -a \"$${REDIS_PASSWORD}\" ping; else redis-cli ping; fi"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - lasidcommerce_redis:/data
+    networks:
+      - lasidcommerce
+
+volumes:
+  lasidcommerce_database:
+    external: true
+    name: docker_lasidcommerce_database
+  lasidcommerce_redis:
+    external: true
+    name: docker_lasidcommerce_redis
+  lasidcommerce_storage:
+    external: true
+    name: docker_lasidcommerce_storage
+
+networks:
+  lasidcommerce:
+    driver: bridge

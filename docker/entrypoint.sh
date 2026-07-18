@@ -1,27 +1,32 @@
-#!/bin/sh
-
+#!/usr/bin/env sh
 set -eu
 
-APP_ROOT="/var/www/html"
+cd /var/www/html
 
-mkdir -p \
-  "$APP_ROOT/storage/app/public" \
-  "$APP_ROOT/storage/framework/cache" \
-  "$APP_ROOT/storage/framework/sessions" \
-  "$APP_ROOT/storage/framework/views" \
-  "$APP_ROOT/storage/logs" \
-  "$APP_ROOT/bootstrap/cache"
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+chown -R lasidcommerce:lasidcommerce storage bootstrap/cache
 
-chown -R www-data:www-data \
-  "$APP_ROOT/storage" \
-  "$APP_ROOT/bootstrap/cache"
+if [ ! -f .env ] && [ -f .env.example ]; then
+    cp .env.example .env
+    chown lasidcommerce:lasidcommerce .env
+fi
 
-chmod -R 775 \
-  "$APP_ROOT/storage" \
-  "$APP_ROOT/bootstrap/cache"
+if [ "${LASIDCOMMERCE_STORAGE_LINK:-true}" = "true" ]; then
+    su-exec lasidcommerce php artisan storage:link --force >/dev/null 2>&1 || true
+fi
 
-rm -rf "$APP_ROOT/public/storage"
-ln -s "$APP_ROOT/storage/app/public" "$APP_ROOT/public/storage"
-chown -h www-data:www-data "$APP_ROOT/public/storage"
+if [ "${LASIDCOMMERCE_RUN_MIGRATIONS:-false}" = "true" ]; then
+    su-exec lasidcommerce php artisan migrate --force
+fi
 
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+if [ "${APP_ENV:-production}" = "production" ]; then
+    su-exec lasidcommerce php artisan config:cache
+    su-exec lasidcommerce php artisan route:cache
+    su-exec lasidcommerce php artisan view:cache
+fi
+
+if [ "${1:-}" = "php-fpm" ]; then
+    exec "$@"
+fi
+
+exec su-exec lasidcommerce "$@"
