@@ -27,6 +27,15 @@ class ProductListResource extends JsonResource
             'sku' => $this->sku,
             'base_price' => $this->base_price,
             'compare_at_price' => $this->compare_at_price,
+            'is_on_sale' => $this->isOnSale(),
+
+            'discount_amount' => $this->isOnSale()
+                ? $this->saleDiscountAmount()
+                : null,
+
+            'discount_percentage' => $this->isOnSale()
+                ? $this->saleDiscountPercentage()
+                : null,
             'is_featured' => $this->is_featured,
             'badges' => app(ProductBadgeService::class)->resolve($this->resource),
             'stock' => $stock,
@@ -36,7 +45,7 @@ class ProductListResource extends JsonResource
             'primary_image_gallery_url' => $primaryImage['gallery_url'] ?? null,
             'category' => $this->when(
                 $this->relationLoaded('category') && $this->category !== null,
-                fn () => [
+                fn() => [
                     'id' => $this->category->id,
                     'name' => $this->category->name,
                     'slug' => $this->category->slug,
@@ -44,7 +53,7 @@ class ProductListResource extends JsonResource
             ),
             'brand' => $this->when(
                 $this->relationLoaded('brand') && $this->brand !== null,
-                fn () => [
+                fn() => [
                     'id' => $this->brand->id,
                     'name' => $this->brand->name,
                     'slug' => $this->brand->slug,
@@ -52,7 +61,7 @@ class ProductListResource extends JsonResource
             ),
             'tags' => $this->when(
                 $this->relationLoaded('tags'),
-                fn () => $this->tags->map(fn ($tag) => [
+                fn() => $this->tags->map(fn($tag) => [
                     'id' => $tag->id,
                     'name' => $tag->name,
                     'slug' => $tag->slug,
@@ -60,7 +69,7 @@ class ProductListResource extends JsonResource
             ),
             'collections' => $this->when(
                 $this->relationLoaded('collections'),
-                fn () => $this->collections->map(fn ($collection) => [
+                fn() => $this->collections->map(fn($collection) => [
                     'id' => $collection->id,
                     'name' => $collection->name,
                     'slug' => $collection->slug,

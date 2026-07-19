@@ -17,7 +17,8 @@ class ProductController extends Controller
     public function __construct(
         private ListPublicProductsQuery $listQuery,
         private GetProductDetailQuery $detailQuery,
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): JsonResponse
     {
@@ -29,6 +30,7 @@ class ProductController extends Controller
             'collection' => $request->query('collection') ?: null,
             'featured' => $request->query('featured') ?: null,
             'sort' => $request->query('sort') ?: 'latest',
+            'popularityPeriod' => $request->query('popularity_period') ?: null,
             'min_price' => $request->query('min_price') !== null ? (int) $request->query('min_price') : null,
             'max_price' => $request->query('max_price') !== null ? (int) $request->query('max_price') : null,
         ];

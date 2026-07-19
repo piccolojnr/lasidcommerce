@@ -108,6 +108,26 @@ class Product extends Model implements HasMedia
             ->orderBy('collections.name');
     }
 
+    public function saleDiscountAmount(): int
+    {
+        if (!$this->isOnSale()) {
+            return 0;
+        }
+
+        return $this->compare_at_price - $this->base_price;
+    }
+
+    public function saleDiscountPercentage(): ?int
+    {
+        if (!$this->isOnSale() || $this->compare_at_price <= 0) {
+            return null;
+        }
+
+        return (int) round(
+            (($this->compare_at_price - $this->base_price) / $this->compare_at_price) * 100,
+        );
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');
@@ -129,7 +149,21 @@ class Product extends Model implements HasMedia
     {
         return $query
             ->active()
-            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
+            ->where(fn($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
+    }
+
+    public function scopeSuccessful(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('status', ['successful', 'paid'])
+            ->whereNotNull('paid_at');
+    }
+
+    public function scopeOnSale(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('compare_at_price')
+            ->whereColumn('compare_at_price', '>', 'base_price');
     }
 
     public function isActive(): bool
