@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\UpdateProductVariantRequest;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class ProductVariantController extends Controller
 {
@@ -70,5 +71,26 @@ class ProductVariantController extends Controller
         $this->deleteAction->execute($variant);
 
         return back()->with('success', 'Variant deleted.');
+    }
+
+    public function bulkToggle(Request $request): RedirectResponse
+    {
+        $ids = collect($request->input('variant_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        $isActive = (bool) $request->input('is_active', true);
+
+        ProductVariant::query()
+            ->whereIn('id', $ids)
+            ->each(function (ProductVariant $variant) use ($isActive) {
+                $this->authorize('update', $variant->product);
+                $variant->update(['is_active' => $isActive]);
+            });
+
+        $label = $isActive ? 'activated' : 'deactivated';
+
+        return back()->with('success', "{$ids->count()} variant(s) {$label}.");
     }
 }

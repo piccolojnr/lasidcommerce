@@ -1,5 +1,5 @@
 import { Form, Link } from '@inertiajs/react';
-import { Boxes, Plus, Trash2 } from 'lucide-react';
+import { Boxes, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import * as ProductOptionTypeController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductOptionTypeController';
 import * as ProductOptionValueController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductOptionValueController';
@@ -12,39 +12,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import { formatMoney } from '@/lib/formatters/money';
 import type {
     AdminProduct,
     AdminProductOptionType,
     AdminProductVariant,
 } from '@/types/admin/catalog';
+import { centsToDisplay, displayToCents } from './product-form-utils';
 
-function centsToDisplay(cents: number | null | undefined): string {
-    return cents == null ? '' : (cents / 100).toFixed(2);
-}
-
-function displayToCents(display: string): string {
-    if (!display) {
-        return '';
-    }
-
-    const value = Number.parseFloat(display);
-
-    return Number.isNaN(value) ? '0' : String(Math.round(value * 100));
-}
-
-function OptionTypeCard({
-    optionType,
-}: {
-    optionType: AdminProductOptionType;
-}) {
+function OptionTypeCard({ optionType }: { optionType: AdminProductOptionType }) {
     return (
         <Card className="border-border/70">
             <CardHeader className="flex flex-row items-start justify-between gap-4">
                 <div className="flex flex-col gap-2">
-                    <CardTitle className="text-base">
-                        {optionType.name}
-                    </CardTitle>
+                    <CardTitle className="text-base">{optionType.name}</CardTitle>
                     <div className="flex flex-wrap gap-2">
                         {optionType.values.length > 0 ? (
                             optionType.values.map((value) => (
@@ -53,16 +35,12 @@ function OptionTypeCard({
                                 </Badge>
                             ))
                         ) : (
-                            <span className="text-sm text-muted-foreground">
-                                No values yet
-                            </span>
+                            <span className="text-sm text-muted-foreground">No values yet</span>
                         )}
                     </div>
                 </div>
                 <Form
-                    {...ProductOptionTypeController.destroy.form.delete(
-                        optionType,
-                    )}
+                    {...ProductOptionTypeController.destroy.form.delete(optionType)}
                     options={{ preserveScroll: true }}
                 >
                     <Button type="submit" variant="ghost" size="icon">
@@ -72,19 +50,16 @@ function OptionTypeCard({
                 </Form>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
+                {/* Rename option type */}
                 <Form
-                    {...ProductOptionTypeController.update.form.patch(
-                        optionType,
-                    )}
+                    {...ProductOptionTypeController.update.form.patch(optionType)}
                     options={{ preserveScroll: true }}
                     className="flex flex-col gap-2 sm:flex-row"
                 >
                     {({ errors }) => (
                         <>
                             <div className="min-w-0 flex-1">
-                                <Label htmlFor={`option-${optionType.id}`}>
-                                    Option name
-                                </Label>
+                                <Label htmlFor={`option-${optionType.id}`}>Option name</Label>
                                 <Input
                                     id={`option-${optionType.id}`}
                                     name="name"
@@ -99,16 +74,12 @@ function OptionTypeCard({
                     )}
                 </Form>
 
+                {/* Edit / delete existing values */}
                 <div className="flex flex-col gap-2">
                     {optionType.values.map((value) => (
-                        <div
-                            key={value.id}
-                            className="flex flex-col gap-2 sm:flex-row"
-                        >
+                        <div key={value.id} className="flex flex-col gap-2 sm:flex-row">
                             <Form
-                                {...ProductOptionValueController.update.form.patch(
-                                    value,
-                                )}
+                                {...ProductOptionValueController.update.form.patch(value)}
                                 options={{ preserveScroll: true }}
                                 className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row"
                             >
@@ -120,9 +91,7 @@ function OptionTypeCard({
                                                 defaultValue={value.value}
                                                 aria-label={`${optionType.name} value`}
                                             />
-                                            <FieldError
-                                                message={errors.value}
-                                            />
+                                            <FieldError message={errors.value} />
                                         </div>
                                         <Button type="submit" variant="outline">
                                             Update
@@ -131,41 +100,28 @@ function OptionTypeCard({
                                 )}
                             </Form>
                             <Form
-                                {...ProductOptionValueController.destroy.form.delete(
-                                    value,
-                                )}
+                                {...ProductOptionValueController.destroy.form.delete(value)}
                                 options={{ preserveScroll: true }}
                             >
-                                <Button
-                                    type="submit"
-                                    variant="ghost"
-                                    size="icon"
-                                >
+                                <Button type="submit" variant="ghost" size="icon">
                                     <Trash2 data-icon="inline-start" />
-                                    <span className="sr-only">
-                                        Delete value
-                                    </span>
+                                    <span className="sr-only">Delete value</span>
                                 </Button>
                             </Form>
                         </div>
                     ))}
                 </div>
 
+                {/* Add new value */}
                 <Form
-                    {...ProductOptionValueController.store.form.post(
-                        optionType,
-                    )}
+                    {...ProductOptionValueController.store.form.post(optionType)}
                     options={{ preserveScroll: true }}
                     className="flex flex-col gap-2 rounded-lg border border-dashed border-border/70 p-3 sm:flex-row"
                 >
                     {({ errors }) => (
                         <>
                             <div className="min-w-0 flex-1">
-                                <Label
-                                    htmlFor={`option-value-${optionType.id}`}
-                                >
-                                    Add value
-                                </Label>
+                                <Label htmlFor={`option-value-${optionType.id}`}>Add value</Label>
                                 <Input
                                     id={`option-value-${optionType.id}`}
                                     name="value"
@@ -196,10 +152,9 @@ function VariantForm({
     const [compareAtPrice, setCompareAtPrice] = useState(
         centsToDisplay(variant?.compare_at_price),
     );
-    const [costPrice, setCostPrice] = useState(
-        centsToDisplay(variant?.cost_price),
-    );
+    const [costPrice, setCostPrice] = useState(centsToDisplay(variant?.cost_price));
     const [isActive, setIsActive] = useState(variant?.is_active ?? true);
+
     const formProps = variant
         ? ProductVariantController.update.form.patch(variant)
         : ProductVariantController.store.form.post(product);
@@ -212,38 +167,21 @@ function VariantForm({
         >
             {({ errors }) => (
                 <>
-                    <input
-                        type="hidden"
-                        name="price"
-                        value={displayToCents(price)}
-                    />
+                    <input type="hidden" name="price" value={displayToCents(price)} />
                     <input
                         type="hidden"
                         name="compare_at_price"
                         value={displayToCents(compareAtPrice)}
                     />
-                    <input
-                        type="hidden"
-                        name="cost_price"
-                        value={displayToCents(costPrice)}
-                    />
-                    <input
-                        type="hidden"
-                        name="is_active"
-                        value={isActive ? '1' : '0'}
-                    />
+                    <input type="hidden" name="cost_price" value={displayToCents(costPrice)} />
+                    <input type="hidden" name="is_active" value={isActive ? '1' : '0'} />
                     {product.option_types.length > 0 && (
-                        <input
-                            type="hidden"
-                            name="option_value_ids[]"
-                            value=""
-                        />
+                        <input type="hidden" name="option_value_ids[]" value="" />
                     )}
+
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor={`${variant?.id ?? 'new'}-name`}>
-                                Variant name
-                            </Label>
+                            <Label htmlFor={`${variant?.id ?? 'new'}-name`}>Variant name</Label>
                             <Input
                                 id={`${variant?.id ?? 'new'}-name`}
                                 name="name"
@@ -253,9 +191,7 @@ function VariantForm({
                             <FieldError message={errors.name} />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor={`${variant?.id ?? 'new'}-sku`}>
-                                SKU
-                            </Label>
+                            <Label htmlFor={`${variant?.id ?? 'new'}-sku`}>SKU</Label>
                             <Input
                                 id={`${variant?.id ?? 'new'}-sku`}
                                 name="sku"
@@ -271,12 +207,8 @@ function VariantForm({
                                 min="0"
                                 step="0.01"
                                 value={price}
-                                placeholder={(product.base_price / 100).toFixed(
-                                    2,
-                                )}
-                                onChange={(event) =>
-                                    setPrice(event.target.value)
-                                }
+                                placeholder={(product.base_price / 100).toFixed(2)}
+                                onChange={(e) => setPrice(e.target.value)}
                             />
                             <FieldError message={errors.price} />
                         </div>
@@ -287,9 +219,7 @@ function VariantForm({
                                 min="0"
                                 step="0.01"
                                 value={compareAtPrice}
-                                onChange={(event) =>
-                                    setCompareAtPrice(event.target.value)
-                                }
+                                onChange={(e) => setCompareAtPrice(e.target.value)}
                             />
                             <FieldError message={errors.compare_at_price} />
                         </div>
@@ -303,16 +233,12 @@ function VariantForm({
                                 min="0"
                                 step="0.01"
                                 value={costPrice}
-                                onChange={(event) =>
-                                    setCostPrice(event.target.value)
-                                }
+                                onChange={(e) => setCostPrice(e.target.value)}
                             />
                             <FieldError message={errors.cost_price} />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor={`${variant?.id ?? 'new'}-barcode`}>
-                                Barcode
-                            </Label>
+                            <Label htmlFor={`${variant?.id ?? 'new'}-barcode`}>Barcode</Label>
                             <Input
                                 id={`${variant?.id ?? 'new'}-barcode`}
                                 name="barcode"
@@ -321,9 +247,7 @@ function VariantForm({
                             <FieldError message={errors.barcode} />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor={`${variant?.id ?? 'new'}-weight`}>
-                                Weight
-                            </Label>
+                            <Label htmlFor={`${variant?.id ?? 'new'}-weight`}>Weight</Label>
                             <Input
                                 id={`${variant?.id ?? 'new'}-weight`}
                                 name="weight"
@@ -343,9 +267,7 @@ function VariantForm({
                                     key={optionType.id}
                                     className="flex flex-col gap-2 rounded-lg bg-muted/40 p-3"
                                 >
-                                    <p className="text-sm font-medium">
-                                        {optionType.name}
-                                    </p>
+                                    <p className="text-sm font-medium">{optionType.name}</p>
                                     <div className="flex flex-wrap gap-3">
                                         {optionType.values.map((value) => (
                                             <label
@@ -373,9 +295,7 @@ function VariantForm({
                         <label className="flex items-center gap-2 text-sm">
                             <Checkbox
                                 checked={isActive}
-                                onCheckedChange={(value) =>
-                                    setIsActive(Boolean(value))
-                                }
+                                onCheckedChange={(v) => setIsActive(Boolean(v))}
                             />
                             <span>Active on storefront</span>
                         </label>
@@ -384,8 +304,7 @@ function VariantForm({
                                 <Button variant="outline" asChild>
                                     <Link
                                         href={StockItemController.show.url(
-                                            variant.inventory
-                                                .primary_stock_item_id,
+                                            variant.inventory.primary_stock_item_id,
                                         )}
                                     >
                                         Inventory
@@ -403,6 +322,76 @@ function VariantForm({
     );
 }
 
+
+/** A single collapsible existing-variant row. */
+function VariantRow({
+    product,
+    variant,
+}: {
+    product: AdminProduct;
+    variant: AdminProductVariant;
+}) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <div className="overflow-hidden rounded-lg border border-border/70">
+            {/* Summary header — always visible */}
+            <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                className={cn(
+                    'flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-muted/40',
+                    open && 'border-b border-border/70 bg-muted/30',
+                )}
+            >
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <Badge variant={variant.is_active ? 'default' : 'secondary'}>
+                        {variant.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                    <span className="font-medium">{variant.name}</span>
+                    <span className="font-mono text-xs text-muted-foreground">{variant.sku}</span>
+                    {variant.option_values.map((v) => (
+                        <Badge key={v.id} variant="outline" className="text-xs">
+                            {v.option_type_name ? `${v.option_type_name}: ` : ''}
+                            {v.value}
+                        </Badge>
+                    ))}
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                    <span className="text-sm font-semibold">
+                        {formatMoney(variant.price ?? product.base_price)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                        {variant.inventory.available_quantity} avail.
+                    </span>
+                    {open ? (
+                        <ChevronUp className="size-4 text-muted-foreground" />
+                    ) : (
+                        <ChevronDown className="size-4 text-muted-foreground" />
+                    )}
+                </div>
+            </button>
+
+            {/* Expanded edit form + delete */}
+            {open && (
+                <div className="flex flex-col gap-3 p-4">
+                    <VariantForm product={product} variant={variant} />
+                    <Form
+                        {...ProductVariantController.destroy.form.delete(variant)}
+                        options={{ preserveScroll: true }}
+                        className="self-start"
+                    >
+                        <Button type="submit" variant="outline">
+                            <Trash2 data-icon="inline-start" />
+                            Delete variant
+                        </Button>
+                    </Form>
+                </div>
+            )}
+        </div>
+    );
+}
+
 export function ProductVariantManager({ product }: { product: AdminProduct }) {
     return (
         <section className="flex flex-col gap-6">
@@ -415,13 +404,13 @@ export function ProductVariantManager({ product }: { product: AdminProduct }) {
                     Product options and variants
                 </h2>
                 <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                    Build option axes first, add their values, then assign
-                    values to each sellable variant. Variant prices override the
-                    base product price when present.
+                    Build option axes first, add their values, then assign values to each sellable
+                    variant. Variant prices override the base product price when present.
                 </p>
             </div>
 
             <div className="grid gap-6 xl:grid-cols-[0.9fr_1.4fr]">
+                {/* Left: option types */}
                 <div className="flex flex-col gap-4">
                     <Card className="border-border/70">
                         <CardHeader>
@@ -429,18 +418,14 @@ export function ProductVariantManager({ product }: { product: AdminProduct }) {
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
                             <Form
-                                {...ProductOptionTypeController.store.form.post(
-                                    product,
-                                )}
+                                {...ProductOptionTypeController.store.form.post(product)}
                                 options={{ preserveScroll: true }}
                                 className="flex flex-col gap-2 sm:flex-row"
                             >
                                 {({ errors }) => (
                                     <>
                                         <div className="min-w-0 flex-1">
-                                            <Label htmlFor="new-option-name">
-                                                New option
-                                            </Label>
+                                            <Label htmlFor="new-option-name">New option</Label>
                                             <Input
                                                 id="new-option-name"
                                                 name="name"
@@ -448,10 +433,7 @@ export function ProductVariantManager({ product }: { product: AdminProduct }) {
                                             />
                                             <FieldError message={errors.name} />
                                         </div>
-                                        <Button
-                                            type="submit"
-                                            className="self-end"
-                                        >
+                                        <Button type="submit" className="self-end">
                                             <Plus data-icon="inline-start" />
                                             Add option
                                         </Button>
@@ -462,90 +444,42 @@ export function ProductVariantManager({ product }: { product: AdminProduct }) {
                             {product.option_types.length > 0 ? (
                                 <div className="flex flex-col gap-4">
                                     {product.option_types.map((optionType) => (
-                                        <OptionTypeCard
-                                            key={optionType.id}
-                                            optionType={optionType}
-                                        />
+                                        <OptionTypeCard key={optionType.id} optionType={optionType} />
                                     ))}
                                 </div>
                             ) : (
                                 <div className="rounded-lg border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                                    Add options such as size or color before
-                                    creating a full variant matrix.
+                                    Add options such as size or color before creating a full variant
+                                    matrix.
                                 </div>
                             )}
                         </CardContent>
                     </Card>
                 </div>
 
+                {/* Right: variants */}
                 <Card className="border-border/70">
                     <CardHeader>
                         <CardTitle>Variants</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
+                        {/* New-variant form is always visible */}
                         <VariantForm product={product} />
 
                         {product.variants.length > 0 ? (
-                            product.variants.map((variant) => (
-                                <div
-                                    key={variant.id}
-                                    className="flex flex-col gap-3"
-                                >
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <Badge
-                                                variant={
-                                                    variant.is_active
-                                                        ? 'default'
-                                                        : 'secondary'
-                                                }
-                                            >
-                                                {variant.is_active
-                                                    ? 'Active'
-                                                    : 'Inactive'}
-                                            </Badge>
-                                            <span className="font-medium">
-                                                {variant.name}
-                                            </span>
-                                            <span className="font-mono text-xs text-muted-foreground">
-                                                {variant.sku}
-                                            </span>
-                                        </div>
-                                        <span className="text-sm text-muted-foreground">
-                                            {formatMoney(
-                                                variant.price ??
-                                                    product.base_price,
-                                            )}{' '}
-                                            /{' '}
-                                            {
-                                                variant.inventory
-                                                    .available_quantity
-                                            }{' '}
-                                            available
-                                        </span>
-                                    </div>
-                                    <VariantForm
+                            <div className="flex flex-col gap-2">
+                                {product.variants.map((variant) => (
+                                    <VariantRow
+                                        key={variant.id}
                                         product={product}
                                         variant={variant}
                                     />
-                                    <Form
-                                        {...ProductVariantController.destroy.form.delete(
-                                            variant,
-                                        )}
-                                        options={{ preserveScroll: true }}
-                                        className="self-start"
-                                    >
-                                        <Button type="submit" variant="outline">
-                                            <Trash2 data-icon="inline-start" />
-                                            Delete variant
-                                        </Button>
-                                    </Form>
-                                </div>
-                            ))
+                                ))}
+                            </div>
                         ) : (
                             <div className="rounded-lg border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                                No variants yet. Create one variant for each
-                                sellable SKU combination.
+                                No variants yet. Create one variant for each sellable SKU
+                                combination.
                             </div>
                         )}
                     </CardContent>

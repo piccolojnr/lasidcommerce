@@ -24,14 +24,14 @@ class ProductOptionTypeController extends Controller
     {
         $this->authorize('view', $product);
 
-        return redirect()->route('admin.catalog.products.edit', $product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $product);
     }
 
     public function create(Product $product): RedirectResponse
     {
         $this->authorize('update', $product);
 
-        return redirect()->route('admin.catalog.products.edit', $product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $product);
     }
 
     public function store(StoreProductOptionTypeRequest $request, Product $product): RedirectResponse
@@ -46,14 +46,14 @@ class ProductOptionTypeController extends Controller
     {
         $this->authorize('view', $optionType->product);
 
-        return redirect()->route('admin.catalog.products.show', $optionType->product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $optionType->product);
     }
 
     public function edit(ProductOptionType $optionType): RedirectResponse
     {
         $this->authorize('update', $optionType->product);
 
-        return redirect()->route('admin.catalog.products.edit', $optionType->product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $optionType->product);
     }
 
     public function update(UpdateProductOptionTypeRequest $request, ProductOptionType $optionType): RedirectResponse

@@ -24,36 +24,43 @@ class ProductOptionValueController extends Controller
     {
         $this->authorize('view', $optionType->product);
 
-        return redirect()->route('admin.catalog.products.edit', $optionType->product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $optionType->product);
     }
 
     public function create(ProductOptionType $optionType): RedirectResponse
     {
         $this->authorize('update', $optionType->product);
 
-        return redirect()->route('admin.catalog.products.edit', $optionType->product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $optionType->product);
     }
 
     public function store(StoreProductOptionValueRequest $request, ProductOptionType $optionType): RedirectResponse
     {
         $this->authorize('update', $optionType->product);
-        $this->createAction->execute($optionType, $request->safe()->all());
 
-        return back()->with('success', 'Option value created successfully.');
+        if ($request->has('values')) {
+            foreach ($request->validated('values') as $value) {
+                $this->createAction->execute($optionType, ['value' => $value]);
+            }
+        } else {
+            $this->createAction->execute($optionType, $request->safe()->all());
+        }
+
+        return back()->with('success', 'Option value(s) created successfully.');
     }
 
     public function show(ProductOptionValue $value): RedirectResponse
     {
         $this->authorize('view', $value->optionType->product);
 
-        return redirect()->route('admin.catalog.products.show', $value->optionType->product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $value->optionType->product);
     }
 
     public function edit(ProductOptionValue $value): RedirectResponse
     {
         $this->authorize('update', $value->optionType->product);
 
-        return redirect()->route('admin.catalog.products.edit', $value->optionType->product);
+        return redirect()->route('admin.catalog.products.variants.matrix', $value->optionType->product);
     }
 
     public function update(UpdateProductOptionValueRequest $request, ProductOptionValue $value): RedirectResponse

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Catalog\ProductController;
 use App\Http\Controllers\Admin\Catalog\ProductOptionTypeController;
 use App\Http\Controllers\Admin\Catalog\ProductOptionValueController;
 use App\Http\Controllers\Admin\Catalog\ProductVariantController;
+use App\Http\Controllers\Admin\Catalog\ProductVariantMatrixController;
 use App\Http\Controllers\Admin\Catalog\ProductVariantOptionValueController;
 use App\Http\Controllers\Admin\Catalog\TagController;
 use App\Http\Controllers\Admin\Coupons\CouponController;
@@ -70,11 +71,23 @@ Route::middleware(['auth', 'verified'])
             Route::resource('products', ProductController::class);
             Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])
                 ->name('products.toggle-status');
-            Route::resource('products.variants', ProductVariantController::class)->shallow();
+            Route::patch('variants/bulk-toggle', [ProductVariantController::class, 'bulkToggle'])
+                ->name('variants.bulk-toggle');
+            Route::resource('products.variants', ProductVariantController::class)
+                ->shallow()
+                ->except(['index', 'create', 'show', 'edit']);
             Route::resource('products.option-types', ProductOptionTypeController::class)->shallow();
             Route::resource('option-types.values', ProductOptionValueController::class)->shallow();
             Route::put('variants/{variant}/option-values', [ProductVariantOptionValueController::class, 'update'])
                 ->name('variants.option-values.update');
+
+            // Dedicated variant matrix page
+            Route::get('products/{product}/variants', [ProductVariantMatrixController::class, 'index'])
+                ->name('products.variants.matrix');
+            Route::post('products/{product}/variants/generate', [ProductVariantMatrixController::class, 'generateMatrix'])
+                ->name('products.variants.generate');
+            Route::post('products/{product}/option-types-with-values', [ProductVariantMatrixController::class, 'storeOptionType'])
+                ->name('products.option-types-with-values.store');
         });
 
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
