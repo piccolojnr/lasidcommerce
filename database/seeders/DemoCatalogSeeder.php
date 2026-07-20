@@ -58,13 +58,15 @@ class DemoCatalogSeeder extends Seeder
                 continue;
             }
 
+            $slug = $this->resolveSlug($row['slug'], $row['sku']);
+
             $product = Product::query()->updateOrCreate(
                 ['sku' => $row['sku']],
                 [
                     'category_id'     => $categoryId,
                     'brand_id'        => $brandId,
                     'name'            => $row['name'],
-                    'slug'            => $row['slug'],
+                    'slug'            => $slug,
                     'short_description' => $row['short_description'],
                     'description'     => $row['description'],
                     'status'          => $row['status'],
@@ -139,7 +141,7 @@ class DemoCatalogSeeder extends Seeder
         return [
             'sku'                    => trim($row['sku']),
             'name'                   => trim($row['name']),
-            'slug'                   => trim($row['slug']),
+            'slug'                   => $this->truncateSlug(trim($row['slug']), trim($row['sku'])),
             'status'                 => trim($row['status']),
             'product_type'           => trim($row['product_type']),
             'category_slug'          => trim($row['category']),
@@ -267,6 +269,65 @@ class DemoCatalogSeeder extends Seeder
         }
 
         return $map;
+    }
+
+    // -------------------------------------------------------------------------
+    // Slug collision resolution
+    // -------------------------------------------------------------------------
+
+    /**
+     * Truncate a slug so it fits within the database column (255 chars) while
+     * leaving room for a SKU suffix (e.g. "-sku-591a70", up to 13 chars).
+     *
+     * Truncation always happens on a segment boundary (i.e. we never cut in the
+     * middle of a word) so the result remains a clean, readable slug.
+     */
+    private function truncateSlug(string $slug, string $sku): string
+    {
+        // Reserve room for the worst-case SKU suffix: "-sku-" + up to 8 hex chars = 13 chars.
+        $maxBase = 255 - 13;
+
+        if (mb_strlen($slug) <= $maxBase) {
+            return $slug;
+        }
+
+        // Walk backwards from the limit to find a segment boundary.
+        $truncated = mb_substr($slug, 0, $maxBase);
+        $lastDash  = mb_strrpos($truncated, '-');
+
+        return $lastDash !== false
+            ? mb_substr($truncated, 0, $lastDash)
+            : $truncated;
+    }
+
+    /**
+     * Return a slug that is safe to write for this SKU.
+     *
+     * If the desired slug already belongs to a *different* product (i.e. the
+     * product that owns it does not have this SKU), append a short suffix
+     * derived from the SKU so the insert does not violate the unique constraint.
+     * On a re-run the SKU match will find the same product and update it in
+     * place, so the suffix is stable across runs.
+     */
+    private function resolveSlug(string $desiredSlug, string $sku): string
+    {
+        $conflict = Product::query()
+            ->where('slug', $desiredSlug)
+            ->whereNot('sku', $sku)
+            ->exists();
+
+        if (! $conflict) {
+            return $desiredSlug;
+        }
+
+        $suffix = strtolower(trim($sku, 'SKU-'));
+        $resolved = $desiredSlug . '-' . Str::slug($suffix);
+
+        $this->command->warn(
+            "Slug collision: '{$desiredSlug}' already taken by another product. Using '{$resolved}' for SKU {$sku}."
+        );
+
+        return $resolved;
     }
 
     // -------------------------------------------------------------------------

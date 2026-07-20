@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import * as TagController from '@/actions/App/Http/Controllers/Admin/Catalog/TagController';
+import { DataTablePagination } from '@/components/shared/data-table/data-table-pagination';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +17,6 @@ import { useFilters } from '@/hooks/use-filters';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { TagTable } from '@/pages/admin/catalog/tags/_components/tag-table';
 import type { AdminCatalogListPage, AdminTag } from '@/types/admin/catalog';
-import type { PaginationLink } from '@/types/shared/pagination';
 
 interface TagFilters {
     [key: string]: string | boolean | null;
@@ -35,12 +35,12 @@ export default function TagIndexPage({
         TagController.index.url(),
         filters,
     );
+
     const activeValue =
-        filters.is_active === true
-            ? '1'
-            : filters.is_active === false
-              ? '0'
-              : EMPTY_SENTINEL;
+        filters.is_active === true ? '1' : filters.is_active === false ? '0' : EMPTY_SENTINEL;
+
+    const activeTags = tags.data.filter((t) => t.is_active).length;
+    const assignedProducts = tags.data.reduce((sum, t) => sum + t.products_count, 0);
 
     return (
         <AdminLayout title="Tags">
@@ -56,67 +56,65 @@ export default function TagIndexPage({
                         </Button>
                     }
                 />
+
+                {/* Stat cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                Visible in this result
+                        <CardHeader className="pb-1 pt-4">
+                            <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                Visible in result
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-semibold">
-                                {tags.data.length}
-                            </div>
+                        <CardContent className="pb-4">
+                            <p className="text-3xl font-semibold tabular-nums">{tags.total}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                Tags matching the current filters.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardHeader className="pb-1 pt-4">
+                            <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Active on this page
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-semibold">
-                                {
-                                    tags.data.filter((tag) => tag.is_active)
-                                        .length
-                                }
-                            </div>
+                        <CardContent className="pb-4">
+                            <p className="text-3xl font-semibold tabular-nums">{activeTags}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                Tags currently applied on the storefront.
+                            </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardHeader className="pb-1 pt-4">
+                            <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Assigned products
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-semibold">
-                                {tags.data.reduce(
-                                    (sum, tag) => sum + tag.products_count,
-                                    0,
-                                )}
-                            </div>
+                        <CardContent className="pb-4">
+                            <p className="text-3xl font-semibold tabular-nums">{assignedProducts}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                Total product assignments on this page.
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+
+                {/* Filter bar */}
+                <div className="flex flex-wrap items-center gap-2">
                     <Input
                         placeholder="Search tags…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-64"
+                        className="h-9 w-60"
                     />
                     <Select
                         value={activeValue}
                         onValueChange={(v) =>
-                            setFilter(
-                                'is_active',
-                                v === EMPTY_SENTINEL ? null : v,
-                            )
+                            setFilter('is_active', v === EMPTY_SENTINEL ? null : v)
                         }
                     >
-                        <SelectTrigger className="w-40">
+                        <SelectTrigger className="h-9 w-36">
                             <SelectValue placeholder="All" />
                         </SelectTrigger>
                         <SelectContent>
@@ -126,31 +124,12 @@ export default function TagIndexPage({
                         </SelectContent>
                     </Select>
                 </div>
-                <TagTable tags={tags.data} />
-                {tags.last_page > 1 && (
-                    <div className="flex items-center justify-center gap-1">
-                        {tags.links.map((link: PaginationLink, i: number) =>
-                            link.url ? (
-                                <Link
-                                    key={i}
-                                    href={link.url}
-                                    className={`rounded border px-3 py-1 text-sm ${link.active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            ) : (
-                                <span
-                                    key={i}
-                                    className="rounded border px-3 py-1 text-sm opacity-40"
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            ),
-                        )}
-                    </div>
-                )}
+
+                {/* Table + pagination */}
+                <div className="overflow-hidden rounded-lg border bg-background">
+                    <TagTable tags={tags.data} />
+                    <DataTablePagination meta={tags} />
+                </div>
             </div>
         </AdminLayout>
     );

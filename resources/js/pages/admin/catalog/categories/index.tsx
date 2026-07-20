@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
+import { DataTablePagination } from '@/components/shared/data-table/data-table-pagination';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,17 +36,10 @@ export default function CategoryIndexPage({ categories, filters }: Props) {
     );
 
     const activeValue =
-        filters.is_active === true
-            ? '1'
-            : filters.is_active === false
-              ? '0'
-              : EMPTY_SENTINEL;
-    const rootCategories = categories.filter(
-        (category) => category.parent_id === null,
-    ).length;
-    const activeCategories = categories.filter(
-        (category) => category.is_active,
-    ).length;
+        filters.is_active === true ? '1' : filters.is_active === false ? '0' : EMPTY_SENTINEL;
+
+    const rootCategories = categories.filter((c) => c.parent_id === null).length;
+    const activeCategories = categories.filter((c) => c.is_active).length;
 
     return (
         <AdminLayout title="Categories">
@@ -61,71 +55,65 @@ export default function CategoryIndexPage({ categories, filters }: Props) {
                         </Button>
                     }
                 />
+
+                {/* Stat cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardHeader className="pb-1 pt-4">
+                            <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Total categories
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-semibold">
-                                {categories.length}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
+                        <CardContent className="pb-4">
+                            <p className="text-3xl font-semibold tabular-nums">{categories.length}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                                 All categories in the current hierarchy view.
                             </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardHeader className="pb-1 pt-4">
+                            <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Root branches
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-semibold">
-                                {rootCategories}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
+                        <CardContent className="pb-4">
+                            <p className="text-3xl font-semibold tabular-nums">{rootCategories}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                                 Top-level entry points for the catalog tree.
                             </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardHeader className="pb-1 pt-4">
+                            <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Active categories
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-semibold">
-                                {activeCategories}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
+                        <CardContent className="pb-4">
+                            <p className="text-3xl font-semibold tabular-nums">{activeCategories}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                                 Branches currently visible to shoppers.
                             </p>
                         </CardContent>
                     </Card>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+
+                {/* Filter bar */}
+                <div className="flex flex-wrap items-center gap-2">
                     <Input
                         placeholder="Search categories…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-64"
+                        className="h-9 w-60"
                     />
                     <Select
                         value={activeValue}
-                        onValueChange={(v) => {
-                            if (v === EMPTY_SENTINEL) {
-                                setFilter('is_active', null);
-                            } else {
-                                setFilter('is_active', v);
-                            }
-                        }}
+                        onValueChange={(v) =>
+                            setFilter('is_active', v === EMPTY_SENTINEL ? null : v)
+                        }
                     >
-                        <SelectTrigger className="w-40">
+                        <SelectTrigger className="h-9 w-36">
                             <SelectValue placeholder="All" />
                         </SelectTrigger>
                         <SelectContent>
@@ -135,6 +123,8 @@ export default function CategoryIndexPage({ categories, filters }: Props) {
                         </SelectContent>
                     </Select>
                 </div>
+
+                {/* Table — categories are not paginated (flat list returned whole) */}
                 <CategoryTable categories={categories} />
             </div>
         </AdminLayout>
