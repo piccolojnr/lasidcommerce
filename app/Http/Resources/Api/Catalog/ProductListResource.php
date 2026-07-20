@@ -39,6 +39,8 @@ class ProductListResource extends JsonResource
             'is_featured' => $this->is_featured,
             'badges' => app(ProductBadgeService::class)->resolve($this->resource),
             'stock' => $stock,
+            'has_variants' => ($this->variants_count ?? 0) > 0,
+            'variants_count' => $this->variants_count ?? 0,
             'primary_image_url' => $primaryImage['url'] ?? null,
             'primary_image_thumb_url' => $primaryImage['thumb_url'] ?? null,
             'primary_image_card_url' => $primaryImage['card_url'] ?? null,

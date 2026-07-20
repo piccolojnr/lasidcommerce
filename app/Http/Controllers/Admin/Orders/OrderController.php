@@ -206,6 +206,7 @@ class OrderController extends Controller
             'items' => $shipment->shipmentItems->map(fn ($item) => [
                 'order_item_id' => $item->order_item_id,
                 'product_name' => $item->orderItem?->product_name,
+                'variant_name' => $item->orderItem?->variant_name,
                 'sku' => $item->orderItem?->sku,
                 'quantity' => $item->quantity,
             ])->values()->all(),

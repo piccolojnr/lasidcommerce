@@ -24,7 +24,14 @@ class ProductDetailResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-        $stock = app(ProductStockResolver::class)->resolve($this->resource);
+        // has_variants: true when the product has option types defined (i.e. is a variable product).
+        // For these products the top-level stock is the aggregate of all variant stock items,
+        // which is misleading on the storefront. Callers should use variants[].stock instead.
+        $hasVariants = $this->relationLoaded('optionTypes') && $this->optionTypes->isNotEmpty();
+
+        $stock = $hasVariants
+            ? ['quantity' => null, 'status' => 'variant_dependent', 'is_backorderable' => $this->allow_backorders]
+            : app(ProductStockResolver::class)->resolve($this->resource);
 
         return [
             'id' => $this->id,
@@ -37,6 +44,7 @@ class ProductDetailResource extends JsonResource
             'base_price' => $this->base_price,
             'compare_at_price' => $this->compare_at_price,
             'is_featured' => $this->is_featured,
+            'has_variants' => $hasVariants,
             'badges' => app(ProductBadgeService::class)->resolve($this->resource),
             'stock' => $stock,
             'track_inventory' => $this->track_inventory,

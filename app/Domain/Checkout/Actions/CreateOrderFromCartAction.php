@@ -71,7 +71,31 @@ class CreateOrderFromCartAction
                     'placed_at' => now(),
                 ]);
 
+                // Ensure variant option values are loaded so the snapshot is complete
+                $cart->loadMissing('cartItems.productVariant.optionValues.optionType');
+
                 foreach ($cart->cartItems as $item) {
+                    // Build a richer snapshot so we have full context if product/variant is deleted later
+                    $variantSnapshot = null;
+                    if ($item->product_variant_id !== null) {
+                        $variant = $item->productVariant;
+                        $optionValues = $variant?->relationLoaded('optionValues')
+                            ? $variant->optionValues->map(fn ($ov) => [
+                                'id'               => $ov->id,
+                                'value'            => $ov->value,
+                                'option_type_id'   => $ov->option_type_id,
+                                'option_type_name' => $ov->optionType?->name,
+                            ])->values()->all()
+                            : [];
+
+                        $variantSnapshot = [
+                            'id'            => $item->product_variant_id,
+                            'name'          => $item->variant_name_snapshot,
+                            'sku'           => $item->sku_snapshot,
+                            'option_values' => $optionValues,
+                        ];
+                    }
+
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $item->product_id,
@@ -85,9 +109,10 @@ class CreateOrderFromCartAction
                         'tax_amount' => 0,
                         'line_total' => $item->line_total,
                         'product_snapshot_json' => [
-                            'id' => $item->product_id,
-                            'name' => $item->product_name_snapshot,
-                            'sku' => $item->sku_snapshot,
+                            'id'      => $item->product_id,
+                            'name'    => $item->product_name_snapshot,
+                            'sku'     => $item->sku_snapshot,
+                            'variant' => $variantSnapshot,
                         ],
                     ]);
                 }

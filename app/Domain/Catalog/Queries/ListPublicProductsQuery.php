@@ -110,6 +110,7 @@ class ListPublicProductsQuery
             'collections',
             'stockItems',
         ])
+            ->withCount('variants')
             ->visibleOnStorefront()
             ->when(
                 $searchTerm,

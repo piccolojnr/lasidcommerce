@@ -22,7 +22,7 @@ class CartController extends Controller
             cartToken: $request->header('X-Cart-Token'),
         );
 
-        $cart->load('cartItems.product.media');
+        $cart->load('cartItems.product.media', 'cartItems.productVariant.optionValues.optionType');
 
         return ApiResponse::success(new CartResource($cart));
     }

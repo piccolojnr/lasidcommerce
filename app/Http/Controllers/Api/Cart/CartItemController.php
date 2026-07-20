@@ -47,7 +47,7 @@ class CartItemController extends Controller
         }
 
         $this->totals->recalculate($cart);
-        $cart->load('cartItems.product.media');
+        $cart->load('cartItems.product.media', 'cartItems.productVariant.optionValues.optionType');
 
         return ApiResponse::created(new CartResource($cart));
     }
@@ -70,7 +70,7 @@ class CartItemController extends Controller
         }
 
         $this->totals->recalculate($cart);
-        $cart->load('cartItems.product.media');
+        $cart->load('cartItems.product.media', 'cartItems.productVariant.optionValues.optionType');
 
         return ApiResponse::success(new CartResource($cart));
     }
@@ -88,7 +88,7 @@ class CartItemController extends Controller
 
         $this->removeItem->execute($cartItem);
         $this->totals->recalculate($cart);
-        $cart->load('cartItems.product.media');
+        $cart->load('cartItems.product.media', 'cartItems.productVariant.optionValues.optionType');
 
         return ApiResponse::success(new CartResource($cart));
     }
