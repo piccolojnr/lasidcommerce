@@ -1,0 +1,186 @@
+[
+  {
+    "name": "Fashion",
+    "slug": "fashion",
+    "file": "images/fashion.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/5418902/"
+  },
+  {
+    "name": "Women's Fashion",
+    "slug": "womens-fashion",
+    "file": "images/womens-fashion.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/5709656/"
+  },
+  {
+    "name": "Dresses",
+    "slug": "dresses",
+    "file": "images/dresses.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/37420553/"
+  },
+  {
+    "name": "Tops",
+    "slug": "tops",
+    "file": "images/tops.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/4947543/"
+  },
+  {
+    "name": "Men's Fashion",
+    "slug": "mens-fashion",
+    "file": "images/mens-fashion.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/6050430/"
+  },
+  {
+    "name": "Shirts",
+    "slug": "shirts",
+    "file": "images/shirts.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/11739182/"
+  },
+  {
+    "name": "Trousers",
+    "slug": "trousers",
+    "file": "images/trousers.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/20094389/"
+  },
+  {
+    "name": "Kids Fashion",
+    "slug": "kids-fashion",
+    "file": "images/kids-fashion.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/35675691/"
+  },
+  {
+    "name": "School Wear",
+    "slug": "school-wear",
+    "file": "images/school-wear.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/19348206/"
+  },
+  {
+    "name": "Play Wear",
+    "slug": "play-wear",
+    "file": "images/play-wear.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/5560083/"
+  },
+  {
+    "name": "Footwear",
+    "slug": "footwear",
+    "file": "images/footwear.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/5863630/"
+  },
+  {
+    "name": "Sandals",
+    "slug": "sandals",
+    "file": "images/sandals.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/26925251/"
+  },
+  {
+    "name": "Sneakers",
+    "slug": "sneakers",
+    "file": "images/sneakers.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/7926150/"
+  },
+  {
+    "name": "Bags",
+    "slug": "bags",
+    "file": "images/bags.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/33499645/"
+  },
+  {
+    "name": "Work Bags",
+    "slug": "work-bags",
+    "file": "images/work-bags.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/6648402/"
+  },
+  {
+    "name": "Crossbody Bags",
+    "slug": "crossbody-bags",
+    "file": "images/crossbody-bags.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/22434761/"
+  },
+  {
+    "name": "Accessories",
+    "slug": "accessories",
+    "file": "images/accessories.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/2986445/"
+  },
+  {
+    "name": "Beauty",
+    "slug": "beauty",
+    "file": "images/beauty.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/7290611/"
+  },
+  {
+    "name": "Fragrance",
+    "slug": "fragrance",
+    "file": "images/fragrance.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/8361545/"
+  },
+  {
+    "name": "Skin Care",
+    "slug": "skin-care",
+    "file": "images/skin-care.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/7691104/"
+  },
+  {
+    "name": "Home & Living",
+    "slug": "home-living",
+    "file": "images/home-living.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/6309980/"
+  },
+  {
+    "name": "Decor",
+    "slug": "decor",
+    "file": "images/decor.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/16639475/"
+  },
+  {
+    "name": "Bed & Bath",
+    "slug": "bed-bath",
+    "file": "images/bed-bath.jpg",
+    "width": 1600,
+    "height": 1200,
+    "source": "https://www.pexels.com/photo/28057647/"
+  }
+]
