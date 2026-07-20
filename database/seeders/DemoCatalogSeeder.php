@@ -61,21 +61,21 @@ class DemoCatalogSeeder extends Seeder
             $slug = $this->resolveSlug($row['slug'], $row['sku']);
 
             $attributes = [
-                'category_id'       => $categoryId,
-                'brand_id'          => $brandId,
-                'name'              => $row['name'],
-                'slug'              => $slug,
+                'category_id' => $categoryId,
+                'brand_id' => $brandId,
+                'name' => $row['name'],
+                'slug' => $slug,
                 'short_description' => $row['short_description'],
-                'description'       => $row['description'],
-                'status'            => $row['status'],
-                'product_type'      => $row['product_type'],
-                'base_price'        => $row['base_price_cents'],
-                'compare_at_price'  => $row['compare_at_price_cents'] ?: null,
-                'cost_price'        => $row['cost_price_cents'] ?: null,
-                'track_inventory'   => $row['track_inventory'],
-                'allow_backorders'  => $row['allow_backorders'],
-                'is_featured'       => $row['is_featured'],
-                'published_at'      => $row['published_at'],
+                'description' => $row['description'],
+                'status' => $row['status'],
+                'product_type' => $row['product_type'],
+                'base_price' => $row['base_price_cents'],
+                'compare_at_price' => $row['compare_at_price_cents'] ?: null,
+                'cost_price' => $row['cost_price_cents'] ?: null,
+                'track_inventory' => $row['track_inventory'],
+                'allow_backorders' => $row['allow_backorders'],
+                'is_featured' => $row['is_featured'],
+                'published_at' => $row['published_at'],
             ];
 
             // Use withTrashed() so a previously soft-deleted product with the
@@ -120,7 +120,7 @@ class DemoCatalogSeeder extends Seeder
         // that PHP's fgetcsv adds by default (also silences the PHP 9 deprecation).
         $rawHeaders = fgetcsv($handle, separator: ',', escape: '');
         $headers = array_map(
-            fn (string $h) => strtolower(trim($h)),
+            fn(string $h) => strtolower(trim($h)),
             $rawHeaders,
         );
 
@@ -149,29 +149,29 @@ class DemoCatalogSeeder extends Seeder
     private function normaliseRow(array $row): array
     {
         return [
-            'sku'                    => trim($row['sku']),
-            'name'                   => $this->truncateName(trim($row['name'])),
-            'slug'                   => $this->truncateSlug(trim($row['slug']), trim($row['sku'])),
-            'status'                 => trim($row['status']),
-            'product_type'           => trim($row['product_type']),
-            'category_slug'          => trim($row['category']),
-            'brand_slug'             => trim($row['brand']),
-            'base_price_cents'       => (int) $row['base_price_cents'],
+            'sku' => trim($row['sku']),
+            'name' => $this->truncateName(trim($row['name'])),
+            'slug' => $this->truncateSlug(trim($row['slug']), trim($row['sku'])),
+            'status' => trim($row['status']),
+            'product_type' => trim($row['product_type']),
+            'category_slug' => trim($row['category']),
+            'brand_slug' => trim($row['brand']),
+            'base_price_cents' => (int) $row['base_price_cents'],
             'compare_at_price_cents' => $row['compare_at_price_cents'] !== '' ? (int) $row['compare_at_price_cents'] : null,
-            'cost_price_cents'       => $row['cost_price_cents'] !== '' ? (int) $row['cost_price_cents'] : null,
-            'track_inventory'        => (bool) (int) $row['track_inventory'],
-            'allow_backorders'       => (bool) (int) $row['allow_backorders'],
-            'is_featured'            => (bool) (int) $row['is_featured'],
-            'published_at'           => $row['published_at'] !== '' ? $row['published_at'] : null,
-            'short_description'      => trim($row['short_description']),
-            'description'            => trim($row['description']),
-            'tags'                   => $this->splitPipe($row['tags']),
-            'collections'            => $this->splitPipe($row['collections']),
-            'quantity_on_hand'       => (int) $row['quantity_on_hand'],
-            'reorder_level'          => (int) $row['reorder_level'],
-            'main_image_url'         => trim($row['main_image_url']),
-            'image_urls'             => $this->splitPipe($row['image_urls']),
-            'image_alt_text'         => trim($row['image_alt_text']),
+            'cost_price_cents' => $row['cost_price_cents'] !== '' ? (int) $row['cost_price_cents'] : null,
+            'track_inventory' => (bool) (int) $row['track_inventory'],
+            'allow_backorders' => (bool) (int) $row['allow_backorders'],
+            'is_featured' => (bool) (int) $row['is_featured'],
+            'published_at' => $row['published_at'] !== '' ? $row['published_at'] : null,
+            'short_description' => trim($row['short_description']),
+            'description' => trim($row['description']),
+            'tags' => $this->splitPipe($row['tags']),
+            'collections' => $this->splitPipe($row['collections']),
+            'quantity_on_hand' => (int) $row['quantity_on_hand'],
+            'reorder_level' => (int) $row['reorder_level'],
+            'main_image_url' => trim($row['main_image_url']),
+            'image_urls' => $this->splitPipe($row['image_urls']),
+            'image_alt_text' => trim($row['image_alt_text']),
         ];
     }
 
@@ -190,7 +190,7 @@ class DemoCatalogSeeder extends Seeder
         return array_values(
             array_filter(
                 array_map('trim', explode('|', $value)),
-                fn (string $v) => $v !== '',
+                fn(string $v) => $v !== '',
             ),
         );
     }
@@ -229,8 +229,8 @@ class DemoCatalogSeeder extends Seeder
 
             if ($tag === null) {
                 $tag = Tag::create([
-                    'slug'      => $slug,
-                    'name'      => $name,
+                    'slug' => $slug,
+                    'name' => $name,
                     'is_active' => true,
                 ]);
             } else {
@@ -265,7 +265,7 @@ class DemoCatalogSeeder extends Seeder
             foreach ($row['collections'] as $value) {
                 $slug = Str::slug($value);
 
-                if (! isset($unique[$slug])) {
+                if (!isset($unique[$slug])) {
                     $unique[$slug] = ['name' => $value, 'sort_order' => $order * 10];
                     $order++;
                 }
@@ -281,9 +281,9 @@ class DemoCatalogSeeder extends Seeder
 
             if ($collection === null) {
                 $collection = Collection::create([
-                    'slug'       => $slug,
-                    'name'       => $definition['name'],
-                    'is_active'  => true,
+                    'slug' => $slug,
+                    'name' => $definition['name'],
+                    'is_active' => true,
                     'sort_order' => $definition['sort_order'],
                 ]);
             } else {
@@ -291,8 +291,8 @@ class DemoCatalogSeeder extends Seeder
                     $collection->restore();
                 }
                 $collection->update([
-                    'name'       => $definition['name'],
-                    'is_active'  => true,
+                    'name' => $definition['name'],
+                    'is_active' => true,
                     'sort_order' => $definition['sort_order'],
                 ]);
             }
@@ -304,7 +304,7 @@ class DemoCatalogSeeder extends Seeder
     }
 
     // -------------------------------------------------------------------------
-    // Slug collision resolution
+    // Slug / name truncation and collision resolution
     // -------------------------------------------------------------------------
 
     /**
@@ -328,11 +328,11 @@ class DemoCatalogSeeder extends Seeder
     }
 
     /**
-     * Truncate a slug so it fits within the database column (varchar 512) while
-     * leaving room for a SKU suffix (e.g. "-sku-591a70", up to 13 chars).
+     * Truncate a slug so it fits within varchar(512) while leaving room for a
+     * SKU suffix (e.g. "-sku-591a70", up to 13 chars).
      *
-     * Truncation always happens on a segment boundary (i.e. we never cut in the
-     * middle of a word) so the result remains a clean, readable slug.
+     * Truncation always happens on a segment boundary so the result remains a
+     * clean, readable slug.
      */
     private function truncateSlug(string $slug, string $sku): string
     {
@@ -343,9 +343,8 @@ class DemoCatalogSeeder extends Seeder
             return $slug;
         }
 
-        // Walk backwards from the limit to find a segment boundary.
         $truncated = mb_substr($slug, 0, $maxBase);
-        $lastDash  = mb_strrpos($truncated, '-');
+        $lastDash = mb_strrpos($truncated, '-');
 
         return $lastDash !== false
             ? mb_substr($truncated, 0, $lastDash)
@@ -355,11 +354,10 @@ class DemoCatalogSeeder extends Seeder
     /**
      * Return a slug that is safe to write for this SKU.
      *
-     * If the desired slug already belongs to a *different* product (i.e. the
-     * product that owns it does not have this SKU), append a short suffix
-     * derived from the SKU so the insert does not violate the unique constraint.
-     * On a re-run the SKU match will find the same product and update it in
-     * place, so the suffix is stable across runs.
+     * If the desired slug already belongs to a *different* product, append a
+     * short suffix derived from the SKU so the insert does not violate the
+     * unique constraint. On a re-run the SKU match finds the same product and
+     * updates it in place, so the suffix is stable across runs.
      */
     private function resolveSlug(string $desiredSlug, string $sku): string
     {
@@ -368,7 +366,7 @@ class DemoCatalogSeeder extends Seeder
             ->whereNot('sku', $sku)
             ->exists();
 
-        if (! $conflict) {
+        if (!$conflict) {
             return $desiredSlug;
         }
 
@@ -376,7 +374,7 @@ class DemoCatalogSeeder extends Seeder
         $resolved = $desiredSlug . '-' . Str::slug($suffix);
 
         $this->command->warn(
-            "Slug collision: '{$desiredSlug}' already taken by another product. Using '{$resolved}' for SKU {$sku}."
+            "Slug collision: '{$desiredSlug}' already taken. Using '{$resolved}' for SKU {$sku}."
         );
 
         return $resolved;
@@ -396,20 +394,20 @@ class DemoCatalogSeeder extends Seeder
             [
                 'quantity_on_hand' => $row['quantity_on_hand'],
                 'quantity_reserved' => 0,
-                'reorder_level'    => $row['reorder_level'],
+                'reorder_level' => $row['reorder_level'],
             ],
         );
 
         StockMovement::query()->updateOrCreate(
             [
-                'stock_item_id'  => $stockItem->getKey(),
-                'type'           => StockMovement::TYPE_RESTOCK,
+                'stock_item_id' => $stockItem->getKey(),
+                'type' => StockMovement::TYPE_RESTOCK,
                 'reference_type' => Product::class,
-                'reference_id'   => $product->getKey(),
+                'reference_id' => $product->getKey(),
             ],
             [
-                'quantity'   => $row['quantity_on_hand'],
-                'note'       => 'Demo opening stock balance.',
+                'quantity' => $row['quantity_on_hand'],
+                'note' => 'Demo opening stock balance.',
                 'created_by' => $actor?->getKey(),
             ],
         );
@@ -420,14 +418,14 @@ class DemoCatalogSeeder extends Seeder
     // -------------------------------------------------------------------------
 
     /**
-     * @param  list<string>         $tagValues  Raw values from CSV (e.g. ["Women","Dress"])
-     * @param  array<string, int>   $tagMap     name → id
+     * @param  list<string>        $tagValues  Raw values from CSV (e.g. ["Women","Dress"])
+     * @param  array<string, int>  $tagMap     name → id
      */
     private function syncTags(Product $product, array $tagValues, array $tagMap): void
     {
         $ids = array_values(
             array_filter(
-                array_map(fn (string $v) => $tagMap[$v] ?? null, $tagValues),
+                array_map(fn(string $v) => $tagMap[$v] ?? null, $tagValues),
             ),
         );
 
@@ -435,8 +433,8 @@ class DemoCatalogSeeder extends Seeder
     }
 
     /**
-     * @param  list<string>         $collectionValues  Raw values from CSV
-     * @param  array<string, int>   $collectionMap     name → id
+     * @param  list<string>        $collectionValues  Raw values from CSV
+     * @param  array<string, int>  $collectionMap     name → id
      */
     private function syncCollections(Product $product, array $collectionValues, array $collectionMap): void
     {
@@ -492,11 +490,11 @@ class DemoCatalogSeeder extends Seeder
                     )
                     ->usingName(
                         $position === 0
-                            ? $row['image_alt_text']
-                            : sprintf('%s (%d)', $row['name'], $position + 1),
+                        ? $row['image_alt_text']
+                        : sprintf('%s (%d)', $row['name'], $position + 1),
                     )
                     ->withCustomProperties([
-                        'seeded'   => true,
+                        'seeded' => true,
                         'position' => $position + 1,
                     ])
                     ->toMediaCollection(Product::IMAGE_COLLECTION);
