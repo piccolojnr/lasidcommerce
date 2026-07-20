@@ -33,7 +33,18 @@ export interface AdminTag {
     description: string | null;
     is_active: boolean;
     products_count: number;
+    products: AdminTagProduct[];
     created_at: string;
+}
+
+export interface AdminTagProduct {
+    id: number;
+    name: string;
+    sku: string;
+    status: string;
+    primary_image_url: string | null;
+    category_name: string | null;
+    brand_name: string | null;
 }
 
 export interface AdminCollectionProduct {

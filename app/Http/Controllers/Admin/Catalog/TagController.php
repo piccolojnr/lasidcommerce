@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTagRequest;
 use App\Http\Requests\Admin\UpdateTagRequest;
 use App\Models\Tag;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -59,9 +60,14 @@ class TagController extends Controller
     public function show(Tag $tag): InertiaResponse
     {
         $tag->loadCount('products');
+        $tag->load(['products' => function ($query) {
+            $query->with(['category', 'brand', 'media'])
+                ->orderBy('name')
+                ->limit(100);
+        }]);
 
         return Inertia::render('admin/catalog/tags/show', [
-            'tag' => $this->formatTag($tag),
+            'tag' => $this->formatTagWithProducts($tag),
         ]);
     }
 
@@ -109,5 +115,22 @@ class TagController extends Controller
             'products_count' => $tag->products_count ?? 0,
             'created_at' => $tag->created_at?->toISOString(),
         ];
+    }
+
+    private function formatTagWithProducts(Tag $tag): array
+    {
+        return array_merge($this->formatTag($tag), [
+            'products' => $tag->relationLoaded('products')
+                ? $tag->products->map(fn (Product $product) => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'status' => $product->status,
+                    'primary_image_url' => $product->getFirstMediaUrl('images') ?: null,
+                    'category_name' => $product->category?->name,
+                    'brand_name' => $product->brand?->name,
+                ])->values()->all()
+                : [],
+        ]);
     }
 }

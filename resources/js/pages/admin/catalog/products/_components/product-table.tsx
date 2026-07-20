@@ -83,7 +83,10 @@ export function ProductTable({ products }: ProductTableProps) {
                                             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted/30">
                                                 {product.images[0] ? (
                                                     <img
-                                                        src={product.images[0].thumb_url}
+                                                        src={
+                                                            product.images[0]
+                                                                .thumb_url
+                                                        }
                                                         alt=""
                                                         className="h-full w-full object-cover"
                                                     />
@@ -93,35 +96,42 @@ export function ProductTable({ products }: ProductTableProps) {
                                             </div>
                                             <div className="min-w-0">
                                                 <Link
-                                                    href={ProductController.show.url(product)}
-                                                    className="block truncate font-medium leading-snug hover:underline"
+                                                    href={ProductController.show.url(
+                                                        product,
+                                                    )}
+                                                    className="block max-w-md truncate leading-snug font-medium hover:underline"
                                                 >
                                                     {product.name}
                                                 </Link>
                                                 <p className="mt-0.5 text-xs text-muted-foreground">
-                                                    {product.brand_name ?? 'No brand'}
+                                                    {product.brand_name ??
+                                                        'No brand'}
                                                     {product.variants_count > 0
                                                         ? ` · ${product.variants_count} variant${product.variants_count === 1 ? '' : 's'}`
                                                         : ''}
                                                 </p>
                                                 {product.badges.length > 0 && (
                                                     <div className="mt-1 flex flex-wrap gap-1">
-                                                        {product.badges.map((b) => (
-                                                            <span
-                                                                key={b.key}
-                                                                className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-                                                            >
-                                                                {b.label}
-                                                            </span>
-                                                        ))}
-                                                        {product.tags.slice(0, 2).map((t) => (
-                                                            <span
-                                                                key={t.id}
-                                                                className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
-                                                            >
-                                                                {t.name}
-                                                            </span>
-                                                        ))}
+                                                        {product.badges.map(
+                                                            (b) => (
+                                                                <span
+                                                                    key={b.key}
+                                                                    className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                                                                >
+                                                                    {b.label}
+                                                                </span>
+                                                            ),
+                                                        )}
+                                                        {product.tags
+                                                            .slice(0, 2)
+                                                            .map((t) => (
+                                                                <span
+                                                                    key={t.id}
+                                                                    className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+                                                                >
+                                                                    {t.name}
+                                                                </span>
+                                                            ))}
                                                     </div>
                                                 )}
                                             </div>
@@ -144,8 +154,10 @@ export function ProductTable({ products }: ProductTableProps) {
                                             {formatMoney(product.base_price)}
                                         </span>
                                         {product.compare_at_price != null && (
-                                            <p className="text-xs text-muted-foreground line-through tabular-nums">
-                                                {formatMoney(product.compare_at_price)}
+                                            <p className="text-xs text-muted-foreground tabular-nums line-through">
+                                                {formatMoney(
+                                                    product.compare_at_price,
+                                                )}
                                             </p>
                                         )}
                                     </td>
@@ -153,7 +165,11 @@ export function ProductTable({ products }: ProductTableProps) {
                                     {/* Inventory */}
                                     <td className="px-4 py-3 align-middle">
                                         <div className="flex items-center gap-1.5">
-                                            <StatusBadge status={product.inventory.status} />
+                                            <StatusBadge
+                                                status={
+                                                    product.inventory.status
+                                                }
+                                            />
                                             <span className="text-xs text-muted-foreground">
                                                 {product.track_inventory
                                                     ? `${product.inventory.available_quantity} avail.`
@@ -163,9 +179,11 @@ export function ProductTable({ products }: ProductTableProps) {
                                         {product.track_inventory && (
                                             <Link
                                                 href={
-                                                    product.inventory.primary_stock_item_id
+                                                    product.inventory
+                                                        .primary_stock_item_id
                                                         ? StockItemController.show.url(
-                                                              product.inventory.primary_stock_item_id,
+                                                              product.inventory
+                                                                  .primary_stock_item_id,
                                                           )
                                                         : `${StockItemController.index.url()}?search=${encodeURIComponent(product.sku)}`
                                                 }
@@ -191,9 +209,15 @@ export function ProductTable({ products }: ProductTableProps) {
                                                 asChild
                                                 title="View"
                                             >
-                                                <Link href={ProductController.show.url(product)}>
+                                                <Link
+                                                    href={ProductController.show.url(
+                                                        product,
+                                                    )}
+                                                >
                                                     <Eye className="size-4" />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -203,9 +227,15 @@ export function ProductTable({ products }: ProductTableProps) {
                                                 asChild
                                                 title="Edit"
                                             >
-                                                <Link href={ProductController.edit.url(product)}>
+                                                <Link
+                                                    href={ProductController.edit.url(
+                                                        product,
+                                                    )}
+                                                >
                                                     <Pencil className="size-4" />
-                                                    <span className="sr-only">Edit</span>
+                                                    <span className="sr-only">
+                                                        Edit
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -213,10 +243,14 @@ export function ProductTable({ products }: ProductTableProps) {
                                                 size="icon"
                                                 className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 title="Delete"
-                                                onClick={() => handleDelete(product)}
+                                                onClick={() =>
+                                                    handleDelete(product)
+                                                }
                                             >
                                                 <Trash2 className="size-4" />
-                                                <span className="sr-only">Delete</span>
+                                                <span className="sr-only">
+                                                    Delete
+                                                </span>
                                             </Button>
                                         </div>
                                     </td>

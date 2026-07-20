@@ -60,26 +60,36 @@ class DemoCatalogSeeder extends Seeder
 
             $slug = $this->resolveSlug($row['slug'], $row['sku']);
 
-            $product = Product::query()->updateOrCreate(
-                ['sku' => $row['sku']],
-                [
-                    'category_id'     => $categoryId,
-                    'brand_id'        => $brandId,
-                    'name'            => $row['name'],
-                    'slug'            => $slug,
-                    'short_description' => $row['short_description'],
-                    'description'     => $row['description'],
-                    'status'          => $row['status'],
-                    'product_type'    => $row['product_type'],
-                    'base_price'      => $row['base_price_cents'],
-                    'compare_at_price' => $row['compare_at_price_cents'] ?: null,
-                    'cost_price'      => $row['cost_price_cents'] ?: null,
-                    'track_inventory' => $row['track_inventory'],
-                    'allow_backorders' => $row['allow_backorders'],
-                    'is_featured'     => $row['is_featured'],
-                    'published_at'    => $row['published_at'],
-                ]
-            );
+            $attributes = [
+                'category_id'       => $categoryId,
+                'brand_id'          => $brandId,
+                'name'              => $row['name'],
+                'slug'              => $slug,
+                'short_description' => $row['short_description'],
+                'description'       => $row['description'],
+                'status'            => $row['status'],
+                'product_type'      => $row['product_type'],
+                'base_price'        => $row['base_price_cents'],
+                'compare_at_price'  => $row['compare_at_price_cents'] ?: null,
+                'cost_price'        => $row['cost_price_cents'] ?: null,
+                'track_inventory'   => $row['track_inventory'],
+                'allow_backorders'  => $row['allow_backorders'],
+                'is_featured'       => $row['is_featured'],
+                'published_at'      => $row['published_at'],
+            ];
+
+            // Use withTrashed() so a previously soft-deleted product with the
+            // same SKU doesn't cause a unique-constraint violation on re-seed.
+            $product = Product::withTrashed()->where('sku', $row['sku'])->first();
+
+            if ($product === null) {
+                $product = Product::create(array_merge(['sku' => $row['sku']], $attributes));
+            } else {
+                if ($product->trashed()) {
+                    $product->restore();
+                }
+                $product->update($attributes);
+            }
 
             $this->syncStock($product, $row, $actor);
             $this->syncTags($product, $row['tags'], $tags);
@@ -140,7 +150,7 @@ class DemoCatalogSeeder extends Seeder
     {
         return [
             'sku'                    => trim($row['sku']),
-            'name'                   => trim($row['name']),
+            'name'                   => $this->truncateName(trim($row['name'])),
             'slug'                   => $this->truncateSlug(trim($row['slug']), trim($row['sku'])),
             'status'                 => trim($row['status']),
             'product_type'           => trim($row['product_type']),
@@ -213,13 +223,22 @@ class DemoCatalogSeeder extends Seeder
         $map = [];
 
         foreach ($unique as $slug => $name) {
-            $tag = Tag::query()->updateOrCreate(
-                ['slug' => $slug],
-                [
+            // withTrashed() so we don't trip over the unique constraint on
+            // soft-deleted rows that still own the slug.
+            $tag = Tag::withTrashed()->where('slug', $slug)->first();
+
+            if ($tag === null) {
+                $tag = Tag::create([
+                    'slug'      => $slug,
                     'name'      => $name,
                     'is_active' => true,
-                ],
-            );
+                ]);
+            } else {
+                if ($tag->trashed()) {
+                    $tag->restore();
+                }
+                $tag->update(['name' => $name, 'is_active' => true]);
+            }
 
             $map[$name] = $tag->getKey(); // keyed by original value for easy lookup
         }
@@ -256,14 +275,27 @@ class DemoCatalogSeeder extends Seeder
         $map = [];
 
         foreach ($unique as $slug => $definition) {
-            $collection = Collection::query()->updateOrCreate(
-                ['slug' => $slug],
-                [
+            // withTrashed() so we don't trip over the unique constraint on
+            // soft-deleted rows that still own the slug.
+            $collection = Collection::withTrashed()->where('slug', $slug)->first();
+
+            if ($collection === null) {
+                $collection = Collection::create([
+                    'slug'       => $slug,
                     'name'       => $definition['name'],
                     'is_active'  => true,
                     'sort_order' => $definition['sort_order'],
-                ],
-            );
+                ]);
+            } else {
+                if ($collection->trashed()) {
+                    $collection->restore();
+                }
+                $collection->update([
+                    'name'       => $definition['name'],
+                    'is_active'  => true,
+                    'sort_order' => $definition['sort_order'],
+                ]);
+            }
 
             $map[$definition['name']] = $collection->getKey();
         }
@@ -276,7 +308,27 @@ class DemoCatalogSeeder extends Seeder
     // -------------------------------------------------------------------------
 
     /**
-     * Truncate a slug so it fits within the database column (255 chars) while
+     * Truncate a product name to fit within varchar(512).
+     * Cuts at the last space before the limit so we never split mid-word.
+     */
+    private function truncateName(string $name): string
+    {
+        $max = 512;
+
+        if (mb_strlen($name) <= $max) {
+            return $name;
+        }
+
+        $truncated = mb_substr($name, 0, $max);
+        $lastSpace = mb_strrpos($truncated, ' ');
+
+        return $lastSpace !== false
+            ? mb_substr($truncated, 0, $lastSpace)
+            : $truncated;
+    }
+
+    /**
+     * Truncate a slug so it fits within the database column (varchar 512) while
      * leaving room for a SKU suffix (e.g. "-sku-591a70", up to 13 chars).
      *
      * Truncation always happens on a segment boundary (i.e. we never cut in the
@@ -285,7 +337,7 @@ class DemoCatalogSeeder extends Seeder
     private function truncateSlug(string $slug, string $sku): string
     {
         // Reserve room for the worst-case SKU suffix: "-sku-" + up to 8 hex chars = 13 chars.
-        $maxBase = 255 - 13;
+        $maxBase = 512 - 13;
 
         if (mb_strlen($slug) <= $maxBase) {
             return $slug;
