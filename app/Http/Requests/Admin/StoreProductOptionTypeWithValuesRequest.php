@@ -14,8 +14,8 @@ class StoreProductOptionTypeWithValuesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => ['required', 'string', 'max:100'],
-            'values'   => ['nullable', 'array'],
+            'name' => ['required', 'string', 'max:100'],
+            'values' => ['nullable', 'array'],
             'values.*' => ['required', 'string', 'max:100'],
         ];
     }
@@ -23,7 +23,7 @@ class StoreProductOptionTypeWithValuesRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'     => 'The option name is required.',
+            'name.required' => 'The option name is required.',
             'values.*.required' => 'Each option value must be a non-empty string.',
         ];
     }

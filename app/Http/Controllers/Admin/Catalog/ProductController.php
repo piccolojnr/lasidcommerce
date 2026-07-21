@@ -241,15 +241,15 @@ class ProductController extends Controller
             : null;
 
         return [
-            'stock_item_count'   => $stockItems->count(),
+            'stock_item_count' => $stockItems->count(),
             'primary_stock_item_id' => $primaryStockItemId,
-            'quantity_on_hand'   => (int) $stockItems->sum('quantity_on_hand'),
-            'quantity_reserved'  => (int) $stockItems->sum('quantity_reserved'),
+            'quantity_on_hand' => (int) $stockItems->sum('quantity_on_hand'),
+            'quantity_reserved' => (int) $stockItems->sum('quantity_reserved'),
             'available_quantity' => (int) $stock['quantity'],
-            'reorder_level'      => (int) $stockItems->sum('reorder_level'),
-            'status'             => $stock['status'],
-            'is_backorderable'   => (bool) $stock['is_backorderable'],
-            'stock_items'        => $stockItemsFormatted,
+            'reorder_level' => (int) $stockItems->sum('reorder_level'),
+            'status' => $stock['status'],
+            'is_backorderable' => (bool) $stock['is_backorderable'],
+            'stock_items' => $stockItemsFormatted,
         ];
     }
 
@@ -260,19 +260,19 @@ class ProductController extends Controller
             : $si->stockMovements()->latest()->limit(10)->get();
 
         return [
-            'id'                 => $si->id,
-            'quantity_on_hand'   => $si->quantity_on_hand,
-            'quantity_reserved'  => $si->quantity_reserved,
+            'id' => $si->id,
+            'quantity_on_hand' => $si->quantity_on_hand,
+            'quantity_reserved' => $si->quantity_reserved,
             'available_quantity' => $si->availableQuantity(),
-            'reorder_level'      => $si->reorder_level,
-            'movements'          => $movements->map(fn (StockMovement $m) => [
-                'id'           => $m->id,
-                'type'         => $m->type,
-                'quantity'     => $m->quantity,
-                'stock_delta'  => StockMovement::stockDeltaForType($m->type, $m->quantity),
-                'note'         => $m->note,
+            'reorder_level' => $si->reorder_level,
+            'movements' => $movements->map(fn (StockMovement $m) => [
+                'id' => $m->id,
+                'type' => $m->type,
+                'quantity' => $m->quantity,
+                'stock_delta' => StockMovement::stockDeltaForType($m->type, $m->quantity),
+                'note' => $m->note,
                 'creator_name' => $m->creator?->name,
-                'created_at'   => $m->created_at?->toISOString(),
+                'created_at' => $m->created_at?->toISOString(),
             ])->values()->all(),
         ];
     }
@@ -317,13 +317,13 @@ class ProductController extends Controller
                 ])->values()->all()
                 : [],
             'inventory' => [
-                'stock_item_count'      => $stockItems->count(),
+                'stock_item_count' => $stockItems->count(),
                 'primary_stock_item_id' => $stockItems->count() === 1 ? $stockItems->first()?->getKey() : null,
-                'quantity_on_hand'      => (int) $stockItems->sum('quantity_on_hand'),
-                'quantity_reserved'     => (int) $stockItems->sum('quantity_reserved'),
-                'available_quantity'    => (int) $stockItems->sum(fn ($si) => $si->availableQuantity()),
-                'reorder_level'         => (int) $stockItems->sum('reorder_level'),
-                'stock_items'           => $withMovements
+                'quantity_on_hand' => (int) $stockItems->sum('quantity_on_hand'),
+                'quantity_reserved' => (int) $stockItems->sum('quantity_reserved'),
+                'available_quantity' => (int) $stockItems->sum(fn ($si) => $si->availableQuantity()),
+                'reorder_level' => (int) $stockItems->sum('reorder_level'),
+                'stock_items' => $withMovements
                     ? $stockItems->map(fn (StockItem $si) => $this->formatStockItemWithMovements($si))->values()->all()
                     : null,
             ],

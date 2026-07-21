@@ -20,24 +20,24 @@ class CartItemResource extends JsonResource
         $optionValues = null;
         if ($variant !== null && $variant->relationLoaded('optionValues')) {
             $optionValues = $variant->optionValues->map(fn ($ov) => [
-                'id'              => $ov->id,
-                'value'           => $ov->value,
-                'option_type_id'  => $ov->option_type_id,
+                'id' => $ov->id,
+                'value' => $ov->value,
+                'option_type_id' => $ov->option_type_id,
                 'option_type_name' => $ov->optionType?->name,
             ])->values()->all();
         }
 
         return [
-            'id'                      => $this->id,
-            'product_id'              => $this->product_id,
-            'product_variant_id'      => $this->product_variant_id,
-            'product_name_snapshot'   => $this->product_name_snapshot,
-            'variant_name_snapshot'   => $this->variant_name_snapshot,
-            'sku_snapshot'            => $this->sku_snapshot,
-            'unit_price'              => $this->unit_price,
-            'quantity'                => $this->quantity,
-            'line_total'              => $this->line_total,
-            'option_values'           => $optionValues,
+            'id' => $this->id,
+            'product_id' => $this->product_id,
+            'product_variant_id' => $this->product_variant_id,
+            'product_name_snapshot' => $this->product_name_snapshot,
+            'variant_name_snapshot' => $this->variant_name_snapshot,
+            'sku_snapshot' => $this->sku_snapshot,
+            'unit_price' => $this->unit_price,
+            'quantity' => $this->quantity,
+            'line_total' => $this->line_total,
+            'option_values' => $optionValues,
             ...$this->productPrimaryImagePayload($product),
         ];
     }

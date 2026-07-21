@@ -101,6 +101,7 @@ class Order extends Model
     {
         return $query->whereNotNull('placed_at');
     }
+
     public function scopePaid(Builder $query): Builder
     {
         return $query->where('payment_status', 'paid');

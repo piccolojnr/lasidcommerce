@@ -18,7 +18,7 @@ class DemoCatalogSeeder extends Seeder
     /**
      * Path to the demo products CSV, relative to the seeders directory.
      */
-    private const CSV_FILE = __DIR__ . '/demo-products.csv';
+    private const CSV_FILE = __DIR__.'/demo-products.csv';
 
     public function run(): void
     {
@@ -50,11 +50,13 @@ class DemoCatalogSeeder extends Seeder
 
             if ($categoryId === null) {
                 $this->command->warn("Category not found: {$row['category_slug']} — skipping {$row['sku']}");
+
                 continue;
             }
 
             if ($brandId === null) {
                 $this->command->warn("Brand not found: {$row['brand_slug']} — skipping {$row['sku']}");
+
                 continue;
             }
 
@@ -120,7 +122,7 @@ class DemoCatalogSeeder extends Seeder
         // that PHP's fgetcsv adds by default (also silences the PHP 9 deprecation).
         $rawHeaders = fgetcsv($handle, separator: ',', escape: '');
         $headers = array_map(
-            fn(string $h) => strtolower(trim($h)),
+            fn (string $h) => strtolower(trim($h)),
             $rawHeaders,
         );
 
@@ -190,7 +192,7 @@ class DemoCatalogSeeder extends Seeder
         return array_values(
             array_filter(
                 array_map('trim', explode('|', $value)),
-                fn(string $v) => $v !== '',
+                fn (string $v) => $v !== '',
             ),
         );
     }
@@ -265,7 +267,7 @@ class DemoCatalogSeeder extends Seeder
             foreach ($row['collections'] as $value) {
                 $slug = Str::slug($value);
 
-                if (!isset($unique[$slug])) {
+                if (! isset($unique[$slug])) {
                     $unique[$slug] = ['name' => $value, 'sort_order' => $order * 10];
                     $order++;
                 }
@@ -366,12 +368,12 @@ class DemoCatalogSeeder extends Seeder
             ->whereNot('sku', $sku)
             ->exists();
 
-        if (!$conflict) {
+        if (! $conflict) {
             return $desiredSlug;
         }
 
         $suffix = strtolower(trim($sku, 'SKU-'));
-        $resolved = $desiredSlug . '-' . Str::slug($suffix);
+        $resolved = $desiredSlug.'-'.Str::slug($suffix);
 
         $this->command->warn(
             "Slug collision: '{$desiredSlug}' already taken. Using '{$resolved}' for SKU {$sku}."
@@ -418,14 +420,14 @@ class DemoCatalogSeeder extends Seeder
     // -------------------------------------------------------------------------
 
     /**
-     * @param  list<string>        $tagValues  Raw values from CSV (e.g. ["Women","Dress"])
-     * @param  array<string, int>  $tagMap     name → id
+     * @param  list<string>  $tagValues  Raw values from CSV (e.g. ["Women","Dress"])
+     * @param  array<string, int>  $tagMap  name → id
      */
     private function syncTags(Product $product, array $tagValues, array $tagMap): void
     {
         $ids = array_values(
             array_filter(
-                array_map(fn(string $v) => $tagMap[$v] ?? null, $tagValues),
+                array_map(fn (string $v) => $tagMap[$v] ?? null, $tagValues),
             ),
         );
 
@@ -433,8 +435,8 @@ class DemoCatalogSeeder extends Seeder
     }
 
     /**
-     * @param  list<string>        $collectionValues  Raw values from CSV
-     * @param  array<string, int>  $collectionMap     name → id
+     * @param  list<string>  $collectionValues  Raw values from CSV
+     * @param  array<string, int>  $collectionMap  name → id
      */
     private function syncCollections(Product $product, array $collectionValues, array $collectionMap): void
     {
@@ -500,7 +502,7 @@ class DemoCatalogSeeder extends Seeder
                     ->toMediaCollection(Product::IMAGE_COLLECTION);
             } catch (\Exception $e) {
                 $this->command->warn(
-                    "Image import failed for {$row['sku']} (position " . ($position + 1) . "): {$e->getMessage()}"
+                    "Image import failed for {$row['sku']} (position ".($position + 1)."): {$e->getMessage()}"
                 );
             }
         }

@@ -3,12 +3,11 @@
 namespace App\Domain\Catalog\Queries;
 
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\Product;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Carbon;
-use App\Models\OrderItem;
-use Carbon\CarbonInterface;
 
 class ListPublicProductsQuery
 {
@@ -27,6 +26,7 @@ class ListPublicProductsQuery
     private string $sort = 'latest';
 
     private string $popularityPeriod = '7d';
+
     private bool $onSaleOnly = false;
 
     private ?int $minPrice = null;
@@ -83,7 +83,7 @@ class ListPublicProductsQuery
             : null;
 
         $searchTerm = $this->search !== null
-            ? '%' . mb_strtolower($this->search) . '%'
+            ? '%'.mb_strtolower($this->search).'%'
             : null;
 
         $popularityFrom = $this->sort === 'popular'
@@ -97,7 +97,7 @@ class ListPublicProductsQuery
                     ->whereNull('cancelled_at')
                     ->when(
                         $popularityFrom !== null,
-                        fn(Builder $query) => $query->where('paid_at', '>=', $popularityFrom),
+                        fn (Builder $query) => $query->where('paid_at', '>=', $popularityFrom),
                     );
             });
         };
@@ -114,50 +114,50 @@ class ListPublicProductsQuery
             ->visibleOnStorefront()
             ->when(
                 $searchTerm,
-                fn(Builder $query, string $term) => $query
+                fn (Builder $query, string $term) => $query
                     ->whereRaw('LOWER(name) LIKE ?', [$term]),
             )
             ->when(
                 $categoryIds !== null,
-                fn(Builder $query) => $query->whereHas(
+                fn (Builder $query) => $query->whereHas(
                     'category',
-                    fn(Builder $categoryQuery) => $categoryQuery
+                    fn (Builder $categoryQuery) => $categoryQuery
                         ->whereIn('categories.id', $categoryIds),
                 ),
             )
             ->when(
                 $this->brandSlug,
-                fn(Builder $query, string $slug) => $query->whereHas(
+                fn (Builder $query, string $slug) => $query->whereHas(
                     'brand',
-                    fn(Builder $brandQuery) => $brandQuery->where('slug', $slug),
+                    fn (Builder $brandQuery) => $brandQuery->where('slug', $slug),
                 ),
             )
             ->when(
                 $this->tagSlug,
-                fn(Builder $query, string $slug) => $query->whereHas(
+                fn (Builder $query, string $slug) => $query->whereHas(
                     'tags',
-                    fn(Builder $tagQuery) => $tagQuery
+                    fn (Builder $tagQuery) => $tagQuery
                         ->where('slug', $slug)
                         ->where('is_active', true),
                 ),
             )
             ->when(
                 $this->collectionSlug,
-                fn(Builder $query, string $slug) => $query->whereHas(
+                fn (Builder $query, string $slug) => $query->whereHas(
                     'collections',
-                    fn(Builder $collectionQuery) => $collectionQuery
+                    fn (Builder $collectionQuery) => $collectionQuery
                         ->where('slug', $slug)
                         ->where('is_active', true),
                 ),
             )
-            ->when($this->featuredOnly, fn(Builder $query) => $query->featured())
+            ->when($this->featuredOnly, fn (Builder $query) => $query->featured())
             ->when(
                 $this->minPrice !== null,
-                fn(Builder $query) => $query->where('base_price', '>=', $this->minPrice),
+                fn (Builder $query) => $query->where('base_price', '>=', $this->minPrice),
             )
             ->when(
                 $this->maxPrice !== null,
-                fn(Builder $query) => $query->where('base_price', '<=', $this->maxPrice),
+                fn (Builder $query) => $query->where('base_price', '<=', $this->maxPrice),
             )
             ->when(
                 $this->sort === 'popular',
@@ -177,7 +177,7 @@ class ListPublicProductsQuery
                         ])
                         ->withSum(
                             [
-                                'orderItems as popularity_units_sold' => fn(Builder $orderItems) => $this
+                                'orderItems as popularity_units_sold' => fn (Builder $orderItems) => $this
                                     ->constrainToPaidOrders(
                                         $orderItems,
                                         $popularityFrom,
@@ -192,19 +192,19 @@ class ListPublicProductsQuery
             )
             ->when(
                 $this->onSaleOnly,
-                fn(Builder $query) => $query->onSale(),
+                fn (Builder $query) => $query->onSale(),
             )
             ->when(
                 $this->sort === 'price_asc',
-                fn(Builder $query) => $query->orderBy('base_price'),
+                fn (Builder $query) => $query->orderBy('base_price'),
             )
             ->when(
                 $this->sort === 'price_desc',
-                fn(Builder $query) => $query->orderByDesc('base_price'),
+                fn (Builder $query) => $query->orderByDesc('base_price'),
             )
             ->when(
                 $this->sort === 'latest',
-                fn(Builder $query) => $query->orderByDesc('id'),
+                fn (Builder $query) => $query->orderByDesc('id'),
             )
             ->paginate($perPage)
             ->withQueryString();
@@ -237,7 +237,7 @@ class ListPublicProductsQuery
                                 ->successful()
                                 ->when(
                                     $from !== null,
-                                    fn(Builder $query) => $query
+                                    fn (Builder $query) => $query
                                         ->where('paid_at', '>=', $from),
                                 );
                         },
@@ -266,7 +266,7 @@ class ListPublicProductsQuery
 
         $childrenByParent = $categories
             ->groupBy('parent_id')
-            ->map(fn($group) => $group->pluck('id')->all());
+            ->map(fn ($group) => $group->pluck('id')->all());
 
         $categoryIds = [];
         $stack = [$rootCategory->id];

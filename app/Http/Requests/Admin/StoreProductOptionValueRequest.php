@@ -19,7 +19,7 @@ class StoreProductOptionValueRequest extends FormRequest
         // Accept either a single `value` string or a `values[]` array.
         if ($this->has('values')) {
             return [
-                'values'   => ['required', 'array', 'min:1'],
+                'values' => ['required', 'array', 'min:1'],
                 'values.*' => [
                     'required',
                     'string',

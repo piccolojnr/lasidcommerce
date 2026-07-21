@@ -25,8 +25,6 @@ class CatalogSetupSeeder extends Seeder
         // Fashion hierarchy
         // ----------------------------------------------------------------
 
-
-
         $fashion = $this->upsertCategory('fashion', [
             'name' => 'Fashion',
             'description' => 'Clothing, footwear, bags, jewelry, and fashion accessories.',
@@ -228,8 +226,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Beauty hierarchy
-// ----------------------------------------------------------------
+        // Beauty hierarchy
+        // ----------------------------------------------------------------
 
         $beauty = $this->upsertCategory('beauty', [
             'name' => 'Beauty',
@@ -280,8 +278,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Home & Living hierarchy
-// ----------------------------------------------------------------
+        // Home & Living hierarchy
+        // ----------------------------------------------------------------
 
         $home = $this->upsertCategory('home-living', [
             'name' => 'Home & Living',
@@ -367,8 +365,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Electronics hierarchy
-// ----------------------------------------------------------------
+        // Electronics hierarchy
+        // ----------------------------------------------------------------
 
         $electronics = $this->upsertCategory('electronics', [
             'name' => 'Electronics',
@@ -412,8 +410,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Sports & Outdoors hierarchy
-// ----------------------------------------------------------------
+        // Sports & Outdoors hierarchy
+        // ----------------------------------------------------------------
 
         $sports = $this->upsertCategory('sports-outdoors', [
             'name' => 'Sports & Outdoors',
@@ -457,8 +455,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Kids, Baby & Toys hierarchy
-// ----------------------------------------------------------------
+        // Kids, Baby & Toys hierarchy
+        // ----------------------------------------------------------------
 
         $kidsBabyToys = $this->upsertCategory('kids-baby-toys', [
             'name' => 'Kids, Baby & Toys',
@@ -502,8 +500,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Office & School Supplies hierarchy
-// ----------------------------------------------------------------
+        // Office & School Supplies hierarchy
+        // ----------------------------------------------------------------
 
         $officeSchool = $this->upsertCategory('office-school-supplies', [
             'name' => 'Office & School Supplies',
@@ -547,8 +545,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Automotive hierarchy
-// ----------------------------------------------------------------
+        // Automotive hierarchy
+        // ----------------------------------------------------------------
 
         $automotive = $this->upsertCategory('automotive', [
             'name' => 'Automotive',
@@ -585,8 +583,8 @@ class CatalogSetupSeeder extends Seeder
         ]);
 
         // ----------------------------------------------------------------
-// Pet Supplies hierarchy
-// ----------------------------------------------------------------
+        // Pet Supplies hierarchy
+        // ----------------------------------------------------------------
 
         $petSupplies = $this->upsertCategory('pet-supplies', [
             'name' => 'Pet Supplies',
@@ -712,9 +710,9 @@ class CatalogSetupSeeder extends Seeder
      */
     private function attachCategoryImage(Category $category, string $slug): void
     {
-        $path = $this->imagePackPath . DIRECTORY_SEPARATOR . $slug . '.jpg';
+        $path = $this->imagePackPath.DIRECTORY_SEPARATOR.$slug.'.jpg';
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return;
         }
 
@@ -722,7 +720,7 @@ class CatalogSetupSeeder extends Seeder
         // singleFile() on the collection handles replacement on re-runs automatically.
         $category
             ->addMedia($path)
-            ->usingFileName($slug . '.jpg')
+            ->usingFileName($slug.'.jpg')
             ->usingName($category->name)
             ->withCustomProperties(['seeded' => true])
             ->preservingOriginal()

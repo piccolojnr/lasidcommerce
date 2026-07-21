@@ -4,6 +4,7 @@ namespace App\Domain\Catalog\Actions;
 
 use App\Models\Product;
 use App\Models\ProductOptionType;
+use App\Models\ProductOptionValue;
 use App\Models\ProductVariant;
 use App\Models\StockItem;
 use Illuminate\Support\Collection;
@@ -57,6 +58,7 @@ class GenerateProductVariantsAction
 
                 if ($existing->has($key)) {
                     $skipped++;
+
                     continue;
                 }
 
@@ -67,23 +69,23 @@ class GenerateProductVariantsAction
                 $skuSuffix = collect($combo)
                     ->map(fn ($v) => Str::upper(Str::substr(Str::slug($v->value, ''), 0, 4)))
                     ->implode('-');
-                $sku = $product->sku . '-' . $skuSuffix;
+                $sku = $product->sku.'-'.$skuSuffix;
 
                 // Ensure SKU uniqueness by appending a counter if needed
                 $sku = $this->uniqueSku($sku);
 
                 $variant = ProductVariant::query()->create([
                     'product_id' => $product->getKey(),
-                    'name'       => $name,
-                    'sku'        => $sku,
-                    'is_active'  => true,
+                    'name' => $name,
+                    'sku' => $sku,
+                    'is_active' => true,
                 ]);
 
                 $variant->optionValues()->sync($valueIds->all());
 
                 if ($product->track_inventory) {
                     StockItem::query()->firstOrCreate([
-                        'product_id'         => $product->getKey(),
+                        'product_id' => $product->getKey(),
                         'product_variant_id' => $variant->getKey(),
                     ]);
                 }
@@ -100,7 +102,7 @@ class GenerateProductVariantsAction
      * Each axis is a collection/array of ProductOptionValue models.
      *
      * @param  Collection<int, array>  $axes
-     * @return array<int, array<int, \App\Models\ProductOptionValue>>
+     * @return array<int, array<int, ProductOptionValue>>
      */
     private function cartesian(Collection $axes): array
     {
@@ -127,7 +129,7 @@ class GenerateProductVariantsAction
         $counter = 2;
 
         while (ProductVariant::query()->where('sku', $sku)->exists()) {
-            $sku = $base . '-' . $counter;
+            $sku = $base.'-'.$counter;
             $counter++;
         }
 

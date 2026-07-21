@@ -47,7 +47,7 @@ class ProductListResource extends JsonResource
             'primary_image_gallery_url' => $primaryImage['gallery_url'] ?? null,
             'category' => $this->when(
                 $this->relationLoaded('category') && $this->category !== null,
-                fn() => [
+                fn () => [
                     'id' => $this->category->id,
                     'name' => $this->category->name,
                     'slug' => $this->category->slug,
@@ -55,7 +55,7 @@ class ProductListResource extends JsonResource
             ),
             'brand' => $this->when(
                 $this->relationLoaded('brand') && $this->brand !== null,
-                fn() => [
+                fn () => [
                     'id' => $this->brand->id,
                     'name' => $this->brand->name,
                     'slug' => $this->brand->slug,
@@ -63,7 +63,7 @@ class ProductListResource extends JsonResource
             ),
             'tags' => $this->when(
                 $this->relationLoaded('tags'),
-                fn() => $this->tags->map(fn($tag) => [
+                fn () => $this->tags->map(fn ($tag) => [
                     'id' => $tag->id,
                     'name' => $tag->name,
                     'slug' => $tag->slug,
@@ -71,7 +71,7 @@ class ProductListResource extends JsonResource
             ),
             'collections' => $this->when(
                 $this->relationLoaded('collections'),
-                fn() => $this->collections->map(fn($collection) => [
+                fn () => $this->collections->map(fn ($collection) => [
                     'id' => $collection->id,
                     'name' => $collection->name,
                     'slug' => $collection->slug,

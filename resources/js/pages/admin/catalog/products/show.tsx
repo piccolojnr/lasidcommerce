@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import { Link } from '@inertiajs/react';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
 import * as StockItemController from '@/actions/App/Http/Controllers/Admin/Inventory/StockItemController';
 import { PageHeader } from '@/components/shared/page-header/page-header';

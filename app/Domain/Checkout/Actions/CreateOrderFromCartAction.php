@@ -81,17 +81,17 @@ class CreateOrderFromCartAction
                         $variant = $item->productVariant;
                         $optionValues = $variant?->relationLoaded('optionValues')
                             ? $variant->optionValues->map(fn ($ov) => [
-                                'id'               => $ov->id,
-                                'value'            => $ov->value,
-                                'option_type_id'   => $ov->option_type_id,
+                                'id' => $ov->id,
+                                'value' => $ov->value,
+                                'option_type_id' => $ov->option_type_id,
                                 'option_type_name' => $ov->optionType?->name,
                             ])->values()->all()
                             : [];
 
                         $variantSnapshot = [
-                            'id'            => $item->product_variant_id,
-                            'name'          => $item->variant_name_snapshot,
-                            'sku'           => $item->sku_snapshot,
+                            'id' => $item->product_variant_id,
+                            'name' => $item->variant_name_snapshot,
+                            'sku' => $item->sku_snapshot,
                             'option_values' => $optionValues,
                         ];
                     }
@@ -109,9 +109,9 @@ class CreateOrderFromCartAction
                         'tax_amount' => 0,
                         'line_total' => $item->line_total,
                         'product_snapshot_json' => [
-                            'id'      => $item->product_id,
-                            'name'    => $item->product_name_snapshot,
-                            'sku'     => $item->sku_snapshot,
+                            'id' => $item->product_id,
+                            'name' => $item->product_name_snapshot,
+                            'sku' => $item->sku_snapshot,
                             'variant' => $variantSnapshot,
                         ],
                     ]);

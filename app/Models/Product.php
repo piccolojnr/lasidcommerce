@@ -110,7 +110,7 @@ class Product extends Model implements HasMedia
 
     public function saleDiscountAmount(): int
     {
-        if (!$this->isOnSale()) {
+        if (! $this->isOnSale()) {
             return 0;
         }
 
@@ -119,7 +119,7 @@ class Product extends Model implements HasMedia
 
     public function saleDiscountPercentage(): ?int
     {
-        if (!$this->isOnSale() || $this->compare_at_price <= 0) {
+        if (! $this->isOnSale() || $this->compare_at_price <= 0) {
             return null;
         }
 
@@ -149,7 +149,7 @@ class Product extends Model implements HasMedia
     {
         return $query
             ->active()
-            ->where(fn($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
+            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
     }
 
     public function scopeSuccessful(Builder $query): Builder

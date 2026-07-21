@@ -17,8 +17,7 @@ class ProductController extends Controller
     public function __construct(
         private ListPublicProductsQuery $listQuery,
         private GetProductDetailQuery $detailQuery,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
