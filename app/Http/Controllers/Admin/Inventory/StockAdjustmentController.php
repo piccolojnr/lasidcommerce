@@ -24,6 +24,8 @@ class StockAdjustmentController extends Controller
             StockAdjustmentData::fromArray($request->validated(), $request->user()?->getKey()),
         );
 
-        return back()->with('success', 'Stock adjustment recorded.');
+        return redirect()
+            ->route('admin.inventory.stock-items.show', $stockItem)
+            ->with('success', 'Stock adjustment recorded.');
     }
 }
