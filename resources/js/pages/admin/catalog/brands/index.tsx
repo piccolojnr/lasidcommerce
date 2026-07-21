@@ -36,7 +36,11 @@ export default function BrandIndexPage({ brands, filters }: Props) {
     );
 
     const activeValue =
-        filters.is_active === true ? '1' : filters.is_active === false ? '0' : EMPTY_SENTINEL;
+        filters.is_active === true
+            ? '1'
+            : filters.is_active === false
+              ? '0'
+              : EMPTY_SENTINEL;
 
     const activeBrands = brands.data.filter((b) => b.is_active).length;
     const brandsWithImages = brands.data.filter((b) => b.image_url).length;
@@ -59,39 +63,45 @@ export default function BrandIndexPage({ brands, filters }: Props) {
                 {/* Stat cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Visible in result
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pb-4">
-                            <p className="text-3xl font-semibold tabular-nums">{brands.total}</p>
+                            <p className="text-3xl font-semibold tabular-nums">
+                                {brands.total}
+                            </p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
                                 Brands matching the current filters.
                             </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Active on this page
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pb-4">
-                            <p className="text-3xl font-semibold tabular-nums">{activeBrands}</p>
+                            <p className="text-3xl font-semibold tabular-nums">
+                                {activeBrands}
+                            </p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
                                 Brands currently visible on the storefront.
                             </p>
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 With imagery
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pb-4">
-                            <p className="text-3xl font-semibold tabular-nums">{brandsWithImages}</p>
+                            <p className="text-3xl font-semibold tabular-nums">
+                                {brandsWithImages}
+                            </p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
                                 Brands carrying a logo or visual identifier.
                             </p>
@@ -110,7 +120,10 @@ export default function BrandIndexPage({ brands, filters }: Props) {
                     <Select
                         value={activeValue}
                         onValueChange={(v) =>
-                            setFilter('is_active', v === EMPTY_SENTINEL ? null : v)
+                            setFilter(
+                                'is_active',
+                                v === EMPTY_SENTINEL ? null : v,
+                            )
                         }
                     >
                         <SelectTrigger className="h-9 w-36">

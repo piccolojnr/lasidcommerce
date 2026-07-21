@@ -123,7 +123,7 @@ function ProductPicker({
                     {/* Search + filter */}
                     <div className="flex gap-2 border-b border-border/60 p-3">
                         <div className="relative flex-1">
-                            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                            <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 placeholder="Search name or SKU…"
                                 value={search}
@@ -139,7 +139,9 @@ function ProductPicker({
                                 <SelectValue placeholder="All" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={EMPTY_SENTINEL}>All</SelectItem>
+                                <SelectItem value={EMPTY_SENTINEL}>
+                                    All
+                                </SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
                                 <SelectItem value="draft">Draft</SelectItem>
                             </SelectContent>
@@ -155,17 +157,22 @@ function ProductPicker({
                         ) : (
                             <ul className="divide-y">
                                 {filteredProducts.map((product) => {
-                                    const isSelected = Object.prototype.hasOwnProperty.call(
-                                        selectedProducts,
-                                        String(product.id),
-                                    );
+                                    const isSelected =
+                                        Object.prototype.hasOwnProperty.call(
+                                            selectedProducts,
+                                            String(product.id),
+                                        );
                                     return (
                                         <li key={product.id}>
                                             <button
                                                 type="button"
-                                                onClick={() => onToggle(product.id)}
+                                                onClick={() =>
+                                                    onToggle(product.id)
+                                                }
                                                 className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted/40 ${
-                                                    isSelected ? 'bg-primary/5' : ''
+                                                    isSelected
+                                                        ? 'bg-primary/5'
+                                                        : ''
                                                 }`}
                                             >
                                                 {/* Check indicator */}
@@ -181,14 +188,15 @@ function ProductPicker({
                                                     )}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-medium leading-snug">
+                                                    <p className="truncate text-sm leading-snug font-medium">
                                                         {product.name}
                                                     </p>
                                                     <p className="font-mono text-xs text-muted-foreground">
                                                         {product.sku}
                                                         <span
                                                             className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
-                                                                product.status === 'active'
+                                                                product.status ===
+                                                                'active'
                                                                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                                                                     : 'bg-muted text-muted-foreground'
                                                             }`}
@@ -207,7 +215,8 @@ function ProductPicker({
 
                     {/* Count footer */}
                     <div className="border-t border-border/60 bg-muted/10 px-3 py-2 text-xs text-muted-foreground">
-                        {filteredProducts.length} of {products.length} products shown
+                        {filteredProducts.length} of {products.length} products
+                        shown
                     </div>
                 </div>
 
@@ -219,7 +228,8 @@ function ProductPicker({
                             Selected products
                         </p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                            Set the display order for each product in this collection.
+                            Set the display order for each product in this
+                            collection.
                         </p>
                     </div>
 
@@ -240,7 +250,7 @@ function ProductPicker({
                                     >
                                         <GripVertical className="size-3.5 shrink-0 cursor-grab text-muted-foreground/40" />
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-medium leading-snug">
+                                            <p className="truncate text-sm leading-snug font-medium">
                                                 {entry.product!.name}
                                             </p>
                                             <p className="font-mono text-xs text-muted-foreground">
@@ -248,7 +258,7 @@ function ProductPicker({
                                             </p>
                                         </div>
                                         {/* Sort order input */}
-                                        <div className="flex items-center gap-1.5 shrink-0">
+                                        <div className="flex shrink-0 items-center gap-1.5">
                                             <Label
                                                 htmlFor={`so-${entry.id}`}
                                                 className="text-xs text-muted-foreground"
@@ -261,7 +271,10 @@ function ProductPicker({
                                                 min={1}
                                                 value={entry.sortOrder}
                                                 onChange={(e) =>
-                                                    onSortOrderChange(entry.id, e.target.value)
+                                                    onSortOrderChange(
+                                                        entry.id,
+                                                        e.target.value,
+                                                    )
                                                 }
                                                 className="h-7 w-16 text-center text-xs tabular-nums"
                                             />
@@ -307,12 +320,19 @@ export function CollectionForm({
     const [slugManual, setSlugManual] = useState(isEdit);
     const [slugValue, setSlugValue] = useState(collection?.slug ?? '');
     const [isActive, setIsActive] = useState(collection?.is_active ?? true);
-    const [sortOrder, setSortOrder] = useState(String(collection?.sort_order ?? 0));
+    const [sortOrder, setSortOrder] = useState(
+        String(collection?.sort_order ?? 0),
+    );
 
     // Map of product id (string) → sort_order (string)
-    const [selectedProducts, setSelectedProducts] = useState<Record<string, string>>(
+    const [selectedProducts, setSelectedProducts] = useState<
+        Record<string, string>
+    >(
         Object.fromEntries(
-            collection?.products.map((p) => [String(p.id), String(p.sort_order)]) ?? [],
+            collection?.products.map((p) => [
+                String(p.id),
+                String(p.sort_order),
+            ]) ?? [],
         ),
     );
 
@@ -328,7 +348,8 @@ export function CollectionForm({
             } else {
                 // Assign the next sort order: max existing + 10, or (count + 1) * 10
                 const existingOrders = Object.values(next).map(Number);
-                const maxOrder = existingOrders.length > 0 ? Math.max(...existingOrders) : 0;
+                const maxOrder =
+                    existingOrders.length > 0 ? Math.max(...existingOrders) : 0;
                 next[String(productId)] = String(maxOrder + 10);
             }
             return next;
@@ -351,7 +372,11 @@ export function CollectionForm({
             {({ errors }) => (
                 <>
                     <input type="hidden" name="slug" value={slugValue} />
-                    <input type="hidden" name="is_active" value={isActive ? '1' : '0'} />
+                    <input
+                        type="hidden"
+                        name="is_active"
+                        value={isActive ? '1' : '0'}
+                    />
                     <input type="hidden" name="sort_order" value={sortOrder} />
 
                     {/* ── Identity section ── */}
@@ -371,7 +396,10 @@ export function CollectionForm({
                                     placeholder="Weekend Edit"
                                     className="h-12 rounded-xl"
                                     onChange={(e) => {
-                                        if (!slugManual) setSlugValue(slugify(e.target.value));
+                                        if (!slugManual)
+                                            setSlugValue(
+                                                slugify(e.target.value),
+                                            );
                                     }}
                                 />
                                 <FieldError message={errors.name} />
@@ -384,7 +412,9 @@ export function CollectionForm({
                                         className="text-xs font-medium text-muted-foreground hover:text-foreground"
                                         onClick={() => setSlugManual((v) => !v)}
                                     >
-                                        {slugManual ? 'Manual mode' : 'Auto-generate'}
+                                        {slugManual
+                                            ? 'Manual mode'
+                                            : 'Auto-generate'}
                                     </button>
                                 </div>
                                 <Input
@@ -393,7 +423,8 @@ export function CollectionForm({
                                     readOnly={!slugManual}
                                     className="h-12 rounded-xl font-mono text-sm"
                                     onChange={(e) => {
-                                        if (slugManual) setSlugValue(e.target.value);
+                                        if (slugManual)
+                                            setSlugValue(e.target.value);
                                     }}
                                 />
                                 <FieldError message={errors.slug} />
@@ -414,17 +445,22 @@ export function CollectionForm({
                                 <FieldError message={errors.description} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="sort-order">Collection sort order</Label>
+                                <Label htmlFor="sort-order">
+                                    Collection sort order
+                                </Label>
                                 <Input
                                     id="sort-order"
                                     type="number"
                                     min={0}
                                     value={sortOrder}
-                                    onChange={(e) => setSortOrder(e.target.value)}
+                                    onChange={(e) =>
+                                        setSortOrder(e.target.value)
+                                    }
                                     className="h-12 rounded-xl"
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Lower numbers surface earlier in collection lists.
+                                    Lower numbers surface earlier in collection
+                                    lists.
                                 </p>
                                 <FieldError message={errors.sort_order} />
                             </div>
@@ -436,10 +472,12 @@ export function CollectionForm({
                                 onCheckedChange={(v) => setIsActive(Boolean(v))}
                             />
                             <div className="space-y-1">
-                                <p className="font-medium">Active on storefront</p>
+                                <p className="font-medium">
+                                    Active on storefront
+                                </p>
                                 <p className="text-sm text-muted-foreground">
-                                    Inactive collections stay in admin but disappear from
-                                    public collection surfaces.
+                                    Inactive collections stay in admin but
+                                    disappear from public collection surfaces.
                                 </p>
                             </div>
                         </label>
@@ -462,7 +500,9 @@ export function CollectionForm({
                     </FormSection>
 
                     <FormActions
-                        submitLabel={isEdit ? 'Update collection' : 'Create collection'}
+                        submitLabel={
+                            isEdit ? 'Update collection' : 'Create collection'
+                        }
                         onCancel={() => window.history.back()}
                     />
                 </>

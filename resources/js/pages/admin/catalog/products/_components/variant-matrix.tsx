@@ -11,7 +11,10 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { centsToDisplay, displayToCents } from './product-form-utils';
 import { StockAdjustPanel } from './stock-adjust-panel';
-import type { AdminProductVariant, AdminStockItemDetail } from '@/types/admin/catalog';
+import type {
+    AdminProductVariant,
+    AdminStockItemDetail,
+} from '@/types/admin/catalog';
 
 interface VariantMatrixProps {
     product: {
@@ -19,7 +22,11 @@ interface VariantMatrixProps {
         sku: string;
         base_price: number;
         variants: AdminProductVariant[];
-        option_types: { id: number; name: string; values: { id: number; value: string }[] }[];
+        option_types: {
+            id: number;
+            name: string;
+            values: { id: number; value: string }[];
+        }[];
     };
     canGenerate: boolean;
     movementTypes: string[];
@@ -60,7 +67,10 @@ function VariantRow({
             },
             {
                 preserveScroll: true,
-                onSuccess: () => { setDirty(false); setSaving(false); },
+                onSuccess: () => {
+                    setDirty(false);
+                    setSaving(false);
+                },
                 onError: () => setSaving(false),
             },
         );
@@ -73,33 +83,52 @@ function VariantRow({
     };
 
     // Pull the first stock item for this variant (there should be exactly one)
-    const stockItem = variant.inventory.stock_items?.[0] as AdminStockItemDetail | undefined;
+    const stockItem = variant.inventory.stock_items?.[0] as
+        | AdminStockItemDetail
+        | undefined;
 
     return (
         <>
-            <tr className={cn(
-                'group border-b border-border/60',
-                dirty && 'bg-primary/5',
-                stockOpen && 'bg-muted/30',
-            )}>
+            <tr
+                className={cn(
+                    'group border-b border-border/60',
+                    dirty && 'bg-primary/5',
+                    stockOpen && 'bg-muted/30',
+                )}
+            >
                 {/* Active toggle */}
                 <td className="px-4 py-3 text-center">
                     <Checkbox
                         checked={isActive}
-                        onCheckedChange={(v) => { setIsActive(Boolean(v)); markDirty(); }}
+                        onCheckedChange={(v) => {
+                            setIsActive(Boolean(v));
+                            markDirty();
+                        }}
                     />
                 </td>
 
                 {/* Variant name + option badges */}
                 <td className="px-4 py-3">
                     <div className="flex flex-col gap-1">
-                        <span className={cn('text-sm font-medium', !isActive && 'text-muted-foreground line-through')}>
+                        <span
+                            className={cn(
+                                'text-sm font-medium',
+                                !isActive &&
+                                    'text-muted-foreground line-through',
+                            )}
+                        >
                             {variant.name}
                         </span>
                         <div className="flex flex-wrap gap-1">
                             {variant.option_values.map((ov) => (
-                                <Badge key={ov.id} variant="outline" className="text-xs">
-                                    {ov.option_type_name ? `${ov.option_type_name}: ` : ''}
+                                <Badge
+                                    key={ov.id}
+                                    variant="outline"
+                                    className="text-xs"
+                                >
+                                    {ov.option_type_name
+                                        ? `${ov.option_type_name}: `
+                                        : ''}
                                     {ov.value}
                                 </Badge>
                             ))}
@@ -111,7 +140,10 @@ function VariantRow({
                 <td className="px-4 py-3">
                     <Input
                         value={sku}
-                        onChange={(e) => { setSku(e.target.value); markDirty(); }}
+                        onChange={(e) => {
+                            setSku(e.target.value);
+                            markDirty();
+                        }}
                         className="h-8 w-36 rounded-lg font-mono text-xs"
                     />
                 </td>
@@ -123,7 +155,10 @@ function VariantRow({
                         min="0"
                         step="0.01"
                         value={price}
-                        onChange={(e) => { setPrice(e.target.value); markDirty(); }}
+                        onChange={(e) => {
+                            setPrice(e.target.value);
+                            markDirty();
+                        }}
                         placeholder={(basePrice / 100).toFixed(2)}
                         className="h-8 w-28 rounded-lg text-right text-xs"
                     />
@@ -138,10 +173,11 @@ function VariantRow({
                         title="Toggle stock adjust"
                     >
                         {variant.inventory.available_quantity}
-                        {stockOpen
-                            ? <ChevronUp className="size-3" />
-                            : <ChevronDown className="size-3" />
-                        }
+                        {stockOpen ? (
+                            <ChevronUp className="size-3" />
+                        ) : (
+                            <ChevronDown className="size-3" />
+                        )}
                     </button>
                 </td>
 
@@ -190,8 +226,12 @@ function VariantRow({
             {/* Stock open but no stock item yet */}
             {stockOpen && !stockItem && (
                 <tr className="border-b border-border/40 bg-muted/20">
-                    <td colSpan={6} className="px-6 py-3 text-sm text-muted-foreground">
-                        No stock item found for this variant. Enable inventory tracking on the product to create one.
+                    <td
+                        colSpan={6}
+                        className="px-6 py-3 text-sm text-muted-foreground"
+                    >
+                        No stock item found for this variant. Enable inventory
+                        tracking on the product to create one.
                     </td>
                 </tr>
             )}
@@ -201,14 +241,23 @@ function VariantRow({
 
 // ─── Matrix table ─────────────────────────────────────────────────────────────
 
-export function VariantMatrix({ product, canGenerate, movementTypes }: VariantMatrixProps) {
+export function VariantMatrix({
+    product,
+    canGenerate,
+    movementTypes,
+}: VariantMatrixProps) {
     const [selected, setSelected] = useState<Set<number>>(new Set());
 
     const allSelected =
-        product.variants.length > 0 && selected.size === product.variants.length;
+        product.variants.length > 0 &&
+        selected.size === product.variants.length;
 
     const toggleAll = () =>
-        setSelected(allSelected ? new Set() : new Set(product.variants.map((v) => v.id)));
+        setSelected(
+            allSelected
+                ? new Set()
+                : new Set(product.variants.map((v) => v.id)),
+        );
 
     const bulkToggle = (isActive: boolean) => {
         router.patch(
@@ -236,19 +285,27 @@ export function VariantMatrix({ product, canGenerate, movementTypes }: VariantMa
                     </p>
                     {canGenerate && product.variants.length === 0 && (
                         <p className="text-xs text-muted-foreground">
-                            Generate all combinations from the options, or add manually.
+                            Generate all combinations from the options, or add
+                            manually.
                         </p>
                     )}
                 </div>
 
                 {canGenerate && (
                     <Form
-                        {...ProductVariantMatrixController.generateMatrix.form.post(product)}
+                        {...ProductVariantMatrixController.generateMatrix.form.post(
+                            product,
+                        )}
                         options={{ preserveScroll: true }}
                     >
                         {({ processing }) => (
                             <Button type="submit" disabled={processing}>
-                                <RefreshCw className={cn('size-4 mr-1.5', processing && 'animate-spin')} />
+                                <RefreshCw
+                                    className={cn(
+                                        'mr-1.5 size-4',
+                                        processing && 'animate-spin',
+                                    )}
+                                />
                                 {processing ? 'Generating…' : 'Generate matrix'}
                             </Button>
                         )}
@@ -275,12 +332,20 @@ export function VariantMatrix({ product, canGenerate, movementTypes }: VariantMa
                                         aria-label="Select all"
                                     />
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium">Variant</th>
-                                <th className="px-4 py-3 text-left font-medium">SKU</th>
-                                <th className="px-4 py-3 text-left font-medium">Price</th>
+                                <th className="px-4 py-3 text-left font-medium">
+                                    Variant
+                                </th>
+                                <th className="px-4 py-3 text-left font-medium">
+                                    SKU
+                                </th>
+                                <th className="px-4 py-3 text-left font-medium">
+                                    Price
+                                </th>
                                 <th className="px-4 py-3 text-right font-medium">
                                     Available
-                                    <span className="ml-1 text-xs font-normal text-muted-foreground">↓ adjust</span>
+                                    <span className="ml-1 text-xs font-normal text-muted-foreground">
+                                        ↓ adjust
+                                    </span>
                                 </th>
                                 <th className="px-4 py-3" />
                             </tr>
@@ -302,14 +367,31 @@ export function VariantMatrix({ product, canGenerate, movementTypes }: VariantMa
             {/* Bulk action bar */}
             {selected.size > 0 && (
                 <div className="flex flex-wrap items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
-                    <span className="text-sm font-medium">{selected.size} selected</span>
-                    <Button type="button" variant="outline" size="sm" onClick={() => bulkToggle(true)}>
+                    <span className="text-sm font-medium">
+                        {selected.size} selected
+                    </span>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => bulkToggle(true)}
+                    >
                         Activate selected
                     </Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => bulkToggle(false)}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => bulkToggle(false)}
+                    >
                         Deactivate selected
                     </Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelected(new Set())}
+                    >
                         Clear
                     </Button>
                 </div>

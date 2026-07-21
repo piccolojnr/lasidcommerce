@@ -83,13 +83,17 @@ export function BrandTable({ brands }: BrandTableProps) {
                                                     />
                                                 ) : (
                                                     <div className="flex h-full w-full items-center justify-center text-xs font-bold text-muted-foreground">
-                                                        {brand.name.charAt(0).toUpperCase()}
+                                                        {brand.name
+                                                            .charAt(0)
+                                                            .toUpperCase()}
                                                     </div>
                                                 )}
                                             </div>
                                             <div>
                                                 <Link
-                                                    href={BrandController.show.url(brand)}
+                                                    href={BrandController.show.url(
+                                                        brand,
+                                                    )}
                                                     className="font-medium hover:underline"
                                                 >
                                                     {brand.name}
@@ -111,13 +115,17 @@ export function BrandTable({ brands }: BrandTableProps) {
                                     {/* Status */}
                                     <td className="px-4 py-3 align-middle">
                                         <StatusBadge
-                                            status={brand.is_active ? 'active' : 'inactive'}
+                                            status={
+                                                brand.is_active
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            }
                                         />
                                     </td>
 
                                     {/* Products count */}
                                     <td className="px-4 py-3 text-center align-middle">
-                                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
                                             {brand.products_count}
                                         </span>
                                     </td>
@@ -132,9 +140,15 @@ export function BrandTable({ brands }: BrandTableProps) {
                                                 asChild
                                                 title="View"
                                             >
-                                                <Link href={BrandController.show.url(brand)}>
+                                                <Link
+                                                    href={BrandController.show.url(
+                                                        brand,
+                                                    )}
+                                                >
                                                     <Eye className="size-4" />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -144,9 +158,15 @@ export function BrandTable({ brands }: BrandTableProps) {
                                                 asChild
                                                 title="Edit"
                                             >
-                                                <Link href={BrandController.edit.url(brand)}>
+                                                <Link
+                                                    href={BrandController.edit.url(
+                                                        brand,
+                                                    )}
+                                                >
                                                     <Pencil className="size-4" />
-                                                    <span className="sr-only">Edit</span>
+                                                    <span className="sr-only">
+                                                        Edit
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -154,10 +174,14 @@ export function BrandTable({ brands }: BrandTableProps) {
                                                 size="icon"
                                                 className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 title="Delete"
-                                                onClick={() => handleDelete(brand)}
+                                                onClick={() =>
+                                                    handleDelete(brand)
+                                                }
                                             >
                                                 <Trash2 className="size-4" />
-                                                <span className="sr-only">Delete</span>
+                                                <span className="sr-only">
+                                                    Delete
+                                                </span>
                                             </Button>
                                         </div>
                                     </td>

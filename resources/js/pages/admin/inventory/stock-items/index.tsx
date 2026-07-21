@@ -40,8 +40,12 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
         filters,
     );
 
-    const lowStockCount = stockItems.data.filter((i) => i.status === 'low_stock').length;
-    const outOfStockCount = stockItems.data.filter((i) => i.status === 'out_of_stock').length;
+    const lowStockCount = stockItems.data.filter(
+        (i) => i.status === 'low_stock',
+    ).length;
+    const outOfStockCount = stockItems.data.filter(
+        (i) => i.status === 'out_of_stock',
+    ).length;
 
     return (
         <AdminLayout
@@ -55,7 +59,9 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                     actions={
                         <div className="flex items-center gap-2">
                             <Button variant="outline" size="sm" asChild>
-                                <Link href={StockMovementController.index.url()}>
+                                <Link
+                                    href={StockMovementController.index.url()}
+                                >
                                     View movement ledger
                                 </Link>
                             </Button>
@@ -71,7 +77,7 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                 {/* Stat cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Visible in result
                             </CardTitle>
@@ -86,7 +92,7 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Low stock on page
                             </CardTitle>
@@ -101,7 +107,7 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Out of stock on page
                             </CardTitle>
@@ -135,10 +141,14 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                             <SelectValue placeholder="All stock states" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All stock states</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All stock states
+                            </SelectItem>
                             <SelectItem value="in_stock">In stock</SelectItem>
                             <SelectItem value="low_stock">Low stock</SelectItem>
-                            <SelectItem value="out_of_stock">Out of stock</SelectItem>
+                            <SelectItem value="out_of_stock">
+                                Out of stock
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -182,7 +192,8 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                                             colSpan={8}
                                             className="px-4 py-14 text-center text-sm text-muted-foreground"
                                         >
-                                            No stock items match the current filters.
+                                            No stock items match the current
+                                            filters.
                                         </td>
                                     </tr>
                                 ) : (
@@ -194,14 +205,18 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                                             {/* Item */}
                                             <td className="px-4 py-3 align-middle">
                                                 <p className="font-medium">
-                                                    {item.product_name ?? 'Unknown product'}
+                                                    {item.product_name ??
+                                                        'Unknown product'}
                                                 </p>
                                                 <p className="font-mono text-xs text-muted-foreground">
-                                                    {item.product_sku ?? 'No SKU'}
+                                                    {item.product_sku ??
+                                                        'No SKU'}
                                                 </p>
-                                                {(item.variant_name || item.variant_sku) && (
+                                                {(item.variant_name ||
+                                                    item.variant_sku) && (
                                                     <p className="text-xs text-muted-foreground">
-                                                        {item.variant_name ?? 'Variant'}
+                                                        {item.variant_name ??
+                                                            'Variant'}
                                                         {item.variant_sku
                                                             ? ` · ${item.variant_sku}`
                                                             : ''}
@@ -211,7 +226,9 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
 
                                             {/* Status */}
                                             <td className="px-4 py-3 align-middle">
-                                                <StatusBadge status={item.status} />
+                                                <StatusBadge
+                                                    status={item.status}
+                                                />
                                             </td>
 
                                             {/* On hand */}
@@ -220,7 +237,7 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                                             </td>
 
                                             {/* Reserved */}
-                                            <td className="px-4 py-3 text-right align-middle tabular-nums text-muted-foreground">
+                                            <td className="px-4 py-3 text-right align-middle text-muted-foreground tabular-nums">
                                                 {item.quantity_reserved}
                                             </td>
 
@@ -232,13 +249,17 @@ export default function StockItemIndexPage({ stockItems, filters }: Props) {
                                             </td>
 
                                             {/* Reorder level */}
-                                            <td className="px-4 py-3 text-right align-middle tabular-nums text-muted-foreground">
+                                            <td className="px-4 py-3 text-right align-middle text-muted-foreground tabular-nums">
                                                 {item.reorder_level ?? '—'}
                                             </td>
 
                                             {/* Updated */}
                                             <td className="px-4 py-3 align-middle text-sm text-muted-foreground">
-                                                {item.updated_at ? formatDate(item.updated_at) : '—'}
+                                                {item.updated_at
+                                                    ? formatDate(
+                                                          item.updated_at,
+                                                      )
+                                                    : '—'}
                                             </td>
 
                                             {/* Actions */}

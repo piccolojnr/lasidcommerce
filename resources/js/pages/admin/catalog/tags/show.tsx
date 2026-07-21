@@ -102,7 +102,13 @@ export default function TagShowPage({ tag }: { tag: AdminTag }) {
                                     Status
                                 </p>
                                 <div className="mt-1.5">
-                                    <StatusBadge status={tag.is_active ? 'active' : 'inactive'} />
+                                    <StatusBadge
+                                        status={
+                                            tag.is_active
+                                                ? 'active'
+                                                : 'inactive'
+                                        }
+                                    />
                                 </div>
                             </div>
                         </CardContent>
@@ -112,14 +118,18 @@ export default function TagShowPage({ tag }: { tag: AdminTag }) {
                 {/* Details card */}
                 <Card className="border-border/70">
                     <CardHeader className="border-b border-border/60 bg-muted/20 py-4">
-                        <CardTitle className="text-sm font-semibold">Details</CardTitle>
+                        <CardTitle className="text-sm font-semibold">
+                            Details
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="divide-y py-0">
                         <div className="flex items-start gap-4 py-3">
                             <span className="w-32 shrink-0 text-xs font-medium text-muted-foreground">
                                 Slug
                             </span>
-                            <span className="font-mono text-sm">{tag.slug}</span>
+                            <span className="font-mono text-sm">
+                                {tag.slug}
+                            </span>
                         </div>
                         <div className="flex items-start gap-4 py-3">
                             <span className="w-32 shrink-0 text-xs font-medium text-muted-foreground">
@@ -127,7 +137,9 @@ export default function TagShowPage({ tag }: { tag: AdminTag }) {
                             </span>
                             <span className="text-sm text-muted-foreground">
                                 {tag.description ?? (
-                                    <span className="italic opacity-60">No description.</span>
+                                    <span className="italic opacity-60">
+                                        No description.
+                                    </span>
                                 )}
                             </span>
                         </div>
@@ -142,12 +154,13 @@ export default function TagShowPage({ tag }: { tag: AdminTag }) {
                                 Tagged products
                                 {tag.products_count > tag.products.length ? (
                                     <span className="ml-2 text-xs font-normal text-muted-foreground">
-                                        (showing first {tag.products.length} of {tag.products_count})
+                                        (showing first {tag.products.length} of{' '}
+                                        {tag.products_count})
                                     </span>
                                 ) : null}
                             </CardTitle>
                             <div className="flex items-center gap-2">
-                                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
                                     {tag.products_count}
                                 </span>
                                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -194,18 +207,21 @@ export default function TagShowPage({ tag }: { tag: AdminTag }) {
                                                         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-md border bg-muted/30">
                                                             {product.primary_image_url ? (
                                                                 <img
-                                                                    src={product.primary_image_url}
+                                                                    src={
+                                                                        product.primary_image_url
+                                                                    }
                                                                     alt=""
                                                                     className="h-full w-full object-cover"
                                                                 />
                                                             ) : null}
                                                         </div>
                                                         <div>
-                                                            <p className="font-medium leading-snug">
+                                                            <p className="leading-snug font-medium">
                                                                 {product.name}
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {product.brand_name ?? 'No brand'}
+                                                                {product.brand_name ??
+                                                                    'No brand'}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -214,10 +230,13 @@ export default function TagShowPage({ tag }: { tag: AdminTag }) {
                                                     {product.sku}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-muted-foreground">
-                                                    {product.category_name ?? '—'}
+                                                    {product.category_name ??
+                                                        '—'}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <StatusBadge status={product.status} />
+                                                    <StatusBadge
+                                                        status={product.status}
+                                                    />
                                                 </td>
                                             </tr>
                                         ))}

@@ -21,7 +21,9 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
         product.images.find((img) => img.is_primary) ?? product.images[0];
 
     const margin =
-        product.cost_price != null ? product.base_price - product.cost_price : null;
+        product.cost_price != null
+            ? product.base_price - product.cost_price
+            : null;
 
     const compareAtDelta =
         product.compare_at_price != null
@@ -37,17 +39,24 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                     actions={
                         <div className="flex items-center gap-2">
                             <Button variant="outline" asChild>
-                                <Link href={ProductController.index.url()}>Back to list</Link>
+                                <Link href={ProductController.index.url()}>
+                                    Back to list
+                                </Link>
                             </Button>
                             <Button asChild>
-                                <Link href={ProductController.edit.url(product)}>Edit</Link>
+                                <Link
+                                    href={ProductController.edit.url(product)}
+                                >
+                                    Edit
+                                </Link>
                             </Button>
                             <Button variant="outline" asChild>
                                 <Link
                                     href={
                                         product.inventory.primary_stock_item_id
                                             ? StockItemController.show.url(
-                                                  product.inventory.primary_stock_item_id,
+                                                  product.inventory
+                                                      .primary_stock_item_id,
                                               )
                                             : `${StockItemController.index.url()}?search=${encodeURIComponent(product.sku)}`
                                     }
@@ -86,7 +95,8 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                     Compare-at gap
                                 </p>
                                 <p className="text-lg font-semibold">
-                                    {compareAtDelta != null && compareAtDelta > 0
+                                    {compareAtDelta != null &&
+                                    compareAtDelta > 0
                                         ? formatMoney(compareAtDelta)
                                         : '—'}
                                 </p>
@@ -113,7 +123,9 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                 <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                     Variant count
                                 </p>
-                                <p className="text-lg font-semibold">{product.variants_count}</p>
+                                <p className="text-lg font-semibold">
+                                    {product.variants_count}
+                                </p>
                                 <p className="text-xs text-muted-foreground">
                                     {product.product_type === 'variable'
                                         ? 'Variant-driven merchandising'
@@ -130,44 +142,62 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                 Inventory
                             </p>
                             <CardTitle className="text-xl">
-                                <StatusBadge status={product.inventory.status} />
+                                <StatusBadge
+                                    status={product.inventory.status}
+                                />
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">On hand</span>
+                                <span className="text-muted-foreground">
+                                    On hand
+                                </span>
                                 <span className="font-medium">
                                     {product.inventory.quantity_on_hand}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Reserved</span>
+                                <span className="text-muted-foreground">
+                                    Reserved
+                                </span>
                                 <span className="font-medium">
                                     {product.inventory.quantity_reserved}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Available</span>
+                                <span className="text-muted-foreground">
+                                    Available
+                                </span>
                                 <span className="font-medium">
                                     {product.inventory.available_quantity}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Reorder at</span>
+                                <span className="text-muted-foreground">
+                                    Reorder at
+                                </span>
                                 <span className="font-medium">
                                     {product.inventory.reorder_level}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Tracking</span>
+                                <span className="text-muted-foreground">
+                                    Tracking
+                                </span>
                                 <span className="font-medium">
-                                    {product.track_inventory ? 'Enabled' : 'Disabled'}
+                                    {product.track_inventory
+                                        ? 'Enabled'
+                                        : 'Disabled'}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Backorders</span>
+                                <span className="text-muted-foreground">
+                                    Backorders
+                                </span>
                                 <span className="font-medium">
-                                    {product.allow_backorders ? 'Allowed' : 'Blocked'}
+                                    {product.allow_backorders
+                                        ? 'Allowed'
+                                        : 'Blocked'}
                                 </span>
                             </div>
                         </CardContent>
@@ -181,27 +211,41 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                             </p>
                             <CardTitle className="text-xl">
                                 {product.published_at
-                                    ? new Date(product.published_at).toLocaleDateString()
+                                    ? new Date(
+                                          product.published_at,
+                                      ).toLocaleDateString()
                                     : 'Not scheduled'}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Type</span>
-                                <span className="font-medium capitalize">{product.product_type}</span>
+                                <span className="text-muted-foreground">
+                                    Type
+                                </span>
+                                <span className="font-medium capitalize">
+                                    {product.product_type}
+                                </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Featured</span>
+                                <span className="text-muted-foreground">
+                                    Featured
+                                </span>
                                 <span className="font-medium">
                                     {product.is_featured ? 'Yes' : 'No'}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Images</span>
-                                <span className="font-medium">{product.images.length}</span>
+                                <span className="text-muted-foreground">
+                                    Images
+                                </span>
+                                <span className="font-medium">
+                                    {product.images.length}
+                                </span>
                             </div>
                             <div className="space-y-2 pt-1">
-                                <span className="text-muted-foreground">Badges</span>
+                                <span className="text-muted-foreground">
+                                    Badges
+                                </span>
                                 <div className="flex flex-wrap gap-2">
                                     {product.badges.length > 0 ? (
                                         product.badges.map((badge) => (
@@ -213,14 +257,15 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-sm font-medium">None</span>
+                                        <span className="text-sm font-medium">
+                                            None
+                                        </span>
                                     )}
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
-
 
                 {/* ── Main content grid ──────────────────────────────────────── */}
                 <div className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
@@ -239,16 +284,28 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                     </p>
                                     <div className="space-y-2 text-sm">
                                         <div>
-                                            <p className="text-muted-foreground">Product name</p>
-                                            <p className="font-medium text-foreground">{product.name}</p>
+                                            <p className="text-muted-foreground">
+                                                Product name
+                                            </p>
+                                            <p className="font-medium text-foreground">
+                                                {product.name}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground">Slug</p>
-                                            <p className="font-mono text-xs text-foreground/80">{product.slug}</p>
+                                            <p className="text-muted-foreground">
+                                                Slug
+                                            </p>
+                                            <p className="font-mono text-xs text-foreground/80">
+                                                {product.slug}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground">SKU</p>
-                                            <p className="font-mono text-xs text-foreground/80">{product.sku}</p>
+                                            <p className="text-muted-foreground">
+                                                SKU
+                                            </p>
+                                            <p className="font-mono text-xs text-foreground/80">
+                                                {product.sku}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -260,17 +317,27 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                     </p>
                                     <div className="space-y-2 text-sm">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-muted-foreground">Brand</span>
-                                            <span className="font-medium">{product.brand_name ?? 'Unassigned'}</span>
+                                            <span className="text-muted-foreground">
+                                                Brand
+                                            </span>
+                                            <span className="font-medium">
+                                                {product.brand_name ??
+                                                    'Unassigned'}
+                                            </span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-muted-foreground">Category</span>
+                                            <span className="text-muted-foreground">
+                                                Category
+                                            </span>
                                             <span className="font-medium">
-                                                {product.category_name ?? 'Unassigned'}
+                                                {product.category_name ??
+                                                    'Unassigned'}
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground">Tags</p>
+                                            <p className="text-muted-foreground">
+                                                Tags
+                                            </p>
                                             <div className="mt-2 flex flex-wrap gap-2">
                                                 {product.tags.length > 0 ? (
                                                     product.tags.map((tag) => (
@@ -282,22 +349,33 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                                         </span>
                                                     ))
                                                 ) : (
-                                                    <span className="text-sm font-medium">No tags</span>
+                                                    <span className="text-sm font-medium">
+                                                        No tags
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground">Collections</p>
+                                            <p className="text-muted-foreground">
+                                                Collections
+                                            </p>
                                             <div className="mt-2 flex flex-wrap gap-2">
-                                                {product.collections.length > 0 ? (
-                                                    product.collections.map((collection) => (
-                                                        <span
-                                                            key={collection.id}
-                                                            className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground"
-                                                        >
-                                                            {collection.name}
-                                                        </span>
-                                                    ))
+                                                {product.collections.length >
+                                                0 ? (
+                                                    product.collections.map(
+                                                        (collection) => (
+                                                            <span
+                                                                key={
+                                                                    collection.id
+                                                                }
+                                                                className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground"
+                                                            >
+                                                                {
+                                                                    collection.name
+                                                                }
+                                                            </span>
+                                                        ),
+                                                    )
                                                 ) : (
                                                     <span className="text-sm font-medium">
                                                         No collections
@@ -330,7 +408,9 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                     </p>
                                     <p className="mt-2 text-2xl font-semibold">
                                         {product.compare_at_price != null
-                                            ? formatMoney(product.compare_at_price)
+                                            ? formatMoney(
+                                                  product.compare_at_price,
+                                              )
                                             : '—'}
                                     </p>
                                 </div>
@@ -339,7 +419,9 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                         Cost price
                                     </p>
                                     <p className="mt-2 text-2xl font-semibold">
-                                        {product.cost_price != null ? formatMoney(product.cost_price) : '—'}
+                                        {product.cost_price != null
+                                            ? formatMoney(product.cost_price)
+                                            : '—'}
                                     </p>
                                 </div>
                             </CardContent>
@@ -385,24 +467,38 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                 {/* Option types */}
                                 <div className="grid gap-3 md:grid-cols-2">
                                     {product.option_types.length > 0 ? (
-                                        product.option_types.map((optionType) => (
-                                            <div
-                                                key={optionType.id}
-                                                className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/80 p-4"
-                                            >
-                                                <p className="text-sm font-semibold">{optionType.name}</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {optionType.values.map((value) => (
-                                                        <Badge key={value.id} variant="secondary">
-                                                            {value.value}
-                                                        </Badge>
-                                                    ))}
+                                        product.option_types.map(
+                                            (optionType) => (
+                                                <div
+                                                    key={optionType.id}
+                                                    className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background/80 p-4"
+                                                >
+                                                    <p className="text-sm font-semibold">
+                                                        {optionType.name}
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {optionType.values.map(
+                                                            (value) => (
+                                                                <Badge
+                                                                    key={
+                                                                        value.id
+                                                                    }
+                                                                    variant="secondary"
+                                                                >
+                                                                    {
+                                                                        value.value
+                                                                    }
+                                                                </Badge>
+                                                            ),
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))
+                                            ),
+                                        )
                                     ) : (
                                         <p className="text-sm text-muted-foreground">
-                                            No product options have been created.
+                                            No product options have been
+                                            created.
                                         </p>
                                     )}
                                 </div>
@@ -419,36 +515,56 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                                     <div className="flex flex-wrap items-center gap-2">
                                                         <Badge
                                                             variant={
-                                                                variant.is_active ? 'default' : 'secondary'
+                                                                variant.is_active
+                                                                    ? 'default'
+                                                                    : 'secondary'
                                                             }
                                                         >
-                                                            {variant.is_active ? 'Active' : 'Inactive'}
+                                                            {variant.is_active
+                                                                ? 'Active'
+                                                                : 'Inactive'}
                                                         </Badge>
-                                                        <p className="font-medium">{variant.name}</p>
+                                                        <p className="font-medium">
+                                                            {variant.name}
+                                                        </p>
                                                         <span className="font-mono text-xs text-muted-foreground">
                                                             {variant.sku}
                                                         </span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
-                                                        {variant.option_values.map((value) => (
-                                                            <Badge key={value.id} variant="outline">
-                                                                {/* null guard: option_type_name can be null */}
-                                                                {value.option_type_name
-                                                                    ? `${value.option_type_name}: `
-                                                                    : ''}
-                                                                {value.value}
-                                                            </Badge>
-                                                        ))}
+                                                        {variant.option_values.map(
+                                                            (value) => (
+                                                                <Badge
+                                                                    key={
+                                                                        value.id
+                                                                    }
+                                                                    variant="outline"
+                                                                >
+                                                                    {/* null guard: option_type_name can be null */}
+                                                                    {value.option_type_name
+                                                                        ? `${value.option_type_name}: `
+                                                                        : ''}
+                                                                    {
+                                                                        value.value
+                                                                    }
+                                                                </Badge>
+                                                            ),
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="text-sm md:text-right">
                                                     <p className="font-semibold">
                                                         {formatMoney(
-                                                            variant.price ?? product.base_price,
+                                                            variant.price ??
+                                                                product.base_price,
                                                         )}
                                                     </p>
                                                     <p className="text-muted-foreground">
-                                                        {variant.inventory.available_quantity} available
+                                                        {
+                                                            variant.inventory
+                                                                .available_quantity
+                                                        }{' '}
+                                                        available
                                                     </p>
                                                 </div>
                                             </div>
@@ -480,25 +596,28 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                         />
                                     ) : (
                                         <div className="flex aspect-4/3 items-center justify-center bg-[radial-gradient(circle_at_top_left,_hsl(var(--primary)/0.12),_transparent_55%),linear-gradient(135deg,_hsl(var(--muted))_0%,_hsl(var(--background))_100%)] px-6 text-center text-sm text-muted-foreground">
-                                            No primary image has been assigned yet.
+                                            No primary image has been assigned
+                                            yet.
                                         </div>
                                     )}
                                 </div>
 
                                 {product.images.length > 1 && (
                                     <div className="grid grid-cols-3 gap-3">
-                                        {product.images.slice(0, 6).map((image) => (
-                                            <div
-                                                key={image.id}
-                                                className="overflow-hidden rounded-2xl border border-border/70 bg-background/80"
-                                            >
-                                                <img
-                                                    src={image.thumb_url}
-                                                    alt={product.name}
-                                                    className="aspect-square w-full object-cover"
-                                                />
-                                            </div>
-                                        ))}
+                                        {product.images
+                                            .slice(0, 6)
+                                            .map((image) => (
+                                                <div
+                                                    key={image.id}
+                                                    className="overflow-hidden rounded-2xl border border-border/70 bg-background/80"
+                                                >
+                                                    <img
+                                                        src={image.thumb_url}
+                                                        alt={product.name}
+                                                        className="aspect-square w-full object-cover"
+                                                    />
+                                                </div>
+                                            ))}
                                     </div>
                                 )}
                             </CardContent>
@@ -509,17 +628,26 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                 {/* ── Reorder alert ───────────────────────────────────────── */}
                 {product.track_inventory &&
                     product.inventory.reorder_level != null &&
-                    product.inventory.available_quantity <= product.inventory.reorder_level && (
-                    <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 dark:border-amber-700/50 dark:bg-amber-950/30">
-                        <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                            ⚠ Stock is low —{' '}
-                            <strong>{product.inventory.available_quantity}</strong> unit
-                            {product.inventory.available_quantity === 1 ? '' : 's'} available,
-                            reorder threshold is{' '}
-                            <strong>{product.inventory.reorder_level}</strong>.
-                        </p>
-                    </div>
-                )}
+                    product.inventory.available_quantity <=
+                        product.inventory.reorder_level && (
+                        <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 dark:border-amber-700/50 dark:bg-amber-950/30">
+                            <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                                ⚠ Stock is low —{' '}
+                                <strong>
+                                    {product.inventory.available_quantity}
+                                </strong>{' '}
+                                unit
+                                {product.inventory.available_quantity === 1
+                                    ? ''
+                                    : 's'}{' '}
+                                available, reorder threshold is{' '}
+                                <strong>
+                                    {product.inventory.reorder_level}
+                                </strong>
+                                .
+                            </p>
+                        </div>
+                    )}
 
                 {/* ── Inline stock management ─────────────────────────────── */}
                 {product.track_inventory && (
@@ -531,7 +659,8 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                                     href={
                                         product.inventory.primary_stock_item_id
                                             ? StockItemController.show.url(
-                                                  product.inventory.primary_stock_item_id,
+                                                  product.inventory
+                                                      .primary_stock_item_id,
                                               )
                                             : StockItemController.index.url()
                                     }
@@ -553,31 +682,55 @@ export default function ProductShowPage({ product, movementTypes }: Props) {
                             {product.variants.length > 0 && (
                                 <div className="flex flex-col gap-6">
                                     {product.variants.map((variant) =>
-                                        variant.inventory.stock_items?.map((si) => (
-                                            <div key={si.id} className="flex flex-col gap-3 rounded-xl border border-border/70 p-4">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <span className="text-sm font-semibold">{variant.name}</span>
-                                                    <span className="font-mono text-xs text-muted-foreground">{variant.sku}</span>
-                                                    {variant.option_values.map((ov) => (
-                                                        <Badge key={ov.id} variant="outline" className="text-xs">
-                                                            {ov.option_type_name ? `${ov.option_type_name}: ` : ''}{ov.value}
-                                                        </Badge>
-                                                    ))}
+                                        variant.inventory.stock_items?.map(
+                                            (si) => (
+                                                <div
+                                                    key={si.id}
+                                                    className="flex flex-col gap-3 rounded-xl border border-border/70 p-4"
+                                                >
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className="text-sm font-semibold">
+                                                            {variant.name}
+                                                        </span>
+                                                        <span className="font-mono text-xs text-muted-foreground">
+                                                            {variant.sku}
+                                                        </span>
+                                                        {variant.option_values.map(
+                                                            (ov) => (
+                                                                <Badge
+                                                                    key={ov.id}
+                                                                    variant="outline"
+                                                                    className="text-xs"
+                                                                >
+                                                                    {ov.option_type_name
+                                                                        ? `${ov.option_type_name}: `
+                                                                        : ''}
+                                                                    {ov.value}
+                                                                </Badge>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                    <StockAdjustPanel
+                                                        stockItem={si}
+                                                        movementTypes={
+                                                            movementTypes
+                                                        }
+                                                        compact={
+                                                            product.variants
+                                                                .length > 3
+                                                        }
+                                                    />
                                                 </div>
-                                                <StockAdjustPanel
-                                                    stockItem={si}
-                                                    movementTypes={movementTypes}
-                                                    compact={product.variants.length > 3}
-                                                />
-                                            </div>
-                                        ))
+                                            ),
+                                        ),
                                     )}
                                 </div>
                             )}
 
                             {product.inventory.stock_item_count === 0 && (
                                 <p className="text-sm text-muted-foreground">
-                                    No stock items have been created for this product yet.
+                                    No stock items have been created for this
+                                    product yet.
                                 </p>
                             )}
                         </CardContent>

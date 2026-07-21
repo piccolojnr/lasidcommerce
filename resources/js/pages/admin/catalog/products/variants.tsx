@@ -4,7 +4,10 @@ import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
-import type { AdminProductOptionType, AdminProductVariant } from '@/types/admin/catalog';
+import type {
+    AdminProductOptionType,
+    AdminProductVariant,
+} from '@/types/admin/catalog';
 import { OptionBuilder } from './_components/option-builder';
 import { VariantMatrix } from './_components/variant-matrix';
 
@@ -37,12 +40,16 @@ export default function ProductVariantsPage({ product, movementTypes }: Props) {
                     actions={
                         <div className="flex items-center gap-2">
                             <Button variant="outline" asChild>
-                                <Link href={ProductController.edit.url(product)}>
+                                <Link
+                                    href={ProductController.edit.url(product)}
+                                >
                                     Back to edit
                                 </Link>
                             </Button>
                             <Button variant="outline" asChild>
-                                <Link href={ProductController.show.url(product)}>
+                                <Link
+                                    href={ProductController.show.url(product)}
+                                >
                                     View product
                                 </Link>
                             </Button>
@@ -54,11 +61,13 @@ export default function ProductVariantsPage({ product, movementTypes }: Props) {
                     {/* Left: option builder */}
                     <div className="space-y-4">
                         <div>
-                            <h2 className="text-lg font-semibold tracking-tight">Option axes</h2>
+                            <h2 className="text-lg font-semibold tracking-tight">
+                                Option axes
+                            </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Each axis (e.g. Size, Color) gets its own set of values. Type
-                                multiple values and press Enter or comma to queue them before
-                                adding.
+                                Each axis (e.g. Size, Color) gets its own set of
+                                values. Type multiple values and press Enter or
+                                comma to queue them before adding.
                             </p>
                         </div>
                         <OptionBuilder
@@ -76,14 +85,21 @@ export default function ProductVariantsPage({ product, movementTypes }: Props) {
                     {/* Right: variant matrix */}
                     <div className="space-y-4">
                         <div>
-                            <h2 className="text-lg font-semibold tracking-tight">Variant matrix</h2>
+                            <h2 className="text-lg font-semibold tracking-tight">
+                                Variant matrix
+                            </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Each row is one sellable SKU. Edit SKUs and prices inline — changes
-                                are saved per-row. Generate all combinations from options, or add
+                                Each row is one sellable SKU. Edit SKUs and
+                                prices inline — changes are saved per-row.
+                                Generate all combinations from options, or add
                                 variants individually.
                             </p>
                         </div>
-                        <VariantMatrix product={product} canGenerate={canGenerate} movementTypes={movementTypes} />
+                        <VariantMatrix
+                            product={product}
+                            canGenerate={canGenerate}
+                            movementTypes={movementTypes}
+                        />
                     </div>
                 </div>
 
@@ -91,20 +107,39 @@ export default function ProductVariantsPage({ product, movementTypes }: Props) {
                 {!hasOptions && product.variants.length === 0 && (
                     <Card className="border-border/70 bg-muted/30">
                         <CardHeader>
-                            <CardTitle className="text-base">How variant management works</CardTitle>
+                            <CardTitle className="text-base">
+                                How variant management works
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-3">
                             <div className="space-y-1">
-                                <p className="font-medium text-foreground">1. Define options</p>
-                                <p>Add axes like Size or Color. Type all values at once — "S, M, L, XL" — and press Add.</p>
+                                <p className="font-medium text-foreground">
+                                    1. Define options
+                                </p>
+                                <p>
+                                    Add axes like Size or Color. Type all values
+                                    at once — "S, M, L, XL" — and press Add.
+                                </p>
                             </div>
                             <div className="space-y-1">
-                                <p className="font-medium text-foreground">2. Generate matrix</p>
-                                <p>Click "Generate matrix" and every valid combination is created automatically with auto-suggested SKUs.</p>
+                                <p className="font-medium text-foreground">
+                                    2. Generate matrix
+                                </p>
+                                <p>
+                                    Click "Generate matrix" and every valid
+                                    combination is created automatically with
+                                    auto-suggested SKUs.
+                                </p>
                             </div>
                             <div className="space-y-1">
-                                <p className="font-medium text-foreground">3. Refine inline</p>
-                                <p>Edit SKUs, prices, and active status directly in the table. Deactivate combinations you don't sell.</p>
+                                <p className="font-medium text-foreground">
+                                    3. Refine inline
+                                </p>
+                                <p>
+                                    Edit SKUs, prices, and active status
+                                    directly in the table. Deactivate
+                                    combinations you don't sell.
+                                </p>
                             </div>
                         </CardContent>
                     </Card>

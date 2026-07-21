@@ -69,7 +69,9 @@ export default function ProductIndexPage({
         filters,
     );
 
-    const activeProducts = products.data.filter((p) => p.status === 'active').length;
+    const activeProducts = products.data.filter(
+        (p) => p.status === 'active',
+    ).length;
     const featuredProducts = products.data.filter((p) => p.is_featured).length;
 
     const activeFilterQuery = Object.fromEntries(
@@ -94,7 +96,7 @@ export default function ProductIndexPage({
                 {/* Stat cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Visible in result
                             </CardTitle>
@@ -109,7 +111,7 @@ export default function ProductIndexPage({
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Active on this page
                             </CardTitle>
@@ -124,7 +126,7 @@ export default function ProductIndexPage({
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Featured on this page
                             </CardTitle>
@@ -147,7 +149,7 @@ export default function ProductIndexPage({
                             <div>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                     <FileSpreadsheet className="size-3.5" />
-                                    <span className="font-semibold uppercase tracking-wide">
+                                    <span className="font-semibold tracking-wide uppercase">
                                         Bulk catalog operations
                                     </span>
                                 </div>
@@ -158,22 +160,28 @@ export default function ProductIndexPage({
                             <div className="flex flex-wrap gap-2">
                                 <Button variant="outline" size="sm" asChild>
                                     <Link
-                                        href={ProductBulkCatalogController.edit.url({
-                                            query: activeFilterQuery,
-                                        })}
+                                        href={ProductBulkCatalogController.edit.url(
+                                            {
+                                                query: activeFilterQuery,
+                                            },
+                                        )}
                                     >
                                         <PencilLine className="mr-1.5 size-3.5" />
                                         Bulk editor
                                     </Link>
                                 </Button>
                                 <Button variant="outline" size="sm" asChild>
-                                    <a href={ProductBulkCatalogController.template.url()}>
+                                    <a
+                                        href={ProductBulkCatalogController.template.url()}
+                                    >
                                         <Download className="mr-1.5 size-3.5" />
                                         Template
                                     </a>
                                 </Button>
                                 <Button variant="outline" size="sm" asChild>
-                                    <a href={ProductBulkCatalogController.exportMethod.url()}>
+                                    <a
+                                        href={ProductBulkCatalogController.exportMethod.url()}
+                                    >
                                         <Download className="mr-1.5 size-3.5" />
                                         Export CSV
                                     </a>
@@ -203,7 +211,9 @@ export default function ProductIndexPage({
                                             type="file"
                                             accept=".csv,text/csv,text/plain"
                                         />
-                                        <FieldError message={errors.catalog_csv} />
+                                        <FieldError
+                                            message={errors.catalog_csv}
+                                        />
                                     </div>
                                     <Button
                                         type="submit"
@@ -224,21 +234,42 @@ export default function ProductIndexPage({
                                 <AlertDescription>
                                     <div className="flex flex-col gap-3">
                                         <div className="flex flex-wrap gap-2">
-                                            <Badge variant="secondary">{importResult.processed} processed</Badge>
-                                            <Badge variant="secondary">{importResult.created} created</Badge>
-                                            <Badge variant="secondary">{importResult.updated} updated</Badge>
-                                            <Badge variant="secondary">{importResult.skipped} skipped</Badge>
-                                            <Badge variant={importResult.failed > 0 ? 'destructive' : 'secondary'}>
+                                            <Badge variant="secondary">
+                                                {importResult.processed}{' '}
+                                                processed
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                {importResult.created} created
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                {importResult.updated} updated
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                {importResult.skipped} skipped
+                                            </Badge>
+                                            <Badge
+                                                variant={
+                                                    importResult.failed > 0
+                                                        ? 'destructive'
+                                                        : 'secondary'
+                                                }
+                                            >
                                                 {importResult.failed} failed
                                             </Badge>
                                         </div>
                                         {importResult.errors.length > 0 && (
                                             <div className="flex flex-col gap-1">
-                                                {importResult.errors.map((err) => (
-                                                    <p key={`${err.row}-${err.message}`} className="text-xs">
-                                                        Row {err.row}: {err.message}
-                                                    </p>
-                                                ))}
+                                                {importResult.errors.map(
+                                                    (err) => (
+                                                        <p
+                                                            key={`${err.row}-${err.message}`}
+                                                            className="text-xs"
+                                                        >
+                                                            Row {err.row}:{' '}
+                                                            {err.message}
+                                                        </p>
+                                                    ),
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -258,26 +289,37 @@ export default function ProductIndexPage({
                     />
                     <Select
                         value={filters.status ?? EMPTY_SENTINEL}
-                        onValueChange={(v) => setFilter('status', v === EMPTY_SENTINEL ? null : v)}
+                        onValueChange={(v) =>
+                            setFilter('status', v === EMPTY_SENTINEL ? null : v)
+                        }
                     >
                         <SelectTrigger className="h-9 w-36">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All statuses</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All statuses
+                            </SelectItem>
                             <SelectItem value="draft">Draft</SelectItem>
                             <SelectItem value="active">Active</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select
                         value={filters.category_id ?? EMPTY_SENTINEL}
-                        onValueChange={(v) => setFilter('category_id', v === EMPTY_SENTINEL ? null : v)}
+                        onValueChange={(v) =>
+                            setFilter(
+                                'category_id',
+                                v === EMPTY_SENTINEL ? null : v,
+                            )
+                        }
                     >
                         <SelectTrigger className="h-9 w-44">
                             <SelectValue placeholder="All categories" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All categories</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All categories
+                            </SelectItem>
                             {categories.map((c) => (
                                 <SelectItem key={c.id} value={String(c.id)}>
                                     {c.name}
@@ -287,13 +329,20 @@ export default function ProductIndexPage({
                     </Select>
                     <Select
                         value={filters.brand_id ?? EMPTY_SENTINEL}
-                        onValueChange={(v) => setFilter('brand_id', v === EMPTY_SENTINEL ? null : v)}
+                        onValueChange={(v) =>
+                            setFilter(
+                                'brand_id',
+                                v === EMPTY_SENTINEL ? null : v,
+                            )
+                        }
                     >
                         <SelectTrigger className="h-9 w-36">
                             <SelectValue placeholder="All brands" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All brands</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All brands
+                            </SelectItem>
                             {brands.map((b) => (
                                 <SelectItem key={b.id} value={String(b.id)}>
                                     {b.name}
@@ -303,13 +352,17 @@ export default function ProductIndexPage({
                     </Select>
                     <Select
                         value={filters.tag_id ?? EMPTY_SENTINEL}
-                        onValueChange={(v) => setFilter('tag_id', v === EMPTY_SENTINEL ? null : v)}
+                        onValueChange={(v) =>
+                            setFilter('tag_id', v === EMPTY_SENTINEL ? null : v)
+                        }
                     >
                         <SelectTrigger className="h-9 w-36">
                             <SelectValue placeholder="All tags" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All tags</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All tags
+                            </SelectItem>
                             {tags.map((t) => (
                                 <SelectItem key={t.id} value={String(t.id)}>
                                     {t.name}
@@ -320,14 +373,19 @@ export default function ProductIndexPage({
                     <Select
                         value={filters.collection_id ?? EMPTY_SENTINEL}
                         onValueChange={(v) =>
-                            setFilter('collection_id', v === EMPTY_SENTINEL ? null : v)
+                            setFilter(
+                                'collection_id',
+                                v === EMPTY_SENTINEL ? null : v,
+                            )
                         }
                     >
                         <SelectTrigger className="h-9 w-44">
                             <SelectValue placeholder="All collections" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All collections</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All collections
+                            </SelectItem>
                             {collections.map((col) => (
                                 <SelectItem key={col.id} value={String(col.id)}>
                                     {col.name}

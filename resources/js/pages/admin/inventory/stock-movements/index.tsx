@@ -46,8 +46,12 @@ export default function StockMovementIndexPage({
         filters,
     );
 
-    const positiveMoves = stockMovements.data.filter((m) => m.stock_delta > 0).length;
-    const negativeMoves = stockMovements.data.filter((m) => m.stock_delta < 0).length;
+    const positiveMoves = stockMovements.data.filter(
+        (m) => m.stock_delta > 0,
+    ).length;
+    const negativeMoves = stockMovements.data.filter(
+        (m) => m.stock_delta < 0,
+    ).length;
 
     return (
         <AdminLayout
@@ -66,7 +70,9 @@ export default function StockMovementIndexPage({
                                 </Link>
                             </Button>
                             <Button variant="ghost" size="sm" asChild>
-                                <Link href={StockMovementController.index.url()}>
+                                <Link
+                                    href={StockMovementController.index.url()}
+                                >
                                     Reset filters
                                 </Link>
                             </Button>
@@ -77,7 +83,7 @@ export default function StockMovementIndexPage({
                 {/* Stat cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Visible in result
                             </CardTitle>
@@ -92,7 +98,7 @@ export default function StockMovementIndexPage({
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Positive adjustments
                             </CardTitle>
@@ -107,7 +113,7 @@ export default function StockMovementIndexPage({
                         </CardContent>
                     </Card>
                     <Card className="border-border/70">
-                        <CardHeader className="pb-1 pt-4">
+                        <CardHeader className="pt-4 pb-1">
                             <CardTitle className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                 Negative adjustments
                             </CardTitle>
@@ -141,7 +147,9 @@ export default function StockMovementIndexPage({
                             <SelectValue placeholder="All movement types" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={EMPTY_SENTINEL}>All movement types</SelectItem>
+                            <SelectItem value={EMPTY_SENTINEL}>
+                                All movement types
+                            </SelectItem>
                             {movementTypes.map((type) => (
                                 <SelectItem key={type} value={type}>
                                     {formatStatus(type)}
@@ -187,7 +195,8 @@ export default function StockMovementIndexPage({
                                             colSpan={7}
                                             className="px-4 py-14 text-center text-sm text-muted-foreground"
                                         >
-                                            No movements match the current filters.
+                                            No movements match the current
+                                            filters.
                                         </td>
                                     </tr>
                                 ) : (
@@ -199,7 +208,9 @@ export default function StockMovementIndexPage({
                                             {/* Movement type + note */}
                                             <td className="px-4 py-3 align-middle">
                                                 <p className="font-medium">
-                                                    {formatStatus(movement.type)}
+                                                    {formatStatus(
+                                                        movement.type,
+                                                    )}
                                                 </p>
                                                 {movement.note && (
                                                     <p className="mt-0.5 max-w-xs truncate text-xs text-muted-foreground">
@@ -211,14 +222,18 @@ export default function StockMovementIndexPage({
                                             {/* Product */}
                                             <td className="px-4 py-3 align-middle">
                                                 <p className="font-medium">
-                                                    {movement.product_name ?? 'Unknown product'}
+                                                    {movement.product_name ??
+                                                        'Unknown product'}
                                                 </p>
                                                 <p className="font-mono text-xs text-muted-foreground">
-                                                    {movement.product_sku ?? 'No SKU'}
+                                                    {movement.product_sku ??
+                                                        'No SKU'}
                                                 </p>
-                                                {(movement.variant_name || movement.variant_sku) && (
+                                                {(movement.variant_name ||
+                                                    movement.variant_sku) && (
                                                     <p className="text-xs text-muted-foreground">
-                                                        {movement.variant_name ?? 'Variant'}
+                                                        {movement.variant_name ??
+                                                            'Variant'}
                                                         {movement.variant_sku
                                                             ? ` · ${movement.variant_sku}`
                                                             : ''}
@@ -232,37 +247,46 @@ export default function StockMovementIndexPage({
                                                     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${
                                                         movement.stock_delta > 0
                                                             ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                            : movement.stock_delta < 0
+                                                            : movement.stock_delta <
+                                                                0
                                                               ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                                                               : 'bg-muted text-muted-foreground'
                                                     }`}
                                                 >
-                                                    {movement.stock_delta > 0 ? (
+                                                    {movement.stock_delta >
+                                                    0 ? (
                                                         <ArrowUp className="size-3" />
-                                                    ) : movement.stock_delta < 0 ? (
+                                                    ) : movement.stock_delta <
+                                                      0 ? (
                                                         <ArrowDown className="size-3" />
                                                     ) : null}
-                                                    {movement.stock_delta > 0 ? '+' : ''}
+                                                    {movement.stock_delta > 0
+                                                        ? '+'
+                                                        : ''}
                                                     {movement.stock_delta}
                                                 </span>
                                             </td>
 
                                             {/* Reference */}
                                             <td className="px-4 py-3 align-middle text-sm text-muted-foreground">
-                                                {movement.reference_type && movement.reference_id
+                                                {movement.reference_type &&
+                                                movement.reference_id
                                                     ? `${movement.reference_type} #${movement.reference_id}`
                                                     : '—'}
                                             </td>
 
                                             {/* Actor */}
                                             <td className="px-4 py-3 align-middle text-sm text-muted-foreground">
-                                                {movement.creator_name ?? 'System'}
+                                                {movement.creator_name ??
+                                                    'System'}
                                             </td>
 
                                             {/* Created */}
                                             <td className="px-4 py-3 align-middle text-sm text-muted-foreground">
                                                 {movement.created_at
-                                                    ? formatDate(movement.created_at)
+                                                    ? formatDate(
+                                                          movement.created_at,
+                                                      )
                                                     : '—'}
                                             </td>
 

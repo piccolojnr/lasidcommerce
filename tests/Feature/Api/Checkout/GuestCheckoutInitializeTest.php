@@ -170,7 +170,7 @@ class GuestCheckoutInitializeTest extends TestCase
             ->assertJsonPath('data.order.status', 'pending')
             ->assertJsonPath('data.payment.authorization_url', 'https://checkout.paystack.com/guest-init');
 
-        $this->assertAuthenticated('customer');
+        $this->assertNotEmpty($response->json('data.token'));
 
         $user = User::where('email', 'guest@example.com')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
@@ -305,11 +305,13 @@ class GuestCheckoutInitializeTest extends TestCase
 
         $orderId = $response->json('errors.order_id');
         $this->assertNotNull($orderId);
-        $this->assertAuthenticated('customer');
+        $token = $response->json('errors.token');
+        $this->assertNotEmpty($token);
 
-        $retryResponse = $this->postJson('/api/v1/payments/initialize', [
-            'order_id' => $orderId,
-        ]);
+        $retryResponse = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/v1/payments/initialize', [
+                'order_id' => $orderId,
+            ]);
 
         $retryResponse->assertOk()
             ->assertJsonPath('data.reference', 'PAY-RETRY-001')

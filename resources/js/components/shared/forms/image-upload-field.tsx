@@ -1,4 +1,12 @@
-import { ArrowDown, ArrowUp, ImagePlus, Sparkles, Star, Trash2, Upload } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowUp,
+    ImagePlus,
+    Sparkles,
+    Star,
+    Trash2,
+    Upload,
+} from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FieldError } from '@/components/shared/forms/field-error';
 import { Button } from '@/components/ui/button';
@@ -47,8 +55,8 @@ export function ImageUploadField({
     const [isDragging, setIsDragging] = useState(false);
 
     // Ordered list of existing image ids — drives display order + sort hidden fields
-    const [orderedIds, setOrderedIds] = useState<number[]>(
-        () => existingImages.map((img) => img.id),
+    const [orderedIds, setOrderedIds] = useState<number[]>(() =>
+        existingImages.map((img) => img.id),
     );
 
     // Which existing image id is the primary (null = default to first visible)
@@ -70,12 +78,17 @@ export function ImageUploadField({
     }, [existingImages]);
 
     const selectedPreviews = useMemo(
-        () => selectedFiles.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
+        () =>
+            selectedFiles.map((file) => ({
+                name: file.name,
+                url: URL.createObjectURL(file),
+            })),
         [selectedFiles],
     );
 
     useEffect(() => {
-        return () => selectedPreviews.forEach((img) => URL.revokeObjectURL(img.url));
+        return () =>
+            selectedPreviews.forEach((img) => URL.revokeObjectURL(img.url));
     }, [selectedPreviews]);
 
     // Keep real file input in sync with our state array
@@ -106,7 +119,8 @@ export function ImageUploadField({
                 current.map((f) => `${f.name}:${f.size}:${f.lastModified}`),
             );
             const unique = files.filter(
-                (f) => !existingKeys.has(`${f.name}:${f.size}:${f.lastModified}`),
+                (f) =>
+                    !existingKeys.has(`${f.name}:${f.size}:${f.lastModified}`),
             );
             const next = [...current, ...unique];
             onQueueChange?.(next.length);
@@ -132,7 +146,8 @@ export function ImageUploadField({
     };
 
     // Effective primary: explicit choice, else fall back to first visible image
-    const effectivePrimaryId = primaryId ?? visibleExistingImages[0]?.id ?? null;
+    const effectivePrimaryId =
+        primaryId ?? visibleExistingImages[0]?.id ?? null;
 
     return (
         <div className="space-y-5">
@@ -145,9 +160,18 @@ export function ImageUploadField({
                         'group block cursor-pointer rounded-lg border border-dashed border-border/80 bg-background p-5 transition hover:border-primary/50 hover:bg-muted/40',
                         isDragging && 'border-primary bg-muted/40',
                     )}
-                    onDragEnter={(e) => { e.preventDefault(); setIsDragging(true); }}
-                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                    onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                    onDragEnter={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                    }}
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                    }}
+                    onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsDragging(false);
+                    }}
                     onDrop={(e) => {
                         e.preventDefault();
                         setIsDragging(false);
@@ -166,16 +190,23 @@ export function ImageUploadField({
                                         : 'Drop product imagery here or click to browse'}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                    Use clean packshots, lifestyle images, or detail shots.
+                                    Use clean packshots, lifestyle images, or
+                                    detail shots.
                                 </p>
                                 {helperText ? (
-                                    <p className="text-xs text-muted-foreground">{helperText}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {helperText}
+                                    </p>
                                 ) : null}
                             </div>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Upload />
-                            <span>{multiple ? 'Multiple images allowed' : 'Single image'}</span>
+                            <span>
+                                {multiple
+                                    ? 'Multiple images allowed'
+                                    : 'Single image'}
+                            </span>
                         </div>
                     </div>
                 </label>
@@ -209,7 +240,8 @@ export function ImageUploadField({
                         {visibleExistingImages.map((image, index) => {
                             const isPrimary = image.id === effectivePrimaryId;
                             const isFirst = index === 0;
-                            const isLast = index === visibleExistingImages.length - 1;
+                            const isLast =
+                                index === visibleExistingImages.length - 1;
 
                             return (
                                 <div
@@ -243,7 +275,9 @@ export function ImageUploadField({
                                                 className="h-7 w-7"
                                                 disabled={isFirst}
                                                 title="Move earlier"
-                                                onClick={() => moveImage(image.id, 'up')}
+                                                onClick={() =>
+                                                    moveImage(image.id, 'up')
+                                                }
                                             >
                                                 <ArrowUp className="size-3.5" />
                                             </Button>
@@ -254,7 +288,9 @@ export function ImageUploadField({
                                                 className="h-7 w-7"
                                                 disabled={isLast}
                                                 title="Move later"
-                                                onClick={() => moveImage(image.id, 'down')}
+                                                onClick={() =>
+                                                    moveImage(image.id, 'down')
+                                                }
                                             >
                                                 <ArrowDown className="size-3.5" />
                                             </Button>
@@ -271,12 +307,22 @@ export function ImageUploadField({
                                                     ? 'text-primary'
                                                     : 'text-muted-foreground hover:text-primary',
                                             )}
-                                            title={isPrimary ? 'Primary image' : 'Set as primary'}
-                                            onClick={() => setPrimaryId(image.id)}
+                                            title={
+                                                isPrimary
+                                                    ? 'Primary image'
+                                                    : 'Set as primary'
+                                            }
+                                            onClick={() =>
+                                                setPrimaryId(image.id)
+                                            }
                                         >
                                             <Star
                                                 className="size-3.5"
-                                                fill={isPrimary ? 'currentColor' : 'none'}
+                                                fill={
+                                                    isPrimary
+                                                        ? 'currentColor'
+                                                        : 'none'
+                                                }
                                             />
                                         </Button>
 
@@ -287,7 +333,9 @@ export function ImageUploadField({
                                             size="icon"
                                             className="h-7 w-7 text-destructive hover:text-destructive"
                                             title="Remove image"
-                                            onClick={() => removeExisting(image.id)}
+                                            onClick={() =>
+                                                removeExisting(image.id)
+                                            }
                                         >
                                             <Trash2 className="size-3.5" />
                                         </Button>
@@ -320,7 +368,11 @@ export function ImageUploadField({
                 />
             ))}
             {effectivePrimaryId != null ? (
-                <input type="hidden" name="primary_image_id" value={String(effectivePrimaryId)} />
+                <input
+                    type="hidden"
+                    name="primary_image_id"
+                    value={String(effectivePrimaryId)}
+                />
             ) : null}
 
             {/* Queued new uploads */}
@@ -328,9 +380,12 @@ export function ImageUploadField({
                 <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
                         <div>
-                            <p className="text-sm font-medium">Queued uploads</p>
+                            <p className="text-sm font-medium">
+                                Queued uploads
+                            </p>
                             <p className="text-xs text-muted-foreground">
-                                {selectedPreviews.length} image{selectedPreviews.length === 1 ? '' : 's'} ready
+                                {selectedPreviews.length} image
+                                {selectedPreviews.length === 1 ? '' : 's'} ready
                                 to upload
                             </p>
                         </div>
@@ -352,11 +407,19 @@ export function ImageUploadField({
                                 key={`${image.name}-${index}`}
                                 className="overflow-hidden rounded-lg border border-border/70 bg-background"
                             >
-                                <img src={image.url} alt="" className="aspect-4/3 w-full object-cover" />
+                                <img
+                                    src={image.url}
+                                    alt=""
+                                    className="aspect-4/3 w-full object-cover"
+                                />
                                 <div className="flex items-center justify-between gap-3 p-3">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-medium">{image.name}</p>
-                                        <p className="text-xs text-muted-foreground">Will be uploaded on save</p>
+                                        <p className="truncate text-sm font-medium">
+                                            {image.name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Will be uploaded on save
+                                        </p>
                                     </div>
                                     <Button
                                         type="button"
@@ -364,7 +427,11 @@ export function ImageUploadField({
                                         size="sm"
                                         className="text-destructive hover:text-destructive"
                                         onClick={() =>
-                                            setSelectedFiles((curr) => curr.filter((_, i) => i !== index))
+                                            setSelectedFiles((curr) =>
+                                                curr.filter(
+                                                    (_, i) => i !== index,
+                                                ),
+                                            )
                                         }
                                     >
                                         <Trash2 />

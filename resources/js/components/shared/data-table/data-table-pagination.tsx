@@ -7,9 +7,7 @@ import type { PaginationLink, PaginationMeta } from '@/types/shared/pagination';
 
 // Accept either a structured meta object or the paginated list objects
 // that Laravel returns from the catalog/inventory controllers.
-type AnyPage<T = unknown> =
-    | AdminCatalogListPage<T>
-    | AdminInventoryListPage<T>;
+type AnyPage<T = unknown> = AdminCatalogListPage<T> | AdminInventoryListPage<T>;
 
 interface DataTablePaginationProps<T = unknown> {
     /** Pass either a PaginationMeta or a full paginated page object */
@@ -18,9 +16,7 @@ interface DataTablePaginationProps<T = unknown> {
     siblingCount?: number;
 }
 
-function isPage<T>(
-    v: PaginationMeta | AnyPage<T>,
-): v is AnyPage<T> {
+function isPage<T>(v: PaginationMeta | AnyPage<T>): v is AnyPage<T> {
     return 'links' in v && Array.isArray((v as AnyPage<T>).links);
 }
 
@@ -79,40 +75,40 @@ export function DataTablePagination<T = unknown>({
                 )}
 
                 {/* Numbered page links */}
-                {pageLinks.length > 0
-                    ? pageLinks.map((link, i) =>
-                          link.url ? (
-                              <Button
-                                  key={i}
-                                  variant={link.active ? 'default' : 'outline'}
-                                  size="sm"
-                                  className="min-w-8"
-                                  asChild
-                              >
-                                  <Link
-                                      href={link.url}
-                                      dangerouslySetInnerHTML={{
-                                          __html: link.label,
-                                      }}
-                                  />
-                              </Button>
-                          ) : (
-                              // Ellipsis separator
-                              <span
-                                  key={i}
-                                  className="px-1 text-muted-foreground"
-                                  dangerouslySetInnerHTML={{
-                                      __html: link.label,
-                                  }}
-                              />
-                          ),
-                      )
-                    : // Fallback: plain "Page X of Y" when no links array
-                      (
-                          <span className="px-2 text-muted-foreground">
-                              Page {currentPage} of {lastPage}
-                          </span>
-                      )}
+                {pageLinks.length > 0 ? (
+                    pageLinks.map((link, i) =>
+                        link.url ? (
+                            <Button
+                                key={i}
+                                variant={link.active ? 'default' : 'outline'}
+                                size="sm"
+                                className="min-w-8"
+                                asChild
+                            >
+                                <Link
+                                    href={link.url}
+                                    dangerouslySetInnerHTML={{
+                                        __html: link.label,
+                                    }}
+                                />
+                            </Button>
+                        ) : (
+                            // Ellipsis separator
+                            <span
+                                key={i}
+                                className="px-1 text-muted-foreground"
+                                dangerouslySetInnerHTML={{
+                                    __html: link.label,
+                                }}
+                            />
+                        ),
+                    )
+                ) : (
+                    // Fallback: plain "Page X of Y" when no links array
+                    <span className="px-2 text-muted-foreground">
+                        Page {currentPage} of {lastPage}
+                    </span>
+                )}
 
                 {/* Next */}
                 {nextLink?.url ? (

@@ -41,14 +41,14 @@ export default function ProductEditPage({
                     actions={
                         <div className="flex items-center gap-2">
                             <Button variant="outline" asChild>
-                                <Link href={ProductController.show.url(product)}>
+                                <Link
+                                    href={ProductController.show.url(product)}
+                                >
                                     Back to product
                                 </Link>
                             </Button>
                             <Button variant="outline" asChild>
-                                <Link href={variantUrl}>
-                                    Manage variants
-                                </Link>
+                                <Link href={variantUrl}>Manage variants</Link>
                             </Button>
                         </div>
                     }
@@ -74,9 +74,7 @@ export default function ProductEditPage({
                             </p>
                         </div>
                         <Button asChild>
-                            <Link href={variantUrl}>
-                                Manage variants
-                            </Link>
+                            <Link href={variantUrl}>Manage variants</Link>
                         </Button>
                     </CardHeader>
                     {product.option_types.length > 0 && (
@@ -86,7 +84,9 @@ export default function ProductEditPage({
                                     key={ot.id}
                                     className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-4 py-2"
                                 >
-                                    <span className="text-sm font-medium">{ot.name}:</span>
+                                    <span className="text-sm font-medium">
+                                        {ot.name}:
+                                    </span>
                                     {ot.values.map((v) => (
                                         <Badge key={v.id} variant="secondary">
                                             {v.value}

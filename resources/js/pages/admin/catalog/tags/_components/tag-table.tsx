@@ -84,7 +84,11 @@ export function TagTable({ tags }: { tags: AdminTag[] }) {
                                     {/* Status */}
                                     <td className="px-4 py-3 align-middle">
                                         <StatusBadge
-                                            status={tag.is_active ? 'active' : 'inactive'}
+                                            status={
+                                                tag.is_active
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            }
                                         />
                                     </td>
 
@@ -105,9 +109,15 @@ export function TagTable({ tags }: { tags: AdminTag[] }) {
                                                 asChild
                                                 title="View"
                                             >
-                                                <Link href={TagController.show.url(tag)}>
+                                                <Link
+                                                    href={TagController.show.url(
+                                                        tag,
+                                                    )}
+                                                >
                                                     <Eye className="size-4" />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -117,9 +127,15 @@ export function TagTable({ tags }: { tags: AdminTag[] }) {
                                                 asChild
                                                 title="Edit"
                                             >
-                                                <Link href={TagController.edit.url(tag)}>
+                                                <Link
+                                                    href={TagController.edit.url(
+                                                        tag,
+                                                    )}
+                                                >
                                                     <Pencil className="size-4" />
-                                                    <span className="sr-only">Edit</span>
+                                                    <span className="sr-only">
+                                                        Edit
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -127,10 +143,14 @@ export function TagTable({ tags }: { tags: AdminTag[] }) {
                                                 size="icon"
                                                 className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 title="Delete"
-                                                onClick={() => handleDelete(tag)}
+                                                onClick={() =>
+                                                    handleDelete(tag)
+                                                }
                                             >
                                                 <Trash2 className="size-4" />
-                                                <span className="sr-only">Delete</span>
+                                                <span className="sr-only">
+                                                    Delete
+                                                </span>
                                             </Button>
                                         </div>
                                     </td>

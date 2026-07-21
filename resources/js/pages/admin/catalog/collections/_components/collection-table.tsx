@@ -7,14 +7,19 @@ import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
 import type { AdminCollection } from '@/types/admin/catalog';
 
-export function CollectionTable({ collections }: { collections: AdminCollection[] }) {
+export function CollectionTable({
+    collections,
+}: {
+    collections: AdminCollection[];
+}) {
     const { confirmDialog, requestConfirm } = useConfirmDialog();
 
     if (collections.length === 0) {
         return (
             <div className="rounded-lg border bg-background px-6 py-14 text-center">
                 <p className="text-sm text-muted-foreground">
-                    No collections yet. Create one to curate a merchandising rail.
+                    No collections yet. Create one to curate a merchandising
+                    rail.
                 </p>
             </div>
         );
@@ -70,7 +75,9 @@ export function CollectionTable({ collections }: { collections: AdminCollection[
                                     {/* Collection name + slug */}
                                     <td className="px-4 py-3 align-middle">
                                         <Link
-                                            href={CollectionController.show.url(collection)}
+                                            href={CollectionController.show.url(
+                                                collection,
+                                            )}
                                             className="font-medium hover:underline"
                                         >
                                             {collection.name}
@@ -88,20 +95,24 @@ export function CollectionTable({ collections }: { collections: AdminCollection[
                                     {/* Status */}
                                     <td className="px-4 py-3 align-middle">
                                         <StatusBadge
-                                            status={collection.is_active ? 'active' : 'inactive'}
+                                            status={
+                                                collection.is_active
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            }
                                         />
                                     </td>
 
                                     {/* Sort order pill */}
                                     <td className="px-4 py-3 text-center align-middle">
-                                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
                                             #{collection.sort_order}
                                         </span>
                                     </td>
 
                                     {/* Products count */}
                                     <td className="px-4 py-3 text-center align-middle">
-                                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
                                             {collection.products_count}
                                         </span>
                                     </td>
@@ -116,9 +127,15 @@ export function CollectionTable({ collections }: { collections: AdminCollection[
                                                 asChild
                                                 title="View"
                                             >
-                                                <Link href={CollectionController.show.url(collection)}>
+                                                <Link
+                                                    href={CollectionController.show.url(
+                                                        collection,
+                                                    )}
+                                                >
                                                     <Eye className="size-4" />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -128,9 +145,15 @@ export function CollectionTable({ collections }: { collections: AdminCollection[
                                                 asChild
                                                 title="Edit"
                                             >
-                                                <Link href={CollectionController.edit.url(collection)}>
+                                                <Link
+                                                    href={CollectionController.edit.url(
+                                                        collection,
+                                                    )}
+                                                >
                                                     <Pencil className="size-4" />
-                                                    <span className="sr-only">Edit</span>
+                                                    <span className="sr-only">
+                                                        Edit
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -138,10 +161,14 @@ export function CollectionTable({ collections }: { collections: AdminCollection[
                                                 size="icon"
                                                 className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 title="Delete"
-                                                onClick={() => handleDelete(collection)}
+                                                onClick={() =>
+                                                    handleDelete(collection)
+                                                }
                                             >
                                                 <Trash2 className="size-4" />
-                                                <span className="sr-only">Delete</span>
+                                                <span className="sr-only">
+                                                    Delete
+                                                </span>
                                             </Button>
                                         </div>
                                     </td>

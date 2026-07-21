@@ -83,12 +83,14 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                             }}
                                         >
                                             {category.depth > 0 && (
-                                                <span className="select-none text-muted-foreground/60">
+                                                <span className="text-muted-foreground/60 select-none">
                                                     └
                                                 </span>
                                             )}
                                             <Link
-                                                href={CategoryController.show.url(category)}
+                                                href={CategoryController.show.url(
+                                                    category,
+                                                )}
                                                 className="font-medium hover:underline"
                                             >
                                                 {category.name}
@@ -109,7 +111,9 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                     {/* Parent */}
                                     <td className="px-4 py-3 align-middle text-sm text-muted-foreground">
                                         {category.parent_name ?? (
-                                            <span className="italic opacity-50">Root</span>
+                                            <span className="italic opacity-50">
+                                                Root
+                                            </span>
                                         )}
                                     </td>
 
@@ -123,7 +127,11 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                     {/* Status */}
                                     <td className="px-4 py-3 align-middle">
                                         <StatusBadge
-                                            status={category.is_active ? 'active' : 'inactive'}
+                                            status={
+                                                category.is_active
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            }
                                         />
                                     </td>
 
@@ -137,9 +145,15 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                                 asChild
                                                 title="View"
                                             >
-                                                <Link href={CategoryController.show.url(category)}>
+                                                <Link
+                                                    href={CategoryController.show.url(
+                                                        category,
+                                                    )}
+                                                >
                                                     <Eye className="size-4" />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -149,9 +163,15 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                                 asChild
                                                 title="Edit"
                                             >
-                                                <Link href={CategoryController.edit.url(category)}>
+                                                <Link
+                                                    href={CategoryController.edit.url(
+                                                        category,
+                                                    )}
+                                                >
                                                     <Pencil className="size-4" />
-                                                    <span className="sr-only">Edit</span>
+                                                    <span className="sr-only">
+                                                        Edit
+                                                    </span>
                                                 </Link>
                                             </Button>
                                             <Button
@@ -159,10 +179,14 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                                 size="icon"
                                                 className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 title="Delete"
-                                                onClick={() => handleDelete(category)}
+                                                onClick={() =>
+                                                    handleDelete(category)
+                                                }
                                             >
                                                 <Trash2 className="size-4" />
-                                                <span className="sr-only">Delete</span>
+                                                <span className="sr-only">
+                                                    Delete
+                                                </span>
                                             </Button>
                                         </div>
                                     </td>

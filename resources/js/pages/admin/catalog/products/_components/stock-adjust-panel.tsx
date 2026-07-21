@@ -32,13 +32,24 @@ interface StockAdjustPanelProps {
 
 // ─── Movement type labels ─────────────────────────────────────────────────────
 
-const TYPE_META: Record<string, { label: string; delta: 1 | -1; color: string }> = {
-    restock:          { label: 'Restock',         delta: 1,  color: 'text-emerald-600' },
-    return:           { label: 'Return',           delta: 1,  color: 'text-emerald-600' },
-    correction_add:   { label: 'Correction (add)', delta: 1,  color: 'text-emerald-600' },
-    damage:           { label: 'Damage',           delta: -1, color: 'text-red-500' },
-    shrinkage:        { label: 'Shrinkage',        delta: -1, color: 'text-red-500' },
-    correction_remove:{ label: 'Correction (remove)', delta: -1, color: 'text-red-500' },
+const TYPE_META: Record<
+    string,
+    { label: string; delta: 1 | -1; color: string }
+> = {
+    restock: { label: 'Restock', delta: 1, color: 'text-emerald-600' },
+    return: { label: 'Return', delta: 1, color: 'text-emerald-600' },
+    correction_add: {
+        label: 'Correction (add)',
+        delta: 1,
+        color: 'text-emerald-600',
+    },
+    damage: { label: 'Damage', delta: -1, color: 'text-red-500' },
+    shrinkage: { label: 'Shrinkage', delta: -1, color: 'text-red-500' },
+    correction_remove: {
+        label: 'Correction (remove)',
+        delta: -1,
+        color: 'text-red-500',
+    },
 };
 
 function typeLabel(type: string): string {
@@ -54,9 +65,17 @@ function statusBadge(available: number, reorderLevel: number | null) {
         return <Badge variant="destructive">Out of stock</Badge>;
     }
     if (reorderLevel != null && available <= reorderLevel) {
-        return <Badge className="bg-amber-100 text-amber-800 border-amber-300">Low stock</Badge>;
+        return (
+            <Badge className="border-amber-300 bg-amber-100 text-amber-800">
+                Low stock
+            </Badge>
+        );
     }
-    return <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">In stock</Badge>;
+    return (
+        <Badge className="border-emerald-300 bg-emerald-100 text-emerald-800">
+            In stock
+        </Badge>
+    );
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -76,10 +95,15 @@ export function StockAdjustPanel({
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                     {label && (
-                        <span className="font-medium text-foreground">{label}</span>
+                        <span className="font-medium text-foreground">
+                            {label}
+                        </span>
                     )}
                     <span className="text-muted-foreground">
-                        <span className="font-semibold text-foreground">{stockItem.available_quantity}</span> available
+                        <span className="font-semibold text-foreground">
+                            {stockItem.available_quantity}
+                        </span>{' '}
+                        available
                     </span>
                     <span className="text-muted-foreground">
                         {stockItem.quantity_on_hand} on hand
@@ -94,7 +118,10 @@ export function StockAdjustPanel({
                             reorder at {stockItem.reorder_level}
                         </span>
                     )}
-                    {statusBadge(stockItem.available_quantity, stockItem.reorder_level)}
+                    {statusBadge(
+                        stockItem.available_quantity,
+                        stockItem.reorder_level,
+                    )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -139,7 +166,10 @@ export function StockAdjustPanel({
                                 {/* Type */}
                                 <div className="flex flex-col gap-1.5">
                                     <Label>Type</Label>
-                                    <Select value={type} onValueChange={setType}>
+                                    <Select
+                                        value={type}
+                                        onValueChange={setType}
+                                    >
                                         <SelectTrigger className="h-9 rounded-lg">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -151,13 +181,19 @@ export function StockAdjustPanel({
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <input type="hidden" name="type" value={type} />
+                                    <input
+                                        type="hidden"
+                                        name="type"
+                                        value={type}
+                                    />
                                     <FieldError message={errors.type} />
                                 </div>
 
                                 {/* Quantity */}
                                 <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor={`qty-${stockItem.id}`}>Quantity</Label>
+                                    <Label htmlFor={`qty-${stockItem.id}`}>
+                                        Quantity
+                                    </Label>
                                     <Input
                                         id={`qty-${stockItem.id}`}
                                         name="quantity"
@@ -171,7 +207,9 @@ export function StockAdjustPanel({
 
                                 {/* Note */}
                                 <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor={`note-${stockItem.id}`}>Note (optional)</Label>
+                                    <Label htmlFor={`note-${stockItem.id}`}>
+                                        Note (optional)
+                                    </Label>
                                     <Input
                                         id={`note-${stockItem.id}`}
                                         name="note"
@@ -184,17 +222,29 @@ export function StockAdjustPanel({
 
                             {/* Direction indicator */}
                             <div className="flex items-center justify-between gap-3">
-                                <div className={cn(
-                                    'flex items-center gap-1.5 text-sm font-medium',
-                                    TYPE_META[type]?.delta === 1 ? 'text-emerald-600' : 'text-red-500',
-                                )}>
+                                <div
+                                    className={cn(
+                                        'flex items-center gap-1.5 text-sm font-medium',
+                                        TYPE_META[type]?.delta === 1
+                                            ? 'text-emerald-600'
+                                            : 'text-red-500',
+                                    )}
+                                >
+                                    {TYPE_META[type]?.delta === 1 ? (
+                                        <Plus className="size-3.5" />
+                                    ) : (
+                                        <Minus className="size-3.5" />
+                                    )}
                                     {TYPE_META[type]?.delta === 1
-                                        ? <Plus className="size-3.5" />
-                                        : <Minus className="size-3.5" />
-                                    }
-                                    {TYPE_META[type]?.delta === 1 ? 'Adds to' : 'Removes from'} stock
+                                        ? 'Adds to'
+                                        : 'Removes from'}{' '}
+                                    stock
                                 </div>
-                                <Button type="submit" size="sm" disabled={processing}>
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    disabled={processing}
+                                >
                                     {processing ? 'Saving…' : 'Record'}
                                 </Button>
                             </div>
@@ -213,27 +263,46 @@ export function StockAdjustPanel({
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-border/60 bg-muted/40">
-                                    <th className="px-4 py-2.5 text-left font-medium">Type</th>
-                                    <th className="px-4 py-2.5 text-right font-medium">Change</th>
-                                    <th className="px-4 py-2.5 text-left font-medium">Note</th>
-                                    <th className="px-4 py-2.5 text-left font-medium">By</th>
-                                    <th className="px-4 py-2.5 text-right font-medium">When</th>
+                                    <th className="px-4 py-2.5 text-left font-medium">
+                                        Type
+                                    </th>
+                                    <th className="px-4 py-2.5 text-right font-medium">
+                                        Change
+                                    </th>
+                                    <th className="px-4 py-2.5 text-left font-medium">
+                                        Note
+                                    </th>
+                                    <th className="px-4 py-2.5 text-left font-medium">
+                                        By
+                                    </th>
+                                    <th className="px-4 py-2.5 text-right font-medium">
+                                        When
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {stockItem.movements.map((m) => (
-                                    <tr key={m.id} className="border-b border-border/40 last:border-0">
+                                    <tr
+                                        key={m.id}
+                                        className="border-b border-border/40 last:border-0"
+                                    >
                                         <td className="px-4 py-2.5">
                                             <span className="text-xs font-medium text-foreground">
                                                 {typeLabel(m.type)}
                                             </span>
                                         </td>
-                                        <td className={cn('px-4 py-2.5 text-right font-semibold', deltaColor(m.stock_delta))}>
+                                        <td
+                                            className={cn(
+                                                'px-4 py-2.5 text-right font-semibold',
+                                                deltaColor(m.stock_delta),
+                                            )}
+                                        >
                                             <span className="flex items-center justify-end gap-0.5">
-                                                {m.stock_delta > 0
-                                                    ? <ArrowUp className="size-3" />
-                                                    : <ArrowDown className="size-3" />
-                                                }
+                                                {m.stock_delta > 0 ? (
+                                                    <ArrowUp className="size-3" />
+                                                ) : (
+                                                    <ArrowDown className="size-3" />
+                                                )}
                                                 {Math.abs(m.stock_delta)}
                                             </span>
                                         </td>
@@ -245,7 +314,9 @@ export function StockAdjustPanel({
                                         </td>
                                         <td className="px-4 py-2.5 text-right text-muted-foreground">
                                             {m.created_at
-                                                ? new Date(m.created_at).toLocaleDateString()
+                                                ? new Date(
+                                                      m.created_at,
+                                                  ).toLocaleDateString()
                                                 : '—'}
                                         </td>
                                     </tr>
@@ -257,7 +328,9 @@ export function StockAdjustPanel({
             )}
 
             {!compact && stockItem.movements.length === 0 && (
-                <p className="text-sm text-muted-foreground">No movements recorded yet.</p>
+                <p className="text-sm text-muted-foreground">
+                    No movements recorded yet.
+                </p>
             )}
         </div>
     );

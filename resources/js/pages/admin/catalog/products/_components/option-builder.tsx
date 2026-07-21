@@ -50,7 +50,7 @@ function TagInput({
 
     return (
         <div
-            className="flex min-h-10 min-w-0 flex-wrap items-center gap-1.5 rounded-xl border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring cursor-text"
+            className="flex min-h-10 min-w-0 cursor-text flex-wrap items-center gap-1.5 rounded-xl border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring"
             onClick={() => inputRef.current?.focus()}
         >
             {values.map((v) => (
@@ -86,20 +86,28 @@ function TagInput({
 
 // ─── Existing option type card ────────────────────────────────────────────────
 
-function ExistingOptionCard({ optionType }: { optionType: AdminProductOptionType }) {
+function ExistingOptionCard({
+    optionType,
+}: {
+    optionType: AdminProductOptionType;
+}) {
     const [pendingValues, setPendingValues] = useState<string[]>([]);
 
     return (
         <Card className="border-border/70">
             <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
                 <div className="space-y-1.5">
-                    <CardTitle className="text-base">{optionType.name}</CardTitle>
+                    <CardTitle className="text-base">
+                        {optionType.name}
+                    </CardTitle>
                     {/* Existing values — click × to delete */}
                     <div className="flex flex-wrap gap-1.5">
                         {optionType.values.map((v) => (
                             <Form
                                 key={v.id}
-                                {...ProductOptionValueController.destroy.form.delete(v)}
+                                {...ProductOptionValueController.destroy.form.delete(
+                                    v,
+                                )}
                                 options={{ preserveScroll: true }}
                             >
                                 <button
@@ -113,16 +121,25 @@ function ExistingOptionCard({ optionType }: { optionType: AdminProductOptionType
                             </Form>
                         ))}
                         {optionType.values.length === 0 && (
-                            <span className="text-xs text-muted-foreground">No values yet</span>
+                            <span className="text-xs text-muted-foreground">
+                                No values yet
+                            </span>
                         )}
                     </div>
                 </div>
                 {/* Delete entire option type */}
                 <Form
-                    {...ProductOptionTypeController.destroy.form.delete(optionType)}
+                    {...ProductOptionTypeController.destroy.form.delete(
+                        optionType,
+                    )}
                     options={{ preserveScroll: true }}
                 >
-                    <Button type="submit" variant="ghost" size="icon" className="shrink-0">
+                    <Button
+                        type="submit"
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0"
+                    >
                         <Trash2 className="size-4" />
                         <span className="sr-only">Delete option type</span>
                     </Button>
@@ -132,7 +149,9 @@ function ExistingOptionCard({ optionType }: { optionType: AdminProductOptionType
             <CardContent className="pt-0">
                 {/* Add values in bulk via tag-input → sends values[] array */}
                 <Form
-                    {...ProductOptionValueController.store.form.post(optionType)}
+                    {...ProductOptionValueController.store.form.post(
+                        optionType,
+                    )}
                     options={{ preserveScroll: true }}
                     onSuccess={() => setPendingValues([])}
                     className="flex gap-2"
@@ -140,16 +159,25 @@ function ExistingOptionCard({ optionType }: { optionType: AdminProductOptionType
                     {({ errors }) => (
                         <>
                             {pendingValues.map((val, i) => (
-                                <input key={i} type="hidden" name="values[]" value={val} />
+                                <input
+                                    key={i}
+                                    type="hidden"
+                                    name="values[]"
+                                    value={val}
+                                />
                             ))}
-                            <div className="flex flex-1 min-w-0 gap-2">
+                            <div className="flex min-w-0 flex-1 gap-2">
                                 <div className="min-w-0 flex-1">
                                     <TagInput
                                         values={pendingValues}
                                         onChange={setPendingValues}
                                         placeholder="Type values, press Enter or comma…"
                                     />
-                                    <FieldError message={errors.value ?? errors['values.0']} />
+                                    <FieldError
+                                        message={
+                                            errors.value ?? errors['values.0']
+                                        }
+                                    />
                                 </div>
                                 <Button
                                     type="submit"
@@ -158,7 +186,9 @@ function ExistingOptionCard({ optionType }: { optionType: AdminProductOptionType
                                     className="self-start"
                                 >
                                     <Plus className="size-4" />
-                                    {pendingValues.length > 1 ? `Add ${pendingValues.length}` : 'Add'}
+                                    {pendingValues.length > 1
+                                        ? `Add ${pendingValues.length}`
+                                        : 'Add'}
                                 </Button>
                             </div>
                         </>
@@ -184,7 +214,9 @@ export function OptionBuilder({ product, optionTypes }: OptionBuilderProps) {
 
             {/* Add a new option type (with optional bulk values) */}
             <Form
-                {...ProductVariantMatrixController.storeOptionType.form.post(product)}
+                {...ProductVariantMatrixController.storeOptionType.form.post(
+                    product,
+                )}
                 options={{ preserveScroll: true }}
                 onSuccess={() => {
                     setNewName('');
@@ -195,17 +227,26 @@ export function OptionBuilder({ product, optionTypes }: OptionBuilderProps) {
                 {({ errors }) => (
                     <>
                         {newValues.map((val, i) => (
-                            <input key={i} type="hidden" name="values[]" value={val} />
+                            <input
+                                key={i}
+                                type="hidden"
+                                name="values[]"
+                                value={val}
+                            />
                         ))}
                         <div className="flex flex-col gap-3">
                             <div className="grid gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
                                 <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor="new-option-name">Option name</Label>
+                                    <Label htmlFor="new-option-name">
+                                        Option name
+                                    </Label>
                                     <Input
                                         id="new-option-name"
                                         name="name"
                                         value={newName}
-                                        onChange={(e) => setNewName(e.target.value)}
+                                        onChange={(e) =>
+                                            setNewName(e.target.value)
+                                        }
                                         placeholder="Size, Color, Material…"
                                         className="h-10 rounded-xl"
                                     />
@@ -218,12 +259,19 @@ export function OptionBuilder({ product, optionTypes }: OptionBuilderProps) {
                                         onChange={setNewValues}
                                         placeholder="S, M, L — type and press Enter or comma"
                                     />
-                                    <FieldError message={errors['values.0'] ?? errors.values} />
+                                    <FieldError
+                                        message={
+                                            errors['values.0'] ?? errors.values
+                                        }
+                                    />
                                 </div>
                             </div>
                             <div className="flex justify-end">
-                                <Button type="submit" disabled={!newName.trim()}>
-                                    <Plus className="size-4 mr-1" />
+                                <Button
+                                    type="submit"
+                                    disabled={!newName.trim()}
+                                >
+                                    <Plus className="mr-1 size-4" />
                                     Add option
                                 </Button>
                             </div>

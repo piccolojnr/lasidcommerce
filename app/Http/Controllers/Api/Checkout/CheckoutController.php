@@ -218,6 +218,7 @@ class CheckoutController extends Controller
                 'Checkout was created, but payment initialization failed.',
                 [
                     'order_id' => $result['order']->id,
+                    'token' => $token,
                     'payment' => $result['payment_error'],
                 ],
                 Response::HTTP_BAD_GATEWAY,

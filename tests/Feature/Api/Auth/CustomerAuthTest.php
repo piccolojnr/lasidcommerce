@@ -27,17 +27,6 @@ class CustomerAuthTest extends TestCase
             ->assertJsonPath('data.user', null);
     }
 
-    public function test_csrf_cookie_endpoint_sets_storefront_csrf_cookie(): void
-    {
-        $response = $this->getJson('/api/v1/auth/csrf-cookie');
-
-        $response->assertOk()
-            ->assertJsonPath('data.csrf_cookie', config('storefront.csrf_cookie'))
-            ->assertJsonPath('data.csrf_header', config('storefront.csrf_header'))
-            ->assertCookie(config('storefront.csrf_cookie'))
-            ->assertCookie(config('storefront.session_cookie'));
-    }
-
     public function test_magic_link_request_sends_notification_for_customer_account(): void
     {
         Notification::fake();
@@ -88,11 +77,10 @@ class CustomerAuthTest extends TestCase
         Notification::assertNothingSent();
     }
 
-    public function test_magic_link_verification_creates_customer_logs_in_and_adopts_guest_cart(): void
+    public function test_magic_link_verification_creates_customer_and_adopts_guest_cart(): void
     {
         Notification::fake();
         config()->set('notifications.internal.recipients', ['ops@example.com']);
-
         config()->set('storefront.url', 'http://shop.example.test');
 
         $guestCart = Cart::factory()->create([
@@ -115,18 +103,25 @@ class CustomerAuthTest extends TestCase
             'redirect_to' => '/account/orders',
         ])->assertOk();
 
-        $verifyUrl = null;
+        $plainToken = null;
 
-        Notification::assertSentOnDemand(CustomerMagicLinkNotification::class, function (CustomerMagicLinkNotification $notification) use (&$verifyUrl) {
-            $verifyUrl = $notification->verifyUrl;
+        Notification::assertSentOnDemand(CustomerMagicLinkNotification::class, function (CustomerMagicLinkNotification $notification) use (&$plainToken) {
+            $url = parse_url($notification->verifyUrl);
+            parse_str($url['query'] ?? '', $params);
+            $plainToken = $params['token'] ?? null;
 
             return true;
         });
 
-        $response = $this->get($verifyUrl);
+        $this->assertNotNull($plainToken);
 
-        $response->assertRedirect('http://shop.example.test/account/orders');
-        $this->assertAuthenticated('customer');
+        $response = $this->getJson('/api/v1/auth/magic-link/verify?token='.$plainToken);
+
+        $response->assertOk()
+            ->assertJsonPath('data.user.email', 'new-customer@example.com')
+            ->assertJsonStructure(['data' => ['token', 'user', 'redirect_to', 'was_created']]);
+
+        $this->assertNotEmpty($response->json('data.token'));
 
         $user = User::where('email', 'new-customer@example.com')->firstOrFail();
         $user->refresh();
@@ -154,19 +149,25 @@ class CustomerAuthTest extends TestCase
             'email' => 'repeat@example.com',
         ])->assertOk();
 
-        $verifyUrl = null;
+        $plainToken = null;
 
-        Notification::assertSentOnDemand(CustomerMagicLinkNotification::class, function (CustomerMagicLinkNotification $notification) use (&$verifyUrl) {
-            $verifyUrl = $notification->verifyUrl;
+        Notification::assertSentOnDemand(CustomerMagicLinkNotification::class, function (CustomerMagicLinkNotification $notification) use (&$plainToken) {
+            $url = parse_url($notification->verifyUrl);
+            parse_str($url['query'] ?? '', $params);
+            $plainToken = $params['token'] ?? null;
 
             return true;
         });
 
-        $this->get($verifyUrl)->assertRedirect('http://shop.example.test/account');
-        $this->get($verifyUrl)->assertRedirect('http://shop.example.test/auth/login?auth_error=invalid_or_expired_link');
+        $this->assertNotNull($plainToken);
+
+        $this->getJson('/api/v1/auth/magic-link/verify?token='.$plainToken)->assertOk();
+        $this->getJson('/api/v1/auth/magic-link/verify?token='.$plainToken)
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.error_code', 'invalid_or_expired_link');
     }
 
-    public function test_password_login_merges_guest_cart_into_existing_customer_cart(): void
+    public function test_password_login_returns_token_and_merges_guest_cart(): void
     {
         $user = User::factory()->create([
             'email' => 'customer@example.com',
@@ -201,14 +202,14 @@ class CustomerAuthTest extends TestCase
             'line_total' => 4000,
         ]);
 
-        $this->postJson('/api/v1/auth/password/login', [
+        $response = $this->postJson('/api/v1/auth/password/login', [
             'email' => $user->email,
             'password' => 'password',
             'cart_token' => 'merge-me',
         ])->assertOk()
             ->assertJsonPath('data.authenticated', true);
 
-        $this->assertAuthenticated('customer');
+        $this->assertNotEmpty($response->json('data.token'));
         $this->assertSame('merged', $guestCart->fresh()->status);
         $this->assertSame(5000, $userCart->fresh()->total_amount);
     }

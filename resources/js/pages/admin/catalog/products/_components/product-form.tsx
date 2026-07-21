@@ -128,9 +128,9 @@ export function ProductForm({
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
         product?.tags.map((tag) => String(tag.id)) ?? [],
     );
-    const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>(
-        product?.collections.map((collection) => String(collection.id)) ?? [],
-    );
+    const [selectedCollectionIds, setSelectedCollectionIds] = useState<
+        string[]
+    >(product?.collections.map((collection) => String(collection.id)) ?? []);
 
     // ── Price state ──────────────────────────────────────────────────────────
     const [basePrice, setBasePrice] = useState(
@@ -151,13 +151,13 @@ export function ProductForm({
         categories.find((item) => String(item.id) === categoryId)?.name ??
         'Unassigned';
     const selectedBrand =
-        brands.find((item) => String(item.id) === brandId)?.name ?? 'Unassigned';
+        brands.find((item) => String(item.id) === brandId)?.name ??
+        'Unassigned';
 
     const handleNameChange = (value: string) => {
         setName(value);
         if (!slugManual) setSlugValue(slugify(value));
     };
-
 
     return (
         <Form
@@ -171,7 +171,11 @@ export function ProductForm({
                     {/* ── Hidden inputs ──────────────────────────────────── */}
                     <input type="hidden" name="slug" value={slugValue} />
                     <input type="hidden" name="status" value={status} />
-                    <input type="hidden" name="product_type" value={productType} />
+                    <input
+                        type="hidden"
+                        name="product_type"
+                        value={productType}
+                    />
                     <input
                         type="hidden"
                         name="category_id"
@@ -182,17 +186,51 @@ export function ProductForm({
                         name="brand_id"
                         value={brandId === EMPTY_SENTINEL ? '' : brandId}
                     />
-                    <input type="hidden" name="is_featured" value={isFeatured ? '1' : '0'} />
-                    <input type="hidden" name="track_inventory" value={trackInventory ? '1' : '0'} />
-                    <input type="hidden" name="allow_backorders" value={allowBackorders ? '1' : '0'} />
-                    <input type="hidden" name="base_price" value={displayToCents(basePrice)} />
-                    <input type="hidden" name="compare_at_price" value={displayToCents(compareAtPrice)} />
-                    <input type="hidden" name="cost_price" value={displayToCents(costPrice)} />
+                    <input
+                        type="hidden"
+                        name="is_featured"
+                        value={isFeatured ? '1' : '0'}
+                    />
+                    <input
+                        type="hidden"
+                        name="track_inventory"
+                        value={trackInventory ? '1' : '0'}
+                    />
+                    <input
+                        type="hidden"
+                        name="allow_backorders"
+                        value={allowBackorders ? '1' : '0'}
+                    />
+                    <input
+                        type="hidden"
+                        name="base_price"
+                        value={displayToCents(basePrice)}
+                    />
+                    <input
+                        type="hidden"
+                        name="compare_at_price"
+                        value={displayToCents(compareAtPrice)}
+                    />
+                    <input
+                        type="hidden"
+                        name="cost_price"
+                        value={displayToCents(costPrice)}
+                    />
                     {selectedTagIds.map((id) => (
-                        <input key={`tag-${id}`} type="hidden" name="tag_ids[]" value={id} />
+                        <input
+                            key={`tag-${id}`}
+                            type="hidden"
+                            name="tag_ids[]"
+                            value={id}
+                        />
                     ))}
                     {selectedCollectionIds.map((id) => (
-                        <input key={`collection-${id}`} type="hidden" name="collection_ids[]" value={id} />
+                        <input
+                            key={`collection-${id}`}
+                            type="hidden"
+                            name="collection_ids[]"
+                            value={id}
+                        />
                     ))}
 
                     <div className="grid gap-8 xl:grid-cols-[minmax(0,1.65fr)_340px]">
@@ -214,22 +252,38 @@ export function ProductForm({
                                                     : 'Launch a product that looks deliberate'}
                                             </h2>
                                             <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                                                Better copy, sharper pricing context, and a real gallery go a
-                                                lot further than a default admin form.
+                                                Better copy, sharper pricing
+                                                context, and a real gallery go a
+                                                lot further than a default admin
+                                                form.
                                             </p>
                                         </div>
                                     </div>
                                     <div className="grid gap-3">
                                         <SummaryItem
                                             label="Status"
-                                            value={status === 'active' ? 'Active' : 'Draft'}
+                                            value={
+                                                status === 'active'
+                                                    ? 'Active'
+                                                    : 'Draft'
+                                            }
                                         />
                                         <SummaryItem
                                             label="Type"
-                                            value={productType === 'physical' ? 'Physical' : 'Digital'}
+                                            value={
+                                                productType === 'physical'
+                                                    ? 'Physical'
+                                                    : 'Digital'
+                                            }
                                         />
-                                        <SummaryItem label="Category" value={selectedCategory} />
-                                        <SummaryItem label="Brand" value={selectedBrand} />
+                                        <SummaryItem
+                                            label="Category"
+                                            value={selectedCategory}
+                                        />
+                                        <SummaryItem
+                                            label="Brand"
+                                            value={selectedBrand}
+                                        />
                                     </div>
                                 </div>
                             </section>
@@ -243,26 +297,36 @@ export function ProductForm({
                             >
                                 <div className="grid gap-5 md:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Product name</Label>
+                                        <Label htmlFor="name">
+                                            Product name
+                                        </Label>
                                         <Input
                                             id="name"
                                             name="name"
                                             value={name}
                                             placeholder="Classic Runner Sneaker"
                                             className="h-12 rounded-xl"
-                                            onChange={(e) => handleNameChange(e.target.value)}
+                                            onChange={(e) =>
+                                                handleNameChange(e.target.value)
+                                            }
                                         />
                                         <FieldError message={errors.name} />
                                     </div>
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between gap-3">
-                                            <Label htmlFor="slug-display">Slug</Label>
+                                            <Label htmlFor="slug-display">
+                                                Slug
+                                            </Label>
                                             <button
                                                 type="button"
                                                 className="text-xs font-medium text-muted-foreground hover:text-foreground"
-                                                onClick={() => setSlugManual((v) => !v)}
+                                                onClick={() =>
+                                                    setSlugManual((v) => !v)
+                                                }
                                             >
-                                                {slugManual ? 'Manual mode' : 'Auto-generate'}
+                                                {slugManual
+                                                    ? 'Manual mode'
+                                                    : 'Auto-generate'}
                                             </button>
                                         </div>
                                         <Input
@@ -272,10 +336,14 @@ export function ProductForm({
                                             readOnly={!slugManual}
                                             className={cn(
                                                 'h-12 rounded-xl font-mono text-sm',
-                                                !slugManual && 'bg-muted text-muted-foreground',
+                                                !slugManual &&
+                                                    'bg-muted text-muted-foreground',
                                             )}
                                             onChange={(e) => {
-                                                if (slugManual) setSlugValue(e.target.value);
+                                                if (slugManual)
+                                                    setSlugValue(
+                                                        e.target.value,
+                                                    );
                                             }}
                                         />
                                         <FieldError message={errors.slug} />
@@ -291,26 +359,38 @@ export function ProductForm({
                                             value={sku}
                                             placeholder="SNK-001"
                                             className="h-12 rounded-xl"
-                                            onChange={(e) => setSku(e.target.value)}
+                                            onChange={(e) =>
+                                                setSku(e.target.value)
+                                            }
                                         />
                                         <FieldError message={errors.sku} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="short_description">Short description</Label>
+                                        <Label htmlFor="short_description">
+                                            Short description
+                                        </Label>
                                         <Input
                                             id="short_description"
                                             name="short_description"
                                             value={shortDescription}
                                             placeholder="A comfortable everyday sneaker with a clean retro profile."
                                             className="h-12 rounded-xl"
-                                            onChange={(e) => setShortDescription(e.target.value)}
+                                            onChange={(e) =>
+                                                setShortDescription(
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
-                                        <FieldError message={errors.short_description} />
+                                        <FieldError
+                                            message={errors.short_description}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Full description</Label>
+                                    <Label htmlFor="description">
+                                        Full description
+                                    </Label>
                                     <textarea
                                         id="description"
                                         name="description"
@@ -318,12 +398,13 @@ export function ProductForm({
                                         placeholder="Write the richer product story, materials, fit notes, and standout details here."
                                         rows={6}
                                         className={textareaClassName}
-                                        onChange={(e) => setDescription(e.target.value)}
+                                        onChange={(e) =>
+                                            setDescription(e.target.value)
+                                        }
                                     />
                                     <FieldError message={errors.description} />
                                 </div>
                             </FormSection>
-
 
                             {/* ── Merchandising ────────────────────────────── */}
                             <FormSection
@@ -335,60 +416,100 @@ export function ProductForm({
                                 <div className="grid gap-5 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label>Status</Label>
-                                        <Select value={status} onValueChange={setStatus}>
+                                        <Select
+                                            value={status}
+                                            onValueChange={setStatus}
+                                        >
                                             <SelectTrigger className="h-12 rounded-xl">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="draft">Draft</SelectItem>
-                                                <SelectItem value="active">Active</SelectItem>
+                                                <SelectItem value="draft">
+                                                    Draft
+                                                </SelectItem>
+                                                <SelectItem value="active">
+                                                    Active
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FieldError message={errors.status} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Product type</Label>
-                                        <Select value={productType} onValueChange={setProductType}>
+                                        <Select
+                                            value={productType}
+                                            onValueChange={setProductType}
+                                        >
                                             <SelectTrigger className="h-12 rounded-xl">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="physical">Physical</SelectItem>
-                                                <SelectItem value="digital">Digital</SelectItem>
+                                                <SelectItem value="physical">
+                                                    Physical
+                                                </SelectItem>
+                                                <SelectItem value="digital">
+                                                    Digital
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <FieldError message={errors.product_type} />
+                                        <FieldError
+                                            message={errors.product_type}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="grid gap-5 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label>Category</Label>
-                                        <Select value={categoryId} onValueChange={setCategoryId}>
+                                        <Select
+                                            value={categoryId}
+                                            onValueChange={setCategoryId}
+                                        >
                                             <SelectTrigger className="h-12 rounded-xl">
                                                 <SelectValue placeholder="Choose a category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value={EMPTY_SENTINEL}>No category</SelectItem>
+                                                <SelectItem
+                                                    value={EMPTY_SENTINEL}
+                                                >
+                                                    No category
+                                                </SelectItem>
                                                 {categories.map((category) => (
-                                                    <SelectItem key={category.id} value={String(category.id)}>
+                                                    <SelectItem
+                                                        key={category.id}
+                                                        value={String(
+                                                            category.id,
+                                                        )}
+                                                    >
                                                         {category.name}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        <FieldError message={errors.category_id} />
+                                        <FieldError
+                                            message={errors.category_id}
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Brand</Label>
-                                        <Select value={brandId} onValueChange={setBrandId}>
+                                        <Select
+                                            value={brandId}
+                                            onValueChange={setBrandId}
+                                        >
                                             <SelectTrigger className="h-12 rounded-xl">
                                                 <SelectValue placeholder="Choose a brand" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value={EMPTY_SENTINEL}>No brand</SelectItem>
+                                                <SelectItem
+                                                    value={EMPTY_SENTINEL}
+                                                >
+                                                    No brand
+                                                </SelectItem>
                                                 {brands.map((brand) => (
-                                                    <SelectItem key={brand.id} value={String(brand.id)}>
+                                                    <SelectItem
+                                                        key={brand.id}
+                                                        value={String(brand.id)}
+                                                    >
                                                         {brand.name}
                                                     </SelectItem>
                                                 ))}
@@ -403,22 +524,53 @@ export function ProductForm({
                                         <div>
                                             <Label>Tags</Label>
                                             <p className="text-xs text-muted-foreground">
-                                                Flexible merchandising labels for discovery and marketing context.
+                                                Flexible merchandising labels
+                                                for discovery and marketing
+                                                context.
                                             </p>
                                         </div>
                                         <div className="grid gap-2 rounded-2xl border border-border/70 p-4">
                                             {tagOptions.map((tag) => {
-                                                const checked = selectedTagIds.includes(String(tag.id));
+                                                const checked =
+                                                    selectedTagIds.includes(
+                                                        String(tag.id),
+                                                    );
                                                 return (
-                                                    <label key={tag.id} className="flex items-center gap-3 text-sm">
+                                                    <label
+                                                        key={tag.id}
+                                                        className="flex items-center gap-3 text-sm"
+                                                    >
                                                         <Checkbox
                                                             checked={checked}
-                                                            onCheckedChange={(value) => {
-                                                                const next = Boolean(value);
-                                                                setSelectedTagIds((curr) =>
-                                                                    next
-                                                                        ? Array.from(new Set([...curr, String(tag.id)]))
-                                                                        : curr.filter((id) => id !== String(tag.id)),
+                                                            onCheckedChange={(
+                                                                value,
+                                                            ) => {
+                                                                const next =
+                                                                    Boolean(
+                                                                        value,
+                                                                    );
+                                                                setSelectedTagIds(
+                                                                    (curr) =>
+                                                                        next
+                                                                            ? Array.from(
+                                                                                  new Set(
+                                                                                      [
+                                                                                          ...curr,
+                                                                                          String(
+                                                                                              tag.id,
+                                                                                          ),
+                                                                                      ],
+                                                                                  ),
+                                                                              )
+                                                                            : curr.filter(
+                                                                                  (
+                                                                                      id,
+                                                                                  ) =>
+                                                                                      id !==
+                                                                                      String(
+                                                                                          tag.id,
+                                                                                      ),
+                                                                              ),
                                                                 );
                                                             }}
                                                         />
@@ -427,7 +579,9 @@ export function ProductForm({
                                                 );
                                             })}
                                             {tagOptions.length === 0 && (
-                                                <p className="text-sm text-muted-foreground">No tags created yet.</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    No tags created yet.
+                                                </p>
                                             )}
                                         </div>
                                         <FieldError message={errors.tag_ids} />
@@ -436,48 +590,81 @@ export function ProductForm({
                                         <div>
                                             <Label>Collections</Label>
                                             <p className="text-xs text-muted-foreground">
-                                                Add this product to curated merchandising rails and campaign groupings.
+                                                Add this product to curated
+                                                merchandising rails and campaign
+                                                groupings.
                                             </p>
                                         </div>
                                         <div className="grid gap-2 rounded-2xl border border-border/70 p-4">
-                                            {collectionOptions.map((collection) => {
-                                                const checked = selectedCollectionIds.includes(
-                                                    String(collection.id),
-                                                );
-                                                return (
-                                                    <label
-                                                        key={collection.id}
-                                                        className="flex items-center gap-3 text-sm"
-                                                    >
-                                                        <Checkbox
-                                                            checked={checked}
-                                                            onCheckedChange={(value) => {
-                                                                const next = Boolean(value);
-                                                                setSelectedCollectionIds((curr) =>
-                                                                    next
-                                                                        ? Array.from(
-                                                                              new Set([
-                                                                                  ...curr,
-                                                                                  String(collection.id),
-                                                                              ]),
-                                                                          )
-                                                                        : curr.filter(
-                                                                              (id) => id !== String(collection.id),
-                                                                          ),
-                                                                );
-                                                            }}
-                                                        />
-                                                        <span>{collection.name}</span>
-                                                    </label>
-                                                );
-                                            })}
+                                            {collectionOptions.map(
+                                                (collection) => {
+                                                    const checked =
+                                                        selectedCollectionIds.includes(
+                                                            String(
+                                                                collection.id,
+                                                            ),
+                                                        );
+                                                    return (
+                                                        <label
+                                                            key={collection.id}
+                                                            className="flex items-center gap-3 text-sm"
+                                                        >
+                                                            <Checkbox
+                                                                checked={
+                                                                    checked
+                                                                }
+                                                                onCheckedChange={(
+                                                                    value,
+                                                                ) => {
+                                                                    const next =
+                                                                        Boolean(
+                                                                            value,
+                                                                        );
+                                                                    setSelectedCollectionIds(
+                                                                        (
+                                                                            curr,
+                                                                        ) =>
+                                                                            next
+                                                                                ? Array.from(
+                                                                                      new Set(
+                                                                                          [
+                                                                                              ...curr,
+                                                                                              String(
+                                                                                                  collection.id,
+                                                                                              ),
+                                                                                          ],
+                                                                                      ),
+                                                                                  )
+                                                                                : curr.filter(
+                                                                                      (
+                                                                                          id,
+                                                                                      ) =>
+                                                                                          id !==
+                                                                                          String(
+                                                                                              collection.id,
+                                                                                          ),
+                                                                                  ),
+                                                                    );
+                                                                }}
+                                                            />
+                                                            <span>
+                                                                {
+                                                                    collection.name
+                                                                }
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                },
+                                            )}
                                             {collectionOptions.length === 0 && (
                                                 <p className="text-sm text-muted-foreground">
                                                     No collections created yet.
                                                 </p>
                                             )}
                                         </div>
-                                        <FieldError message={errors.collection_ids} />
+                                        <FieldError
+                                            message={errors.collection_ids}
+                                        />
                                     </div>
                                 </div>
                             </FormSection>
@@ -491,7 +678,9 @@ export function ProductForm({
                             >
                                 <div className="grid gap-4 md:grid-cols-3">
                                     <div className="space-y-2">
-                                        <Label htmlFor="base-price-display">Base price</Label>
+                                        <Label htmlFor="base-price-display">
+                                            Base price
+                                        </Label>
                                         <Input
                                             id="base-price-display"
                                             type="number"
@@ -499,12 +688,18 @@ export function ProductForm({
                                             step="0.01"
                                             value={basePrice}
                                             className="h-12 rounded-xl"
-                                            onChange={(e) => setBasePrice(e.target.value)}
+                                            onChange={(e) =>
+                                                setBasePrice(e.target.value)
+                                            }
                                         />
-                                        <FieldError message={errors.base_price} />
+                                        <FieldError
+                                            message={errors.base_price}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="compare-price-display">Compare-at price</Label>
+                                        <Label htmlFor="compare-price-display">
+                                            Compare-at price
+                                        </Label>
                                         <Input
                                             id="compare-price-display"
                                             type="number"
@@ -512,12 +707,20 @@ export function ProductForm({
                                             step="0.01"
                                             value={compareAtPrice}
                                             className="h-12 rounded-xl"
-                                            onChange={(e) => setCompareAtPrice(e.target.value)}
+                                            onChange={(e) =>
+                                                setCompareAtPrice(
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
-                                        <FieldError message={errors.compare_at_price} />
+                                        <FieldError
+                                            message={errors.compare_at_price}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="cost-price-display">Cost price</Label>
+                                        <Label htmlFor="cost-price-display">
+                                            Cost price
+                                        </Label>
                                         <Input
                                             id="cost-price-display"
                                             type="number"
@@ -525,15 +728,28 @@ export function ProductForm({
                                             step="0.01"
                                             value={costPrice}
                                             className="h-12 rounded-xl"
-                                            onChange={(e) => setCostPrice(e.target.value)}
+                                            onChange={(e) =>
+                                                setCostPrice(e.target.value)
+                                            }
                                         />
-                                        <FieldError message={errors.cost_price} />
+                                        <FieldError
+                                            message={errors.cost_price}
+                                        />
                                     </div>
                                 </div>
                                 <div className="grid gap-3 md:grid-cols-3">
-                                    <SummaryItem label="Base" value={pricePreview(basePrice)} />
-                                    <SummaryItem label="Compare-at" value={pricePreview(compareAtPrice)} />
-                                    <SummaryItem label="Cost" value={pricePreview(costPrice)} />
+                                    <SummaryItem
+                                        label="Base"
+                                        value={pricePreview(basePrice)}
+                                    />
+                                    <SummaryItem
+                                        label="Compare-at"
+                                        value={pricePreview(compareAtPrice)}
+                                    />
+                                    <SummaryItem
+                                        label="Cost"
+                                        value={pricePreview(costPrice)}
+                                    />
                                 </div>
                             </FormSection>
 
@@ -546,7 +762,11 @@ export function ProductForm({
                                 <ImageUploadField
                                     id="images"
                                     name="images[]"
-                                    label={isEdit ? 'Refresh or extend the gallery' : 'Upload product images'}
+                                    label={
+                                        isEdit
+                                            ? 'Refresh or extend the gallery'
+                                            : 'Upload product images'
+                                    }
                                     existingImages={
                                         product?.images.map((image) => ({
                                             ...image,
@@ -596,7 +816,9 @@ export function ProductForm({
                                 badge="Launch"
                             >
                                 <div className="space-y-2">
-                                    <Label htmlFor="published_at">Publish at</Label>
+                                    <Label htmlFor="published_at">
+                                        Publish at
+                                    </Label>
                                     <Input
                                         id="published_at"
                                         name="published_at"
@@ -611,7 +833,8 @@ export function ProductForm({
                                         }
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Leave blank if the product should remain unpublished after save.
+                                        Leave blank if the product should remain
+                                        unpublished after save.
                                     </p>
                                     <FieldError message={errors.published_at} />
                                 </div>
@@ -630,18 +853,21 @@ export function ProductForm({
                                         <h3 className="text-2xl font-semibold">
                                             {name || 'New product draft'}
                                         </h3>
-                                        <p className="text-sm leading-5 text-white/60 font-mono">
+                                        <p className="font-mono text-sm leading-5 text-white/60">
                                             {slugValue || '—'}
                                         </p>
                                         <p className="text-sm leading-6 text-white/70">
-                                            {shortDescription || 'No short description yet.'}
+                                            {shortDescription ||
+                                                'No short description yet.'}
                                         </p>
                                     </div>
                                     <div className="grid gap-3">
                                         <div className="rounded-2xl bg-white/10 p-4">
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <DollarSign className="size-4" />
-                                                <span className="text-sm">Base price</span>
+                                                <span className="text-sm">
+                                                    Base price
+                                                </span>
                                             </div>
                                             <p className="mt-2 text-xl font-semibold">
                                                 {pricePreview(basePrice)}
@@ -650,19 +876,28 @@ export function ProductForm({
                                         <div className="rounded-2xl bg-white/10 p-4">
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <Tag className="size-4" />
-                                                <span className="text-sm">Taxonomy</span>
+                                                <span className="text-sm">
+                                                    Taxonomy
+                                                </span>
                                             </div>
-                                            <p className="mt-2 text-sm font-medium">{selectedCategory}</p>
-                                            <p className="text-sm text-white/70">{selectedBrand}</p>
+                                            <p className="mt-2 text-sm font-medium">
+                                                {selectedCategory}
+                                            </p>
+                                            <p className="text-sm text-white/70">
+                                                {selectedBrand}
+                                            </p>
                                             <p className="pt-2 text-xs text-white/60">
                                                 {selectedTagIds.length} tag(s) •{' '}
-                                                {selectedCollectionIds.length} collection(s)
+                                                {selectedCollectionIds.length}{' '}
+                                                collection(s)
                                             </p>
                                         </div>
                                         <div className="rounded-2xl bg-white/10 p-4">
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <Package2 className="size-4" />
-                                                <span className="text-sm">Availability</span>
+                                                <span className="text-sm">
+                                                    Availability
+                                                </span>
                                             </div>
                                             <p className="mt-2 text-sm font-medium">
                                                 {trackInventory
@@ -685,19 +920,45 @@ export function ProductForm({
                                 badge="Checklist"
                             >
                                 <div className="grid gap-3">
-                                    <SummaryItem label="Name" value={name || '—'} />
-                                    <SummaryItem label="SKU" value={sku || '—'} />
-                                    <SummaryItem label="Slug mode" value={slugManual ? 'Manual' : 'Auto'} />
-                                    <SummaryItem label="Featured" value={isFeatured ? 'Yes' : 'No'} />
-                                    <SummaryItem label="Tags" value={String(selectedTagIds.length)} />
-                                    <SummaryItem label="Collections" value={String(selectedCollectionIds.length)} />
+                                    <SummaryItem
+                                        label="Name"
+                                        value={name || '—'}
+                                    />
+                                    <SummaryItem
+                                        label="SKU"
+                                        value={sku || '—'}
+                                    />
+                                    <SummaryItem
+                                        label="Slug mode"
+                                        value={slugManual ? 'Manual' : 'Auto'}
+                                    />
+                                    <SummaryItem
+                                        label="Featured"
+                                        value={isFeatured ? 'Yes' : 'No'}
+                                    />
+                                    <SummaryItem
+                                        label="Tags"
+                                        value={String(selectedTagIds.length)}
+                                    />
+                                    <SummaryItem
+                                        label="Collections"
+                                        value={String(
+                                            selectedCollectionIds.length,
+                                        )}
+                                    />
                                     <SummaryItem
                                         label="Gallery images"
-                                        value={String(product?.images.length ?? 0)}
+                                        value={String(
+                                            product?.images.length ?? 0,
+                                        )}
                                     />
                                     <SummaryItem
                                         label="Current status"
-                                        value={status === 'active' ? 'Active' : 'Draft'}
+                                        value={
+                                            status === 'active'
+                                                ? 'Active'
+                                                : 'Draft'
+                                        }
                                     />
                                 </div>
                             </FormSection>
@@ -705,7 +966,9 @@ export function ProductForm({
                     </div>
 
                     <FormActions
-                        submitLabel={isEdit ? 'Update product' : 'Create product'}
+                        submitLabel={
+                            isEdit ? 'Update product' : 'Create product'
+                        }
                         onCancel={() => window.history.back()}
                     />
                 </>
