@@ -20,9 +20,10 @@ interface VariantProduct {
 
 interface Props {
     product: VariantProduct;
+    movementTypes: string[];
 }
 
-export default function ProductVariantsPage({ product }: Props) {
+export default function ProductVariantsPage({ product, movementTypes }: Props) {
     const hasOptions = product.option_types.length > 0;
     const hasValues = product.option_types.some((ot) => ot.values.length > 0);
     const canGenerate = hasOptions && hasValues;
@@ -82,7 +83,7 @@ export default function ProductVariantsPage({ product }: Props) {
                                 variants individually.
                             </p>
                         </div>
-                        <VariantMatrix product={product} canGenerate={canGenerate} />
+                        <VariantMatrix product={product} canGenerate={canGenerate} movementTypes={movementTypes} />
                     </div>
                 </div>
 

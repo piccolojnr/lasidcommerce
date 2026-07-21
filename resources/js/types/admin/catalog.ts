@@ -88,6 +88,25 @@ export interface AdminProductCollectionSummary {
     pivot_sort_order: number;
 }
 
+export interface AdminStockMovementRecord {
+    id: number;
+    type: string;
+    quantity: number;
+    stock_delta: number;
+    note: string | null;
+    creator_name: string | null;
+    created_at: string | null;
+}
+
+export interface AdminStockItemDetail {
+    id: number;
+    quantity_on_hand: number;
+    quantity_reserved: number;
+    available_quantity: number;
+    reorder_level: number | null;
+    movements: AdminStockMovementRecord[];
+}
+
 export interface AdminProductInventorySummary {
     stock_item_count: number;
     primary_stock_item_id: number | null;
@@ -97,6 +116,8 @@ export interface AdminProductInventorySummary {
     reorder_level: number;
     status: string;
     is_backorderable: boolean;
+    /** Only present on the product show page (withMovements=true). Null elsewhere. */
+    stock_items: AdminStockItemDetail[] | null;
 }
 
 export interface AdminProductOptionValue {

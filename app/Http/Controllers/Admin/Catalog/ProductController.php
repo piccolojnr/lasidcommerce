@@ -21,6 +21,8 @@ use App\Models\Product;
 use App\Models\ProductOptionType;
 use App\Models\ProductOptionValue;
 use App\Models\ProductVariant;
+use App\Models\StockItem;
+use App\Models\StockMovement;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -98,14 +100,15 @@ class ProductController extends Controller
             'brand',
             'tags',
             'collections',
-            'stockItems',
+            'stockItems.stockMovements' => fn ($q) => $q->latest()->limit(10),
             'optionTypes.optionValues',
             'variants.optionValues.optionType',
-            'variants.stockItems',
+            'variants.stockItems.stockMovements' => fn ($q) => $q->latest()->limit(10),
         ]);
 
         return Inertia::render('admin/catalog/products/show', [
-            'product' => $this->formatProduct($product, withImages: true),
+            'product' => $this->formatProduct($product, withImages: true, withMovements: true),
+            'movementTypes' => StockMovement::adminAdjustmentTypes(),
         ]);
     }
 
@@ -169,10 +172,10 @@ class ProductController extends Controller
             ->with('success', 'Product deleted.');
     }
 
-    private function formatProduct(Product $product, bool $withImages = false): array
+    private function formatProduct(Product $product, bool $withImages = false, bool $withMovements = false): array
     {
         $includeImages = $withImages || $product->relationLoaded('media');
-        $inventory = $this->formatInventorySummary($product);
+        $inventory = $this->formatInventorySummary($product, $withMovements);
 
         return [
             'id' => $product->id,
@@ -216,7 +219,7 @@ class ProductController extends Controller
                 ? $product->optionTypes->map(fn (ProductOptionType $optionType) => $this->formatOptionType($optionType))->values()->all()
                 : [],
             'variants' => $product->relationLoaded('variants')
-                ? $product->variants->map(fn (ProductVariant $variant) => $this->formatVariant($variant))->values()->all()
+                ? $product->variants->map(fn (ProductVariant $variant) => $this->formatVariant($variant, $withMovements))->values()->all()
                 : [],
             'images' => $includeImages
                 ? $product->getMedia(Product::IMAGE_COLLECTION)->map(
@@ -227,21 +230,50 @@ class ProductController extends Controller
         ];
     }
 
-    private function formatInventorySummary(Product $product): array
+    private function formatInventorySummary(Product $product, bool $withMovements = false): array
     {
         $stockItems = $product->relationLoaded('stockItems') ? $product->stockItems : $product->stockItems()->get();
         $stock = $this->productStockResolver->resolve($product);
         $primaryStockItemId = $stockItems->count() === 1 ? $stockItems->first()?->getKey() : null;
 
+        $stockItemsFormatted = $withMovements
+            ? $stockItems->map(fn (StockItem $si) => $this->formatStockItemWithMovements($si))->values()->all()
+            : null;
+
         return [
-            'stock_item_count' => $stockItems->count(),
+            'stock_item_count'   => $stockItems->count(),
             'primary_stock_item_id' => $primaryStockItemId,
-            'quantity_on_hand' => (int) $stockItems->sum('quantity_on_hand'),
-            'quantity_reserved' => (int) $stockItems->sum('quantity_reserved'),
+            'quantity_on_hand'   => (int) $stockItems->sum('quantity_on_hand'),
+            'quantity_reserved'  => (int) $stockItems->sum('quantity_reserved'),
             'available_quantity' => (int) $stock['quantity'],
-            'reorder_level' => (int) $stockItems->sum('reorder_level'),
-            'status' => $stock['status'],
-            'is_backorderable' => (bool) $stock['is_backorderable'],
+            'reorder_level'      => (int) $stockItems->sum('reorder_level'),
+            'status'             => $stock['status'],
+            'is_backorderable'   => (bool) $stock['is_backorderable'],
+            'stock_items'        => $stockItemsFormatted,
+        ];
+    }
+
+    private function formatStockItemWithMovements(StockItem $si): array
+    {
+        $movements = $si->relationLoaded('stockMovements')
+            ? $si->stockMovements
+            : $si->stockMovements()->latest()->limit(10)->get();
+
+        return [
+            'id'                 => $si->id,
+            'quantity_on_hand'   => $si->quantity_on_hand,
+            'quantity_reserved'  => $si->quantity_reserved,
+            'available_quantity' => $si->availableQuantity(),
+            'reorder_level'      => $si->reorder_level,
+            'movements'          => $movements->map(fn (StockMovement $m) => [
+                'id'           => $m->id,
+                'type'         => $m->type,
+                'quantity'     => $m->quantity,
+                'stock_delta'  => StockMovement::stockDeltaForType($m->type, $m->quantity),
+                'note'         => $m->note,
+                'creator_name' => $m->creator?->name,
+                'created_at'   => $m->created_at?->toISOString(),
+            ])->values()->all(),
         ];
     }
 
@@ -259,7 +291,7 @@ class ProductController extends Controller
         ];
     }
 
-    private function formatVariant(ProductVariant $variant): array
+    private function formatVariant(ProductVariant $variant, bool $withMovements = false): array
     {
         $stockItems = $variant->relationLoaded('stockItems') ? $variant->stockItems : $variant->stockItems()->get();
 
@@ -285,12 +317,15 @@ class ProductController extends Controller
                 ])->values()->all()
                 : [],
             'inventory' => [
-                'stock_item_count' => $stockItems->count(),
+                'stock_item_count'      => $stockItems->count(),
                 'primary_stock_item_id' => $stockItems->count() === 1 ? $stockItems->first()?->getKey() : null,
-                'quantity_on_hand' => (int) $stockItems->sum('quantity_on_hand'),
-                'quantity_reserved' => (int) $stockItems->sum('quantity_reserved'),
-                'available_quantity' => (int) $stockItems->sum(fn ($stockItem) => $stockItem->availableQuantity()),
-                'reorder_level' => (int) $stockItems->sum('reorder_level'),
+                'quantity_on_hand'      => (int) $stockItems->sum('quantity_on_hand'),
+                'quantity_reserved'     => (int) $stockItems->sum('quantity_reserved'),
+                'available_quantity'    => (int) $stockItems->sum(fn ($si) => $si->availableQuantity()),
+                'reorder_level'         => (int) $stockItems->sum('reorder_level'),
+                'stock_items'           => $withMovements
+                    ? $stockItems->map(fn (StockItem $si) => $this->formatStockItemWithMovements($si))->values()->all()
+                    : null,
             ],
         ];
     }

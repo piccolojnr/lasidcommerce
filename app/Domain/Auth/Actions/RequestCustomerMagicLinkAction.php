@@ -10,7 +10,6 @@ use App\Models\CustomerMagicLink;
 use App\Models\User;
 use App\Notifications\CustomerMagicLinkNotification;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class RequestCustomerMagicLinkAction
@@ -44,11 +43,9 @@ class RequestCustomerMagicLinkAction
             'expires_at' => now()->addMinutes(config('storefront.magic_link_expire_minutes')),
         ]);
 
-        $verifyUrl = URL::temporarySignedRoute(
-            'api.v1.auth.magic-link.verify',
-            $magicLink->expires_at,
-            ['token' => $plainToken],
-        );
+        $verifyUrl = config('storefront.url')
+            .'/auth/verify?token='.urlencode($plainToken)
+            .($magicLink->redirect_to ? '&redirect='.urlencode($magicLink->redirect_to) : '');
 
         Notification::route('mail', $data->email)
             ->notify(new CustomerMagicLinkNotification($verifyUrl, $magicLink->expires_at));

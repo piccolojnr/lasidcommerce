@@ -9,9 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Auth\RequestCustomerMagicLinkRequest;
 use App\Support\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Cookie;
 
 class MagicLinkController extends Controller
 {
@@ -27,24 +25,32 @@ class MagicLinkController extends Controller
         return ApiResponse::success(null, 'If the account is eligible, a sign-in link has been sent.');
     }
 
-    public function verify(Request $request): RedirectResponse
+    public function verify(Request $request): JsonResponse
     {
-        $redirect = $this->verifyAction->execute((string) $request->query('token'));
+        $result = $this->verifyAction->execute((string) $request->query('token'));
 
-        // Expire any stale session cookie that has no Domain attribute (created
-        // before STOREFRONT_SESSION_DOMAIN was configured). Without this,
-        // browsers with old cookies can send the stale ID first in the Cookie
-        // header, causing PHP to read it and overwrite the authenticated
-        // Domain-scoped cookie during the next session write-back.
-        $expireStale = Cookie::create(config('storefront.session_cookie'))
-            ->withValue('')
-            ->withExpires(1)   // Unix timestamp 1 = expired
-            ->withPath('/')
-            ->withDomain(null) // targets only the no-Domain variant
-            ->withSecure(false)
-            ->withHttpOnly(true)
-            ->withSameSite(Cookie::SAMESITE_LAX);
+        if (isset($result['error'])) {
+            return ApiResponse::error(
+                'This sign-in link has expired or is invalid.',
+                ['error_code' => $result['error']],
+                422,
+            );
+        }
 
-        return redirect()->away($redirect)->withCookie($expireStale);
+        return ApiResponse::success([
+            'token' => $result['token'],
+            'user' => [
+                'id' => $result['user']->id,
+                'name' => $result['user']->name !== '' ? $result['user']->name : null,
+                'email' => $result['user']->email,
+                'phone' => $result['user']->phone,
+                'status' => $result['user']->status,
+                'email_verified_at' => $result['user']->email_verified_at?->toISOString(),
+                'profile_completion_required' => blank($result['user']->name),
+            ],
+            'email_verified' => $result['user']->hasVerifiedEmail(),
+            'redirect_to' => $result['redirect_to'],
+            'was_created' => $result['was_created'],
+        ]);
     }
 }

@@ -50,7 +50,7 @@ class CustomerAuthTest extends TestCase
         ])->assertOk();
 
         Notification::assertSentOnDemand(CustomerMagicLinkNotification::class, function (CustomerMagicLinkNotification $notification) {
-            $this->assertStringContainsString('/api/v1/auth/magic-link/verify', $notification->verifyUrl);
+            $this->assertStringContainsString('/auth/verify?token=', $notification->verifyUrl);
 
             return true;
         });

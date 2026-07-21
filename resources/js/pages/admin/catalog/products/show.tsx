@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import * as ProductController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductController';
 import * as StockItemController from '@/actions/App/Http/Controllers/Admin/Inventory/StockItemController';
 import { PageHeader } from '@/components/shared/page-header/page-header';
@@ -9,12 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatMoney } from '@/lib/formatters/money';
 import type { AdminProduct } from '@/types/admin/catalog';
+import { StockAdjustPanel } from './_components/stock-adjust-panel';
 
 interface Props {
     product: AdminProduct;
+    movementTypes: string[];
 }
 
-export default function ProductShowPage({ product }: Props) {
+export default function ProductShowPage({ product, movementTypes }: Props) {
     const primaryImage =
         product.images.find((img) => img.is_primary) ?? product.images[0];
 
@@ -503,6 +506,84 @@ export default function ProductShowPage({ product }: Props) {
                         </Card>
                     </div>
                 </div>
+
+                {/* ── Reorder alert ───────────────────────────────────────── */}
+                {product.track_inventory &&
+                    product.inventory.reorder_level != null &&
+                    product.inventory.available_quantity <= product.inventory.reorder_level && (
+                    <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 dark:border-amber-700/50 dark:bg-amber-950/30">
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                            ⚠ Stock is low —{' '}
+                            <strong>{product.inventory.available_quantity}</strong> unit
+                            {product.inventory.available_quantity === 1 ? '' : 's'} available,
+                            reorder threshold is{' '}
+                            <strong>{product.inventory.reorder_level}</strong>.
+                        </p>
+                    </div>
+                )}
+
+                {/* ── Inline stock management ─────────────────────────────── */}
+                {product.track_inventory && (
+                    <Card className="overflow-hidden border-border/70 pt-0">
+                        <CardHeader className="flex flex-row items-center justify-between gap-4 border-b border-border/70 bg-muted/30 py-5">
+                            <CardTitle>Stock management</CardTitle>
+                            <Button variant="outline" size="sm" asChild>
+                                <Link
+                                    href={
+                                        product.inventory.primary_stock_item_id
+                                            ? StockItemController.show.url(
+                                                  product.inventory.primary_stock_item_id,
+                                              )
+                                            : StockItemController.index.url()
+                                    }
+                                >
+                                    Inventory page ↗
+                                </Link>
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-8 p-6">
+                            {product.variants.length === 0 &&
+                                product.inventory.stock_items?.map((si) => (
+                                    <StockAdjustPanel
+                                        key={si.id}
+                                        stockItem={si}
+                                        movementTypes={movementTypes}
+                                    />
+                                ))}
+
+                            {product.variants.length > 0 && (
+                                <div className="flex flex-col gap-6">
+                                    {product.variants.map((variant) =>
+                                        variant.inventory.stock_items?.map((si) => (
+                                            <div key={si.id} className="flex flex-col gap-3 rounded-xl border border-border/70 p-4">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="text-sm font-semibold">{variant.name}</span>
+                                                    <span className="font-mono text-xs text-muted-foreground">{variant.sku}</span>
+                                                    {variant.option_values.map((ov) => (
+                                                        <Badge key={ov.id} variant="outline" className="text-xs">
+                                                            {ov.option_type_name ? `${ov.option_type_name}: ` : ''}{ov.value}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                                <StockAdjustPanel
+                                                    stockItem={si}
+                                                    movementTypes={movementTypes}
+                                                    compact={product.variants.length > 3}
+                                                />
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+
+                            {product.inventory.stock_item_count === 0 && (
+                                <p className="text-sm text-muted-foreground">
+                                    No stock items have been created for this product yet.
+                                </p>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
             </div>
         </AdminLayout>
     );

@@ -25,7 +25,6 @@ use App\Models\ShippingMethod;
 use App\Models\ShippingZone;
 use App\Support\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends Controller
@@ -209,8 +208,8 @@ class CheckoutController extends Controller
             return ApiResponse::error($e->getMessage(), [], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        Auth::guard('customer')->login($guestCheckout['user']);
-        $request->session()->regenerate();
+        $user = $guestCheckout['user'];
+        $token = $user->createToken('storefront-token')->plainTextToken;
 
         $result = $guestCheckout['result'];
 
@@ -227,6 +226,7 @@ class CheckoutController extends Controller
 
         return ApiResponse::created([
             'order' => new OrderResource($result['order']),
+            'token' => $token,
             'payment' => [
                 'provider' => $request->payment_provider,
                 'authorization_url' => $result['payment']['authorization_url'],

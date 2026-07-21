@@ -32,11 +32,12 @@ class ProductVariantMatrixController extends Controller
         $product->load([
             'optionTypes.optionValues',
             'variants.optionValues.optionType',
-            'variants.stockItems',
+            'variants.stockItems.stockMovements' => fn ($q) => $q->latest()->limit(10),
         ]);
 
         return Inertia::render('admin/catalog/products/variants', [
-            'product' => $this->formatProduct($product),
+            'product'       => $this->formatProduct($product),
+            'movementTypes' => \App\Models\StockMovement::adminAdjustmentTypes(),
         ]);
     }
 
@@ -124,6 +125,23 @@ class ProductVariantMatrixController extends Controller
             'inventory' => [
                 'primary_stock_item_id' => $stockItems->count() === 1 ? $stockItems->first()?->getKey() : null,
                 'available_quantity'    => (int) $stockItems->sum(fn ($si) => $si->availableQuantity()),
+                'stock_items'           => $stockItems->map(fn (\App\Models\StockItem $si) => [
+                    'id'                 => $si->id,
+                    'quantity_on_hand'   => $si->quantity_on_hand,
+                    'quantity_reserved'  => $si->quantity_reserved,
+                    'available_quantity' => $si->availableQuantity(),
+                    'reorder_level'      => $si->reorder_level,
+                    'movements'          => ($si->relationLoaded('stockMovements') ? $si->stockMovements : $si->stockMovements()->latest()->limit(10)->get())
+                        ->map(fn (\App\Models\StockMovement $m) => [
+                            'id'          => $m->id,
+                            'type'        => $m->type,
+                            'quantity'    => $m->quantity,
+                            'stock_delta' => \App\Models\StockMovement::stockDeltaForType($m->type, $m->quantity),
+                            'note'        => $m->note,
+                            'creator_name' => $m->creator?->name,
+                            'created_at'  => $m->created_at?->toISOString(),
+                        ])->values()->all(),
+                ])->values()->all(),
             ],
         ];
     }

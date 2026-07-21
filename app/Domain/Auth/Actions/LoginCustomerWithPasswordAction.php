@@ -6,7 +6,6 @@ use App\Domain\Auth\DTOs\CustomerPasswordLoginData;
 use App\Domain\Cart\Actions\MergeGuestCartAction;
 use App\Domain\User\Services\UserSegmentService;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -17,7 +16,7 @@ class LoginCustomerWithPasswordAction
         private UserSegmentService $segmentService,
     ) {}
 
-    public function execute(CustomerPasswordLoginData $data): User
+    public function execute(CustomerPasswordLoginData $data): array
     {
         $user = User::where('email', $data->email)->first();
 
@@ -27,11 +26,10 @@ class LoginCustomerWithPasswordAction
             ]);
         }
 
-        Auth::guard('customer')->login($user);
-        request()->session()->regenerate();
+        $token = $user->createToken('storefront-token')->plainTextToken;
 
         $this->mergeGuestCartAction->execute($user, $data->cartToken);
 
-        return $user;
+        return ['user' => $user, 'token' => $token];
     }
 }

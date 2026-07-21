@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { Form } from '@inertiajs/react';
-import { Check, RefreshCw, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, RefreshCw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import * as ProductVariantController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductVariantController';
 import * as ProductVariantMatrixController from '@/actions/App/Http/Controllers/Admin/Catalog/ProductVariantMatrixController';
@@ -10,7 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { centsToDisplay, displayToCents } from './product-form-utils';
-import type { AdminProductVariant } from '@/types/admin/catalog';
+import { StockAdjustPanel } from './stock-adjust-panel';
+import type { AdminProductVariant, AdminStockItemDetail } from '@/types/admin/catalog';
 
 interface VariantMatrixProps {
     product: {
@@ -21,24 +22,28 @@ interface VariantMatrixProps {
         option_types: { id: number; name: string; values: { id: number; value: string }[] }[];
     };
     canGenerate: boolean;
+    movementTypes: string[];
 }
 
 // ─── Single editable row ──────────────────────────────────────────────────────
 // NOTE: No <form> element here — forms cannot be valid children of <tbody>.
-// We use router.patch() imperatively to save changes.
+// We use router.patch() / router.delete() imperatively.
 
 function VariantRow({
     variant,
     basePrice,
+    movementTypes,
 }: {
     variant: AdminProductVariant;
     basePrice: number;
+    movementTypes: string[];
 }) {
     const [sku, setSku] = useState(variant.sku);
     const [price, setPrice] = useState(centsToDisplay(variant.price));
     const [isActive, setIsActive] = useState(variant.is_active);
     const [dirty, setDirty] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [stockOpen, setStockOpen] = useState(false);
 
     const markDirty = () => setDirty(true);
 
@@ -55,10 +60,7 @@ function VariantRow({
             },
             {
                 preserveScroll: true,
-                onSuccess: () => {
-                    setDirty(false);
-                    setSaving(false);
-                },
+                onSuccess: () => { setDirty(false); setSaving(false); },
                 onError: () => setSaving(false),
             },
         );
@@ -70,97 +72,136 @@ function VariantRow({
         });
     };
 
+    // Pull the first stock item for this variant (there should be exactly one)
+    const stockItem = variant.inventory.stock_items?.[0] as AdminStockItemDetail | undefined;
+
     return (
-        <tr className={cn('group border-b border-border/60 last:border-0', dirty && 'bg-primary/5')}>
-            {/* Active toggle */}
-            <td className="px-4 py-3 text-center">
-                <Checkbox
-                    checked={isActive}
-                    onCheckedChange={(v) => {
-                        setIsActive(Boolean(v));
-                        markDirty();
-                    }}
-                />
-            </td>
+        <>
+            <tr className={cn(
+                'group border-b border-border/60',
+                dirty && 'bg-primary/5',
+                stockOpen && 'bg-muted/30',
+            )}>
+                {/* Active toggle */}
+                <td className="px-4 py-3 text-center">
+                    <Checkbox
+                        checked={isActive}
+                        onCheckedChange={(v) => { setIsActive(Boolean(v)); markDirty(); }}
+                    />
+                </td>
 
-            {/* Variant name + option badges */}
-            <td className="px-4 py-3">
-                <div className="flex flex-col gap-1">
-                    <span className={cn('text-sm font-medium', !isActive && 'text-muted-foreground line-through')}>
-                        {variant.name}
-                    </span>
-                    <div className="flex flex-wrap gap-1">
-                        {variant.option_values.map((ov) => (
-                            <Badge key={ov.id} variant="outline" className="text-xs">
-                                {ov.option_type_name ? `${ov.option_type_name}: ` : ''}
-                                {ov.value}
-                            </Badge>
-                        ))}
+                {/* Variant name + option badges */}
+                <td className="px-4 py-3">
+                    <div className="flex flex-col gap-1">
+                        <span className={cn('text-sm font-medium', !isActive && 'text-muted-foreground line-through')}>
+                            {variant.name}
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                            {variant.option_values.map((ov) => (
+                                <Badge key={ov.id} variant="outline" className="text-xs">
+                                    {ov.option_type_name ? `${ov.option_type_name}: ` : ''}
+                                    {ov.value}
+                                </Badge>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </td>
+                </td>
 
-            {/* SKU — inline edit */}
-            <td className="px-4 py-3">
-                <Input
-                    value={sku}
-                    onChange={(e) => { setSku(e.target.value); markDirty(); }}
-                    className="h-8 w-36 rounded-lg font-mono text-xs"
-                />
-            </td>
+                {/* SKU */}
+                <td className="px-4 py-3">
+                    <Input
+                        value={sku}
+                        onChange={(e) => { setSku(e.target.value); markDirty(); }}
+                        className="h-8 w-36 rounded-lg font-mono text-xs"
+                    />
+                </td>
 
-            {/* Price — inline edit */}
-            <td className="px-4 py-3">
-                <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={price}
-                    onChange={(e) => { setPrice(e.target.value); markDirty(); }}
-                    placeholder={(basePrice / 100).toFixed(2)}
-                    className="h-8 w-28 rounded-lg text-right text-xs"
-                />
-            </td>
+                {/* Price */}
+                <td className="px-4 py-3">
+                    <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={price}
+                        onChange={(e) => { setPrice(e.target.value); markDirty(); }}
+                        placeholder={(basePrice / 100).toFixed(2)}
+                        className="h-8 w-28 rounded-lg text-right text-xs"
+                    />
+                </td>
 
-            {/* Available qty */}
-            <td className="px-4 py-3 text-right text-sm text-muted-foreground">
-                {variant.inventory.available_quantity}
-            </td>
+                {/* Available qty — click to toggle stock panel */}
+                <td className="px-4 py-3 text-right">
+                    <button
+                        type="button"
+                        onClick={() => setStockOpen((v) => !v)}
+                        className="flex items-center justify-end gap-1 text-sm text-muted-foreground hover:text-foreground"
+                        title="Toggle stock adjust"
+                    >
+                        {variant.inventory.available_quantity}
+                        {stockOpen
+                            ? <ChevronUp className="size-3" />
+                            : <ChevronDown className="size-3" />
+                        }
+                    </button>
+                </td>
 
-            {/* Save + delete */}
-            <td className="px-4 py-3">
-                <div className="flex items-center justify-end gap-1">
-                    {dirty && (
+                {/* Actions */}
+                <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1">
+                        {dirty && (
+                            <Button
+                                type="button"
+                                size="sm"
+                                disabled={saving}
+                                onClick={save}
+                                className="h-7 gap-1 px-2 text-xs"
+                            >
+                                <Check className="size-3" />
+                                {saving ? '…' : 'Save'}
+                            </Button>
+                        )}
                         <Button
                             type="button"
-                            size="sm"
-                            disabled={saving}
-                            onClick={save}
-                            className="h-7 gap-1 px-2 text-xs"
+                            size="icon"
+                            variant="ghost"
+                            onClick={destroy}
+                            className="h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive"
                         >
-                            <Check className="size-3" />
-                            {saving ? '…' : 'Save'}
+                            <Trash2 className="size-3.5" />
+                            <span className="sr-only">Delete variant</span>
                         </Button>
-                    )}
-                    <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={destroy}
-                        className="h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive"
-                    >
-                        <Trash2 className="size-3.5" />
-                        <span className="sr-only">Delete variant</span>
-                    </Button>
-                </div>
-            </td>
-        </tr>
+                    </div>
+                </td>
+            </tr>
+
+            {/* Expanded stock adjust row — inline below the variant row */}
+            {stockOpen && stockItem && (
+                <tr className="border-b border-border/40 bg-muted/20">
+                    <td colSpan={6} className="px-6 py-4">
+                        <StockAdjustPanel
+                            stockItem={stockItem}
+                            movementTypes={movementTypes}
+                            compact
+                        />
+                    </td>
+                </tr>
+            )}
+
+            {/* Stock open but no stock item yet */}
+            {stockOpen && !stockItem && (
+                <tr className="border-b border-border/40 bg-muted/20">
+                    <td colSpan={6} className="px-6 py-3 text-sm text-muted-foreground">
+                        No stock item found for this variant. Enable inventory tracking on the product to create one.
+                    </td>
+                </tr>
+            )}
+        </>
     );
 }
 
 // ─── Matrix table ─────────────────────────────────────────────────────────────
 
-export function VariantMatrix({ product, canGenerate }: VariantMatrixProps) {
+export function VariantMatrix({ product, canGenerate, movementTypes }: VariantMatrixProps) {
     const [selected, setSelected] = useState<Set<number>>(new Set());
 
     const allSelected =
@@ -237,7 +278,10 @@ export function VariantMatrix({ product, canGenerate }: VariantMatrixProps) {
                                 <th className="px-4 py-3 text-left font-medium">Variant</th>
                                 <th className="px-4 py-3 text-left font-medium">SKU</th>
                                 <th className="px-4 py-3 text-left font-medium">Price</th>
-                                <th className="px-4 py-3 text-right font-medium">Available</th>
+                                <th className="px-4 py-3 text-right font-medium">
+                                    Available
+                                    <span className="ml-1 text-xs font-normal text-muted-foreground">↓ adjust</span>
+                                </th>
                                 <th className="px-4 py-3" />
                             </tr>
                         </thead>
@@ -247,6 +291,7 @@ export function VariantMatrix({ product, canGenerate }: VariantMatrixProps) {
                                     key={variant.id}
                                     variant={variant}
                                     basePrice={product.base_price}
+                                    movementTypes={movementTypes}
                                 />
                             ))}
                         </tbody>

@@ -12,7 +12,6 @@ use App\Http\Controllers\Api\Shipping\ShippingZoneController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->name('auth.')->group(function () {
-    Route::get('csrf-cookie', [AuthenticatedSessionController::class, 'csrfCookie'])->name('csrf-cookie');
     Route::get('session', [AuthenticatedSessionController::class, 'show'])->name('session');
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
@@ -20,7 +19,6 @@ Route::prefix('auth')->name('auth.')->group(function () {
         ->middleware('throttle:storefront-magic-links')
         ->name('magic-link.request');
     Route::get('magic-link/verify', [MagicLinkController::class, 'verify'])
-        ->middleware('signed')
         ->name('magic-link.verify');
 
     Route::post('password/login', [PasswordAuthController::class, 'login'])

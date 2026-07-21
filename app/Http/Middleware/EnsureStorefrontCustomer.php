@@ -23,9 +23,7 @@ class EnsureStorefrontCustomer
         }
 
         if (! $this->segmentService->isCustomer($user)) {
-            auth('customer')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            auth('customer')->purge();
 
             return ApiResponse::error('This account is not available on the storefront.', [], Response::HTTP_FORBIDDEN);
         }

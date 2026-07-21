@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\Cookie;
 
 class PasswordAuthController extends Controller
 {
@@ -28,29 +27,21 @@ class PasswordAuthController extends Controller
 
     public function login(CustomerPasswordLoginRequest $request): JsonResponse
     {
-        $user = $this->loginAction->execute(CustomerPasswordLoginData::fromArray($request->validated()));
-
-        $expireStale = Cookie::create(config('storefront.session_cookie'))
-            ->withValue('')
-            ->withExpires(1)
-            ->withPath('/')
-            ->withDomain(null)
-            ->withSecure(false)
-            ->withHttpOnly(true)
-            ->withSameSite(Cookie::SAMESITE_LAX);
+        $result = $this->loginAction->execute(CustomerPasswordLoginData::fromArray($request->validated()));
 
         return ApiResponse::success([
             'authenticated' => true,
+            'token' => $result['token'],
             'user' => [
-                'id' => $user->id,
-                'name' => $user->name !== '' ? $user->name : null,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'status' => $user->status,
-                'email_verified_at' => $user->email_verified_at?->toISOString(),
-                'profile_completion_required' => blank($user->name),
+                'id' => $result['user']->id,
+                'name' => $result['user']->name !== '' ? $result['user']->name : null,
+                'email' => $result['user']->email,
+                'phone' => $result['user']->phone,
+                'status' => $result['user']->status,
+                'email_verified_at' => $result['user']->email_verified_at?->toISOString(),
+                'profile_completion_required' => blank($result['user']->name),
             ],
-        ], 'Logged in successfully.')->withCookie($expireStale);
+        ], 'Logged in successfully.');
     }
 
     public function forgot(ForgotCustomerPasswordRequest $request): JsonResponse

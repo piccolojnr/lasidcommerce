@@ -1,10 +1,9 @@
 <?php
 
-use App\Http\Middleware\ApplyStorefrontSessionConfig;
+use App\Http\Middleware\AttachBearerTokenFromCookie;
 use App\Http\Middleware\EnsureStorefrontCustomer;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\StorefrontVerifyCsrfToken;
 use App\Support\Responses\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -16,8 +15,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,11 +57,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->group('storefront', [
-            ApplyStorefrontSessionConfig::class,
+            AttachBearerTokenFromCookie::class,
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            StorefrontVerifyCsrfToken::class,
             SubstituteBindings::class,
         ]);
 
@@ -88,12 +83,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $exception, $request) {
             if ($request->is('api/v1/*')) {
                 return ApiResponse::error('The given data was invalid.', $exception->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-        });
-
-        $exceptions->render(function (TokenMismatchException $exception, $request) {
-            if ($request->is('api/v1/*')) {
-                return ApiResponse::error('CSRF token mismatch.', [], Response::HTTP_CONFLICT);
             }
         });
     })->create();

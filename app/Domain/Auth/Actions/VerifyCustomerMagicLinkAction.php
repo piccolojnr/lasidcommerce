@@ -2,14 +2,12 @@
 
 namespace App\Domain\Auth\Actions;
 
-use App\Domain\Auth\Services\StorefrontRedirectService;
 use App\Domain\Cart\Actions\MergeGuestCartAction;
 use App\Domain\Notification\Services\CustomerNotificationService;
 use App\Domain\Notification\Services\InternalNotificationService;
 use App\Domain\User\Services\UserSegmentService;
 use App\Models\CustomerMagicLink;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class VerifyCustomerMagicLinkAction
@@ -17,19 +15,23 @@ class VerifyCustomerMagicLinkAction
     public function __construct(
         private MergeGuestCartAction $mergeGuestCartAction,
         private UserSegmentService $segmentService,
-        private StorefrontRedirectService $redirectService,
         private CustomerNotificationService $notificationService,
         private InternalNotificationService $internalNotificationService,
     ) {}
 
-    public function execute(string $token): string
+    /**
+     * Verify a magic link token and return auth data.
+     *
+     * @return array{token: string, user: User, was_created: bool, redirect_to: string}|array{error: string}
+     */
+    public function execute(string $token): array
     {
         $magicLink = CustomerMagicLink::where('token_hash', hash('sha256', $token))
             ->latest()
             ->first();
 
         if ($magicLink === null || $magicLink->isConsumed() || $magicLink->isExpired()) {
-            return $this->redirectService->toFailureUrl('invalid_or_expired_link');
+            return ['error' => 'invalid_or_expired_link'];
         }
 
         $result = DB::transaction(function () use ($magicLink): array {
@@ -39,11 +41,7 @@ class VerifyCustomerMagicLinkAction
             if ($user !== null && ! $this->segmentService->isCustomer($user)) {
                 $magicLink->update(['consumed_at' => now()]);
 
-                return [
-                    'redirect' => $this->redirectService->toFailureUrl('account_not_available'),
-                    'user' => null,
-                    'was_created' => false,
-                ];
+                return ['error' => 'account_not_available'];
             }
 
             if ($user === null) {
@@ -65,23 +63,27 @@ class VerifyCustomerMagicLinkAction
                 'consumed_at' => now(),
             ]);
 
-            Auth::guard('customer')->login($user);
-            request()->session()->regenerate();
+            $authToken = $user->createToken('storefront-token')->plainTextToken;
 
             $this->mergeGuestCartAction->execute($user, $magicLink->cart_token);
 
             return [
-                'redirect' => $this->redirectService->toSuccessUrl($magicLink->redirect_to),
+                'token' => $authToken,
                 'user' => $user,
                 'was_created' => $wasCreated,
+                'redirect_to' => $magicLink->redirect_to ?? config('storefront.default_redirect_path', '/account'),
             ];
         });
+
+        if (isset($result['error'])) {
+            return $result;
+        }
 
         if ($result['was_created'] && $result['user'] instanceof User) {
             $this->notificationService->sendWelcome($result['user']);
             $this->internalNotificationService->sendNewCustomer($result['user']);
         }
 
-        return $result['redirect'];
+        return $result;
     }
 }
