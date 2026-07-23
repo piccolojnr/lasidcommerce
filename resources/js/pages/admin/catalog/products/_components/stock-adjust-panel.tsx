@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { AdminStockItemDetail } from '@/types/admin/catalog';
+import { Badge } from '@/components/ui/badge';
 
 // Re-export so variant-matrix can import StockItemDetail from here without
 // knowing the catalog type path.
