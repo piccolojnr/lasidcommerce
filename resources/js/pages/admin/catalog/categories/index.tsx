@@ -1,6 +1,5 @@
 import { Link } from '@inertiajs/react';
 import * as CategoryController from '@/actions/App/Http/Controllers/Admin/Catalog/CategoryController';
-import { DataTablePagination } from '@/components/shared/data-table/data-table-pagination';
 import { PageHeader } from '@/components/shared/page-header/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -23,7 +23,9 @@ function isPage<T>(v: PaginationMeta | AnyPage<T>): v is AnyPage<T> {
 export function DataTablePagination<T = unknown>({
     meta,
 }: DataTablePaginationProps<T>) {
-    if (!meta) return null;
+    if (!meta) {
+        return null;
+    }
 
     const currentPage = meta.current_page;
     const lastPage = meta.last_page;

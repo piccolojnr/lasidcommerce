@@ -70,11 +70,14 @@ export function ImageUploadField({
             const nextIds = existingImages.map((img) => img.id);
             const kept = prev.filter((id) => nextIds.includes(id));
             nextIds.forEach((id) => {
-                if (!kept.includes(id)) kept.push(id);
+                if (!kept.includes(id)) {
+                    kept.push(id);
+                }
             });
+
             return kept;
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [existingImages]);
 
     const selectedPreviews = useMemo(
@@ -93,7 +96,10 @@ export function ImageUploadField({
 
     // Keep real file input in sync with our state array
     useEffect(() => {
-        if (!inputRef.current) return;
+        if (!inputRef.current) {
+            return;
+        }
+
         const dt = new DataTransfer();
         selectedFiles.forEach((file) => dt.items.add(file));
         inputRef.current.files = dt.files;
@@ -113,8 +119,10 @@ export function ImageUploadField({
             if (!multiple) {
                 const next = files.slice(0, 1);
                 onQueueChange?.(next.length);
+
                 return next;
             }
+
             const existingKeys = new Set(
                 current.map((f) => `${f.name}:${f.size}:${f.lastModified}`),
             );
@@ -124,6 +132,7 @@ export function ImageUploadField({
             );
             const next = [...current, ...unique];
             onQueueChange?.(next.length);
+
             return next;
         });
     };
@@ -131,18 +140,30 @@ export function ImageUploadField({
     const moveImage = (imageId: number, direction: 'up' | 'down') => {
         setOrderedIds((prev) => {
             const idx = prev.indexOf(imageId);
-            if (idx === -1) return prev;
+
+            if (idx === -1) {
+                return prev;
+            }
+
             const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-            if (swapIdx < 0 || swapIdx >= prev.length) return prev;
+
+            if (swapIdx < 0 || swapIdx >= prev.length) {
+                return prev;
+            }
+
             const next = [...prev];
             [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
+
             return next;
         });
     };
 
     const removeExisting = (imageId: number) => {
         setRemovedIds((curr) => [...curr, imageId]);
-        if (primaryId === imageId) setPrimaryId(null);
+
+        if (primaryId === imageId) {
+            setPrimaryId(null);
+        }
     };
 
     // Effective primary: explicit choice, else fall back to first visible image
@@ -350,6 +371,7 @@ export function ImageUploadField({
             {/* Hidden fields: removed ids, sort order, primary id */}
             {removedIds.map((idValue) => {
                 const image = existingImages.find((img) => img.id === idValue);
+
                 return (
                     <input
                         key={idValue}

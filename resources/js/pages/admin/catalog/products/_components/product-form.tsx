@@ -156,7 +156,10 @@ export function ProductForm({
 
     const handleNameChange = (value: string) => {
         setName(value);
-        if (!slugManual) setSlugValue(slugify(value));
+
+        if (!slugManual) {
+setSlugValue(slugify(value));
+}
     };
 
     return (
@@ -340,10 +343,11 @@ export function ProductForm({
                                                     'bg-muted text-muted-foreground',
                                             )}
                                             onChange={(e) => {
-                                                if (slugManual)
-                                                    setSlugValue(
+                                                if (slugManual) {
+setSlugValue(
                                                         e.target.value,
                                                     );
+}
                                             }}
                                         />
                                         <FieldError message={errors.slug} />
@@ -535,6 +539,7 @@ export function ProductForm({
                                                     selectedTagIds.includes(
                                                         String(tag.id),
                                                     );
+
                                                 return (
                                                     <label
                                                         key={tag.id}
@@ -604,6 +609,7 @@ export function ProductForm({
                                                                 collection.id,
                                                             ),
                                                         );
+
                                                     return (
                                                         <label
                                                             key={collection.id}

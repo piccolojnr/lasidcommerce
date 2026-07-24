@@ -6,9 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/layouts/app/admin-layout';
-import { formatMoney } from '@/lib/formatters/money';
-import type { AdminProduct } from '@/types/admin/catalog';
 import { ProductForm } from '@/pages/admin/catalog/products/_components/product-form';
+import type { AdminProduct } from '@/types/admin/catalog';
 
 interface SelectOption {
     id: number;

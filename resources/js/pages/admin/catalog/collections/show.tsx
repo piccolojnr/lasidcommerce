@@ -7,7 +7,6 @@ import { PageHeader } from '@/components/shared/page-header/page-header';
 import { StatusBadge } from '@/components/shared/status-badge/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { AdminLayout } from '@/layouts/app/admin-layout';
 import { formatDate } from '@/lib/formatters/date';
 import type { AdminCollection } from '@/types/admin/catalog';

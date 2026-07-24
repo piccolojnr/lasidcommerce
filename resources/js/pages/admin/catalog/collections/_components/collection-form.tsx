@@ -66,6 +66,7 @@ function ProductPicker({
 
     const filteredProducts = useMemo(() => {
         const q = search.toLowerCase().trim();
+
         return products.filter((p) => {
             const matchesSearch =
                 q === '' ||
@@ -73,6 +74,7 @@ function ProductPicker({
                 p.sku.toLowerCase().includes(q);
             const matchesStatus =
                 statusFilter === EMPTY_SENTINEL || p.status === statusFilter;
+
             return matchesSearch && matchesStatus;
         });
     }, [products, search, statusFilter]);
@@ -162,6 +164,7 @@ function ProductPicker({
                                             selectedProducts,
                                             String(product.id),
                                         );
+
                                     return (
                                         <li key={product.id}>
                                             <button
@@ -343,6 +346,7 @@ export function CollectionForm({
     function handleToggle(productId: number) {
         setSelectedProducts((current) => {
             const next = { ...current };
+
             if (Object.prototype.hasOwnProperty.call(next, String(productId))) {
                 delete next[String(productId)];
             } else {
@@ -350,8 +354,10 @@ export function CollectionForm({
                 const existingOrders = Object.values(next).map(Number);
                 const maxOrder =
                     existingOrders.length > 0 ? Math.max(...existingOrders) : 0;
+
                 next[String(productId)] = String(maxOrder + 10);
             }
+
             return next;
         });
     }
@@ -396,10 +402,11 @@ export function CollectionForm({
                                     placeholder="Weekend Edit"
                                     className="h-12 rounded-xl"
                                     onChange={(e) => {
-                                        if (!slugManual)
+                                        if (!slugManual) {
                                             setSlugValue(
                                                 slugify(e.target.value),
                                             );
+                                        }
                                     }}
                                 />
                                 <FieldError message={errors.name} />
@@ -423,8 +430,9 @@ export function CollectionForm({
                                     readOnly={!slugManual}
                                     className="h-12 rounded-xl font-mono text-sm"
                                     onChange={(e) => {
-                                        if (slugManual)
+                                        if (slugManual) {
                                             setSlugValue(e.target.value);
+                                        }
                                     }}
                                 />
                                 <FieldError message={errors.slug} />

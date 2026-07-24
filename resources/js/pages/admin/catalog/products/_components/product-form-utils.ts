@@ -27,8 +27,12 @@ export function centsToDisplay(cents: number | null | undefined): string {
  * e.g. "19.99" → "1999". Returns empty string when the display is empty.
  */
 export function displayToCents(display: string): string {
-    if (!display) return '';
+    if (!display) {
+ return ''; 
+}
+
     const value = Number.parseFloat(display);
+
     return Number.isNaN(value) ? '0' : String(Math.round(value * 100));
 }
 
@@ -37,9 +41,16 @@ export function displayToCents(display: string): string {
  * panels, e.g. "19.99" → "GHS 19.99". Returns "Not set" for empty/invalid input.
  */
 export function pricePreview(display: string): string {
-    if (!display) return 'Not set';
+    if (!display) {
+ return 'Not set'; 
+}
+
     const value = Number.parseFloat(display);
-    if (Number.isNaN(value)) return 'Not set';
+
+    if (Number.isNaN(value)) {
+ return 'Not set'; 
+}
+
     return new Intl.NumberFormat(PRICE_LOCALE, {
         style: 'currency',
         currency: PRICE_CURRENCY,

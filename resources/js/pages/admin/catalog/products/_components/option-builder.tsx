@@ -32,9 +32,11 @@ function TagInput({
 
     const commit = () => {
         const trimmed = draft.trim();
+
         if (trimmed && !values.includes(trimmed)) {
             onChange([...values, trimmed]);
         }
+
         setDraft('');
     };
 
@@ -43,6 +45,7 @@ function TagInput({
             e.preventDefault();
             commit();
         }
+
         if (e.key === 'Backspace' && draft === '' && values.length > 0) {
             onChange(values.slice(0, -1));
         }

@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { centsToDisplay, displayToCents } from './product-form-utils';
-import { StockAdjustPanel } from './stock-adjust-panel';
 import type {
     AdminProductVariant,
     AdminStockItemDetail,
 } from '@/types/admin/catalog';
+import { centsToDisplay, displayToCents } from './product-form-utils';
+import { StockAdjustPanel } from './stock-adjust-panel';
 
 interface VariantMatrixProps {
     product: {

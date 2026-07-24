@@ -126,7 +126,10 @@ export function ProductCreateWizard({
 
     const goToRelativeStep = (delta: number) => {
         const next = steps[activeStepIndex + delta];
-        if (next) setActiveStep(next.key);
+
+        if (next) {
+            setActiveStep(next.key);
+        }
     };
 
     const toggleId = (
@@ -367,13 +370,15 @@ export function ProductCreateWizard({
                                                     value={name}
                                                     onChange={(e) => {
                                                         setName(e.target.value);
-                                                        if (!slugManual)
+
+                                                        if (!slugManual) {
                                                             setSlug(
                                                                 slugify(
                                                                     e.target
                                                                         .value,
                                                                 ),
                                                             );
+                                                        }
                                                     }}
                                                     placeholder="Classic Runner Sneaker"
                                                 />

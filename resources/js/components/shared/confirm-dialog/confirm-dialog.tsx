@@ -120,7 +120,10 @@ export function useConfirmDialog() {
     }, []);
 
     const handleOpenChange = useCallback((open: boolean) => {
-        if (!open) pendingAction.current = null;
+        if (!open) {
+            pendingAction.current = null;
+        }
+
         setState((prev) => ({ ...prev, open }));
     }, []);
 

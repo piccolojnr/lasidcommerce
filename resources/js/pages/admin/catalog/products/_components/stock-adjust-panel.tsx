@@ -4,6 +4,7 @@ import { useState } from 'react';
 import * as StockAdjustmentController from '@/actions/App/Http/Controllers/Admin/Inventory/StockAdjustmentController';
 import * as StockItemController from '@/actions/App/Http/Controllers/Admin/Inventory/StockItemController';
 import { FieldError } from '@/components/shared/forms/field-error';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +17,6 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { AdminStockItemDetail } from '@/types/admin/catalog';
-import { Badge } from '@/components/ui/badge';
 
 // Re-export so variant-matrix can import StockItemDetail from here without
 // knowing the catalog type path.
@@ -65,6 +65,7 @@ function statusBadge(available: number, reorderLevel: number | null) {
     if (available <= 0) {
         return <Badge variant="destructive">Out of stock</Badge>;
     }
+
     if (reorderLevel != null && available <= reorderLevel) {
         return (
             <Badge className="border-amber-300 bg-amber-100 text-amber-800">
@@ -72,6 +73,7 @@ function statusBadge(available: number, reorderLevel: number | null) {
             </Badge>
         );
     }
+
     return (
         <Badge className="border-emerald-300 bg-emerald-100 text-emerald-800">
             In stock
@@ -153,7 +155,9 @@ export function StockAdjustPanel({
                     {...StockAdjustmentController.store.form.post(stockItem)}
                     options={{ preserveScroll: true }}
                     onSuccess={() => {
-                        if (compact) setShowForm(false);
+                        if (compact) {
+setShowForm(false);
+}
                     }}
                     className="rounded-xl border border-border/70 bg-muted/20 p-4"
                 >
