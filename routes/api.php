@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Catalog\CollectionController;
 use App\Http\Controllers\Api\Catalog\ProductController;
 use App\Http\Controllers\Api\Catalog\TagController;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
+use App\Http\Controllers\Api\Storefront\AnnouncementController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -28,6 +29,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('products', [ProductController::class, 'index'])->name('products.index');
         Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
     });
+
+    Route::get('storefront/announcement', [AnnouncementController::class, 'show'])
+        ->name('storefront.announcement.show');
 
     Route::get('cart', [CartController::class, 'show'])->name('cart.show');
     Route::post('cart/items', [CartItemController::class, 'store'])->name('cart.items.store');

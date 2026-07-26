@@ -10,4 +10,13 @@ return [
     'orders_path' => env('STOREFRONT_ORDERS_PATH', '/account/orders'),
     'auth_error_redirect_path' => env('STOREFRONT_AUTH_ERROR_REDIRECT_PATH', '/auth'),
     'magic_link_expire_minutes' => (int) env('STOREFRONT_MAGIC_LINK_EXPIRE_MINUTES', 30),
+    'announcement' => [
+        'enabled' => true,
+        'message' => 'Free next-day delivery in Accra & Kumasi on orders above GHC 250',
+        'cta_label' => null,
+        'cta_url' => null,
+        'variant' => 'default',
+        'starts_at' => null,
+        'ends_at' => null,
+    ],
 ];

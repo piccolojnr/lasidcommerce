@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Settings;
 
+use App\Domain\Storefront\Services\StorefrontAnnouncementService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
@@ -11,7 +12,7 @@ use Inertia\Response as InertiaResponse;
 
 class SettingController extends Controller
 {
-    public function index(): InertiaResponse
+    public function index(StorefrontAnnouncementService $announcementService): InertiaResponse
     {
         $this->authorize('manage', Setting::class);
 
@@ -22,6 +23,7 @@ class SettingController extends Controller
                     ?? config('catalog.new_arrival_window_days', 30)
                 ),
             ],
+            'announcement_settings' => $announcementService->getForAdmin(),
         ]);
     }
 
