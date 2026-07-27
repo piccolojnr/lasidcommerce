@@ -30,8 +30,14 @@ class MagicLinkController extends Controller
         $result = $this->verifyAction->execute((string) $request->input('token'));
 
         if (isset($result['error'])) {
+            $messages = [
+                'magic_link_not_found' => 'This sign-in link is invalid. Request a new one.',
+                'magic_link_already_used' => 'This sign-in link has already been used. Request a new one.',
+                'magic_link_expired' => 'This sign-in link has expired. Request a new one.',
+            ];
+
             return ApiResponse::error(
-                'This sign-in link has expired or is invalid.',
+                $messages[$result['error']] ?? 'This sign-in link is invalid. Request a new one.',
                 ['error_code' => $result['error']],
                 422,
             );

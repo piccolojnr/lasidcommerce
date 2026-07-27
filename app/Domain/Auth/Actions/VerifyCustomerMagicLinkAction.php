@@ -9,6 +9,7 @@ use App\Domain\User\Services\UserSegmentService;
 use App\Models\CustomerMagicLink;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VerifyCustomerMagicLinkAction
 {
@@ -30,8 +31,34 @@ class VerifyCustomerMagicLinkAction
             ->latest()
             ->first();
 
-        if ($magicLink === null || $magicLink->isConsumed() || $magicLink->isExpired()) {
-            return ['error' => 'invalid_or_expired_link'];
+        if ($magicLink === null) {
+            Log::warning('Magic link verification rejected.', [
+                'reason' => 'not_found',
+                'token_fingerprint' => substr(hash('sha256', $token), 0, 12),
+            ]);
+
+            return ['error' => 'magic_link_not_found'];
+        }
+
+        if ($magicLink->isConsumed()) {
+            Log::warning('Magic link verification rejected.', [
+                'reason' => 'already_used',
+                'magic_link_id' => $magicLink->id,
+                'consumed_at' => $magicLink->consumed_at?->toIso8601String(),
+            ]);
+
+            return ['error' => 'magic_link_already_used'];
+        }
+
+        if ($magicLink->isExpired()) {
+            Log::warning('Magic link verification rejected.', [
+                'reason' => 'expired',
+                'magic_link_id' => $magicLink->id,
+                'expires_at' => $magicLink->expires_at->toIso8601String(),
+                'server_time' => now()->toIso8601String(),
+            ]);
+
+            return ['error' => 'magic_link_expired'];
         }
 
         $result = DB::transaction(function () use ($magicLink): array {

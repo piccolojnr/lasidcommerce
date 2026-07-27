@@ -59,7 +59,7 @@ class CustomerAuthTest extends TestCase
         Notification::assertNothingSent();
     }
 
-    public function test_magic_link_request_respects_customer_notification_opt_out(): void
+    public function test_magic_link_request_is_sent_even_when_customer_has_opted_out_of_optional_notifications(): void
     {
         Notification::fake();
 
@@ -74,7 +74,7 @@ class CustomerAuthTest extends TestCase
             'email' => $user->email,
         ])->assertOk();
 
-        Notification::assertNothingSent();
+        Notification::assertSentOnDemand(CustomerMagicLinkNotification::class);
     }
 
     public function test_magic_link_verification_creates_customer_and_adopts_guest_cart(): void
@@ -164,7 +164,7 @@ class CustomerAuthTest extends TestCase
         $this->postJson('/api/v1/auth/magic-link/verify', ['token' => $plainToken])->assertOk();
         $this->postJson('/api/v1/auth/magic-link/verify', ['token' => $plainToken])
             ->assertUnprocessable()
-            ->assertJsonPath('errors.error_code', 'invalid_or_expired_link');
+            ->assertJsonPath('errors.error_code', 'magic_link_already_used');
     }
 
     public function test_password_login_returns_token_and_merges_guest_cart(): void
