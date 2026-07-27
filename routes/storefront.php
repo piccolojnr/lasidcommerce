@@ -18,7 +18,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('magic-link/request', [MagicLinkController::class, 'store'])
         ->middleware('throttle:storefront-magic-links')
         ->name('magic-link.request');
-    Route::get('magic-link/verify', [MagicLinkController::class, 'verify'])
+    Route::post('magic-link/verify', [MagicLinkController::class, 'verify'])
         ->name('magic-link.verify');
 
     Route::post('password/login', [PasswordAuthController::class, 'login'])

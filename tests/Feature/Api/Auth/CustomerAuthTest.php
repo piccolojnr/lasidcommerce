@@ -115,7 +115,7 @@ class CustomerAuthTest extends TestCase
 
         $this->assertNotNull($plainToken);
 
-        $response = $this->getJson('/api/v1/auth/magic-link/verify?token='.$plainToken);
+        $response = $this->postJson('/api/v1/auth/magic-link/verify', ['token' => $plainToken]);
 
         $response->assertOk()
             ->assertJsonPath('data.user.email', 'new-customer@example.com')
@@ -161,8 +161,8 @@ class CustomerAuthTest extends TestCase
 
         $this->assertNotNull($plainToken);
 
-        $this->getJson('/api/v1/auth/magic-link/verify?token='.$plainToken)->assertOk();
-        $this->getJson('/api/v1/auth/magic-link/verify?token='.$plainToken)
+        $this->postJson('/api/v1/auth/magic-link/verify', ['token' => $plainToken])->assertOk();
+        $this->postJson('/api/v1/auth/magic-link/verify', ['token' => $plainToken])
             ->assertUnprocessable()
             ->assertJsonPath('errors.error_code', 'invalid_or_expired_link');
     }

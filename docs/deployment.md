@@ -60,6 +60,11 @@ Edit `/opt/backthred/.env` and set production values, especially:
 - `MAIL_FROM_ADDRESS` using a verified Resend domain or sender
 - Paystack settings
 
+`STOREFRONT_URL` must be the public storefront origin in production, for
+example `https://backthred.com`. It is used when generating magic-link URLs
+and other links that leave the API. Do not leave it set to `localhost` in a
+production environment.
+
 Generate `APP_KEY` locally or on the server:
 
 ```bash

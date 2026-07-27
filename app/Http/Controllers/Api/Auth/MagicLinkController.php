@@ -27,7 +27,7 @@ class MagicLinkController extends Controller
 
     public function verify(Request $request): JsonResponse
     {
-        $result = $this->verifyAction->execute((string) $request->query('token'));
+        $result = $this->verifyAction->execute((string) $request->input('token'));
 
         if (isset($result['error'])) {
             return ApiResponse::error(
