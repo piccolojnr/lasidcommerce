@@ -55,7 +55,9 @@ Edit `/opt/backthred/.env` and set production values, especially:
 - `REDIS_PASSWORD` if you want Redis password protection
 - `STOREFRONT_URL`
 - `CORS_ALLOWED_ORIGINS`
-- mail settings
+- `MAIL_MAILER=resend`
+- `RESEND_API_KEY`
+- `MAIL_FROM_ADDRESS` using a verified Resend domain or sender
 - Paystack settings
 
 Generate `APP_KEY` locally or on the server:
